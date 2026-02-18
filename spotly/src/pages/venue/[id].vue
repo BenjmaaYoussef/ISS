@@ -1,0 +1,457 @@
+<template>
+  <!-- NAVBAR -->
+  <AppNavbarVenue
+    venue-name="Sunset Beach Club"
+    :show-powered-by="true"
+    :show-default-actions="true"
+    @logout="$router.push('/auth')"
+  />
+
+  <v-main>
+    <v-sheet color="background" style="min-height: 100vh; padding-bottom: 80px">
+      <!-- HERO -->
+      <v-sheet
+        color="background"
+        style="position: relative; overflow: hidden; padding: 80px 0 0"
+      >
+        <v-container style="max-width: 1200px; padding: 0 48px">
+          <v-row align="center" style="gap: 0">
+            <!-- LEFT: Info -->
+            <v-col cols="12" md="6" style="padding-right: 48px">
+              <!-- Venue name -->
+              <div
+                style="
+                  font-size: 0.72rem;
+                  letter-spacing: 3px;
+                  text-transform: uppercase;
+                  color: rgba(212, 175, 55, 0.7);
+                  font-family: &quot;Inter&quot;, sans-serif;
+                  margin-bottom: 12px;
+                "
+              >
+                Premium Venue
+              </div>
+              <h1
+                style="
+                  font-family: &quot;Playfair Display&quot;, serif;
+                  font-size: clamp(2rem, 4vw, 3.2rem);
+                  font-weight: 700;
+                  color: #d4af37;
+                  line-height: 1.15;
+                  margin-bottom: 20px;
+                  animation: fadeUp 0.5s ease both;
+                "
+              >
+                Sunset Beach Club
+              </h1>
+
+              <!-- Quote -->
+              <div
+                style="
+                  border-left: 2px solid rgba(212, 175, 55, 0.4);
+                  padding-left: 20px;
+                  margin-bottom: 28px;
+                  animation: fadeUp 0.5s 0.1s ease both;
+                "
+              >
+                <p
+                  style="
+                    font-family: &quot;Playfair Display&quot;, serif;
+                    font-size: 1.1rem;
+                    font-style: italic;
+                    color: rgba(255, 255, 255, 0.7);
+                    line-height: 1.7;
+                  "
+                >
+                  "Premium lounge with sunset view"
+                </p>
+              </div>
+
+              <!-- Tags -->
+              <div
+                class="d-flex flex-wrap"
+                style="
+                  gap: 10px;
+                  margin-bottom: 36px;
+                  animation: fadeUp 0.5s 0.2s ease both;
+                "
+              >
+                <v-chip
+                  v-for="tag in tags"
+                  :key="tag"
+                  variant="outlined"
+                  size="small"
+                  style="
+                    border-color: rgba(212, 175, 55, 0.3);
+                    color: rgba(212, 175, 55, 0.8);
+                    font-family: &quot;Inter&quot;, sans-serif;
+                    font-size: 0.78rem;
+                    letter-spacing: 1px;
+                  "
+                >
+                  # {{ tag }}
+                </v-chip>
+              </div>
+
+              <!-- CTA Buttons -->
+              <div
+                class="d-flex flex-wrap"
+                style="gap: 14px; animation: fadeUp 0.5s 0.3s ease both"
+              >
+                <v-btn
+                  color="primary"
+                  size="large"
+                  style="
+                    font-size: 0.82rem;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                    color: #0a0e14;
+                    font-weight: 600;
+                    padding: 0 32px;
+                    height: 50px;
+                  "
+                >
+                  <v-icon start icon="mdi-silverware-fork-knife" size="18" />
+                  Explore Menu
+                </v-btn>
+                <v-btn
+                  variant="outlined"
+                  color="primary"
+                  size="large"
+                  style="
+                    font-size: 0.82rem;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                    padding: 0 32px;
+                    height: 50px;
+                  "
+                >
+                  <v-icon start icon="mdi-calendar-check" size="18" />
+                  Make Reservation
+                </v-btn>
+              </div>
+
+              <!-- NOUVEAU BOUTON ENVIRONMENT -->
+              <div class="mt-6" style="animation: fadeUp 0.5s 0.4s ease both">
+                <v-btn
+                  color="primary"
+                  to="/environment"
+                  variant="outlined"
+                  size="large"
+                  style="
+                    font-size: 0.82rem;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                    width: 100%;
+                  "
+                >
+                  <v-icon start icon="mdi-beach" size="18" />
+                  Choose Your Environment
+                </v-btn>
+              </div>
+            </v-col>
+
+            <!-- RIGHT: Slideshow -->
+            <v-col
+              cols="12"
+              md="6"
+              style="animation: fadeUp 0.5s 0.15s ease both"
+            >
+              <div
+                style="
+                  position: relative;
+                  border: 1px solid rgba(212, 175, 55, 0.2);
+                  overflow: hidden;
+                  aspect-ratio: 16/10;
+                "
+              >
+                <!-- Slide images -->
+                <div
+                  v-for="(slide, i) in slides"
+                  :key="i"
+                  :style="{
+                    position: 'absolute',
+                    inset: 0,
+                    background: slide.bg,
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    padding: '24px',
+                    opacity: currentSlide === i ? 1 : 0,
+                    transition: 'opacity 0.7s ease',
+                  }"
+                >
+                  <div>
+                    <div
+                      style="
+                        font-family: &quot;Playfair Display&quot;, serif;
+                        font-size: 1.3rem;
+                        color: #fff;
+                        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+                      "
+                    >
+                      {{ slide.title }}
+                    </div>
+                    <div
+                      style="
+                        font-family: &quot;Inter&quot;, sans-serif;
+                        font-size: 0.8rem;
+                        color: rgba(255, 255, 255, 0.6);
+                        margin-top: 4px;
+                      "
+                    >
+                      {{ slide.sub }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Controls -->
+                <div
+                  style="
+                    position: absolute;
+                    bottom: 14px;
+                    right: 16px;
+                    display: flex;
+                    gap: 6px;
+                    z-index: 2;
+                  "
+                >
+                  <div
+                    v-for="(_, i) in slides"
+                    :key="i"
+                    @click="currentSlide = i"
+                    :style="{
+                      width: currentSlide === i ? '20px' : '6px',
+                      height: '6px',
+                      borderRadius: '3px',
+                      background:
+                        currentSlide === i
+                          ? '#D4AF37'
+                          : 'rgba(255,255,255,0.3)',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s',
+                    }"
+                  />
+                </div>
+
+                <!-- Arrows -->
+                <v-btn
+                  icon
+                  variant="text"
+                  size="small"
+                  style="
+                    position: absolute;
+                    left: 8px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: rgba(255, 255, 255, 0.7);
+                    z-index: 2;
+                    background: rgba(0, 0, 0, 0.3);
+                  "
+                  @click="prevSlide"
+                >
+                  <v-icon>mdi-chevron-left</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  variant="text"
+                  size="small"
+                  style="
+                    position: absolute;
+                    right: 8px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: rgba(255, 255, 255, 0.7);
+                    z-index: 2;
+                    background: rgba(0, 0, 0, 0.3);
+                  "
+                  @click="nextSlide"
+                >
+                  <v-icon>mdi-chevron-right</v-icon>
+                </v-btn>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-sheet>
+
+      <v-divider
+        style="border-color: rgba(212, 175, 55, 0.12); margin-top: 64px"
+      />
+
+      <!-- IMPORTANT INFO -->
+      <v-sheet color="background" style="padding: 64px 0">
+        <v-container style="max-width: 1200px; padding: 0 48px">
+          <div
+            style="
+              font-size: 0.72rem;
+              letter-spacing: 3px;
+              text-transform: uppercase;
+              color: rgba(212, 175, 55, 0.6);
+              font-family: &quot;Inter&quot;, sans-serif;
+              margin-bottom: 8px;
+            "
+          >
+            What to know
+          </div>
+          <h2
+            style="
+              font-family: &quot;Playfair Display&quot;, serif;
+              font-size: 1.8rem;
+              color: #fff;
+              margin-bottom: 40px;
+            "
+          >
+            Important Info
+          </h2>
+
+          <v-row style="gap: 0">
+            <v-col
+              v-for="info in importantInfo"
+              :key="info.label"
+              cols="12"
+              sm="6"
+              md="3"
+            >
+              <v-card
+                flat
+                style="
+                  background: #13181f;
+                  border: 1px solid rgba(212, 175, 55, 0.12);
+                  padding: 28px;
+                  height: 100%;
+                  transition: border-color 0.3s;
+                "
+                @mouseenter="
+                  (e) =>
+                    (e.currentTarget.style.borderColor =
+                      'rgba(212,175,55,0.35)')
+                "
+                @mouseleave="
+                  (e) =>
+                    (e.currentTarget.style.borderColor =
+                      'rgba(212,175,55,0.12)')
+                "
+              >
+                <div
+                  style="
+                    width: 44px;
+                    height: 44px;
+                    border: 1.5px solid rgba(212, 175, 55, 0.35);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 16px;
+                  "
+                >
+                  <v-icon :icon="info.icon" color="primary" size="22" />
+                </div>
+                <div
+                  style="
+                    font-size: 0.72rem;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                    color: rgba(212, 175, 55, 0.6);
+                    font-family: &quot;Inter&quot;, sans-serif;
+                    margin-bottom: 6px;
+                  "
+                >
+                  {{ info.label }}
+                </div>
+                <div
+                  style="
+                    font-family: &quot;Playfair Display&quot;, serif;
+                    font-size: 1rem;
+                    color: #fff;
+                    line-height: 1.5;
+                  "
+                >
+                  {{ info.value }}
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-sheet>
+    </v-sheet>
+  </v-main>
+</template>
+
+<script setup>
+import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
+
+const router = useRouter();
+const activeNav = ref("Home");
+const navLinks = [{ label: "Home" }, { label: "Menu" }, { label: "Gallery" }];
+
+const tags = ["Beach", "Luxury", "Sunset"];
+
+const slides = [
+  {
+    title: "Beachfront Terrace",
+    sub: "Open-air seating with panoramic ocean views",
+    bg: "linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)",
+  },
+  {
+    title: "Sunset Lounge",
+    sub: "Premium indoor seating for exclusive events",
+    bg: "linear-gradient(135deg, #2a1a0a 0%, #1a1005 40%, #0f0a02 100%)",
+  },
+  {
+    title: "Private Cabanas",
+    sub: "Intimate reserved spaces along the shoreline",
+    bg: "linear-gradient(135deg, #0a1a2a 0%, #051015 40%, #020a0f 100%)",
+  },
+];
+
+const currentSlide = ref(0);
+let timer = null;
+
+function nextSlide() {
+  currentSlide.value = (currentSlide.value + 1) % slides.length;
+}
+function prevSlide() {
+  currentSlide.value = (currentSlide.value - 1 + slides.length) % slides.length;
+}
+
+onMounted(() => {
+  timer = setInterval(nextSlide, 4000);
+});
+onUnmounted(() => clearInterval(timer));
+
+const importantInfo = [
+  { icon: "mdi-hanger", label: "Dress Code", value: "Smart Casual" },
+  {
+    icon: "mdi-translate",
+    label: "Languages Spoken",
+    value: "English, Arabic, French",
+  },
+  {
+    icon: "mdi-clock-outline",
+    label: "Opening Hours",
+    value: "12:00 PM – 2:00 AM",
+  },
+  {
+    icon: "mdi-map-marker-outline",
+    label: "Location",
+    value: "Beachfront, North Shore",
+  },
+];
+</script>
+
+<style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap");
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

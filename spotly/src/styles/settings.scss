@@ -1,0 +1,42 @@
+/**
+ * src/styles/settings.scss
+ *
+ * Spotly — Global design tokens & Vuetify SASS overrides
+ */
+
+// Google Fonts — loaded via <link> in index.html (see below)
+// Headings : Playfair Display
+// Body / UI : Inter
+
+// Base resets
+:root {
+  --font-heading: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --color-gold: #d4af37;
+  --color-bg: #0a0e14;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: #f5f0e8;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.v-card-title,
+.spotly-heading {
+  font-family: var(--font-heading) !important;
+  color: var(--color-gold);
+}
+
+// Gold outlined button variant (secondary action)
+.v-btn.btn-outlined-gold {
+  border: 1.5px solid var(--color-gold) !important;
+  color: var(--color-gold) !important;
+  background: transparent !important;
+}

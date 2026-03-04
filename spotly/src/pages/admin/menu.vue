@@ -462,10 +462,14 @@ const isEditing = ref(false);
 const itemToDelete = ref(null);
 
 const tabs = [
-  { label: "Dashboard",    value: "dashboard",    route: "/admin/dashboard" },
-  { label: "Builder",      value: "builder",      route: "/admin/floor-plan" },
-  { label: "Menu",         value: "menu",         route: null },
-  { label: "Reservations", value: "reservations", route: "/admin/reservations" },
+  { label: "Dashboard", value: "dashboard", route: "/admin/dashboard" },
+  { label: "Builder", value: "builder", route: "/admin/floor-plan" },
+  { label: "Menu", value: "menu", route: null },
+  {
+    label: "Reservations",
+    value: "reservations",
+    route: "/admin/reservations",
+  },
 ];
 
 const handleTabClick = (tab) => {

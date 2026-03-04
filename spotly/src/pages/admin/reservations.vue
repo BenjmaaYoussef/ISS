@@ -185,20 +185,20 @@ const { snackbar, notifySuccess, notifyError } = useSnackbar();
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 const adminNavLinks = [
-  { key: 'dashboard',    label: 'Dashboard' },
-  { key: 'builder',      label: 'Builder' },
-  { key: 'menu',         label: 'Menu' },
-  { key: 'reservations', label: 'Reservations' },
-]
+  { key: "dashboard", label: "Dashboard" },
+  { key: "builder", label: "Builder" },
+  { key: "menu", label: "Menu" },
+  { key: "reservations", label: "Reservations" },
+];
 const handleNav = (key) => {
   const routes = {
-    dashboard:    '/admin/dashboard',
-    builder:      '/admin/floor-plan',
-    menu:         '/admin/menu',
-    reservations: '/admin/reservations',
-  }
-  if (routes[key]) router.push(routes[key])
-}
+    dashboard: "/admin/dashboard",
+    builder: "/admin/floor-plan",
+    menu: "/admin/menu",
+    reservations: "/admin/reservations",
+  };
+  if (routes[key]) router.push(routes[key]);
+};
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const statusFilter = ref("All");

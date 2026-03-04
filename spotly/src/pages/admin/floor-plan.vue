@@ -45,8 +45,13 @@
           <span class="brand-logo ml-2">Spotly</span>
         </div>
 
-        <button class="dash-back-btn ml-3" @click="router.push('/admin/dashboard')" title="Admin Dashboard">
-          <v-icon size="12" class="mr-1">mdi-view-dashboard-outline</v-icon>Dashboard
+        <button
+          class="dash-back-btn ml-3"
+          @click="router.push('/admin/dashboard')"
+          title="Admin Dashboard"
+        >
+          <v-icon size="12" class="mr-1">mdi-view-dashboard-outline</v-icon
+          >Dashboard
         </button>
 
         <div class="bar-divider mx-4"></div>
@@ -1254,7 +1259,7 @@ const onResizeMove = (e) => {
   const dx = (e.clientX - resizeOrigin.clientX) / zoom.value;
   const dy = (e.clientY - resizeOrigin.clientY) / zoom.value;
   const el = resizeTarget.value;
-  if (el.type.startsWith('table_')) {
+  if (el.type.startsWith("table_")) {
     const delta = Math.round((dx + dy) / GRID);
     el.capacity = Math.max(1, resizeOrigin.origCap + delta);
   } else {
@@ -1268,8 +1273,8 @@ const onResizeEnd = () => {
   pushHistory();
   isResizing.value = false;
   resizeTarget.value = null;
-  document.removeEventListener('mousemove', onResizeMove);
-  document.removeEventListener('mouseup', onResizeEnd);
+  document.removeEventListener("mousemove", onResizeMove);
+  document.removeEventListener("mouseup", onResizeEnd);
 };
 
 const startResize = (e, el) => {
@@ -1281,8 +1286,8 @@ const startResize = (e, el) => {
   resizeOrigin.origCap = el.capacity;
   resizeOrigin.origW = el.w ?? 1;
   resizeOrigin.origH = el.h ?? 1;
-  document.addEventListener('mousemove', onResizeMove);
-  document.addEventListener('mouseup', onResizeEnd, { once: true });
+  document.addEventListener("mousemove", onResizeMove);
+  document.addEventListener("mouseup", onResizeEnd, { once: true });
 };
 
 // ── Undo / Redo ───────────────────────────────────────────────────────────────
@@ -1454,17 +1459,19 @@ const saveLayout = () => {
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.06em;
-  color: #6A7080;
+  color: #6a7080;
   background: none;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 4px 10px;
   border-radius: 6px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
   white-space: nowrap;
 }
 .dash-back-btn:hover {
-  color: #D4AF37;
+  color: #d4af37;
   border-color: rgba(212, 175, 55, 0.3);
 }
 .admin-badge {

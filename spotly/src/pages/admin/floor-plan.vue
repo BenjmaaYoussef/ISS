@@ -779,22 +779,12 @@
 import { ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
+import { useAdminNav } from "@/composables/useAdminNav";
 const router = useRouter();
 
 // ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
-const adminNavLinks = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "builder", label: "Builder" },
-  { key: "menu", label: "Menu" },
-  { key: "reservations", label: "Reservations" },
-];
-const handleNav = (key) => {
-  const routes = {
-    dashboard: "/admin/dashboard",
-    builder: "/admin/floor-plan",
-    menu: "/admin/menu",
-    reservations: "/admin/reservations",
-  };
+const { adminNavLinks, handleNav } = useAdminNav();
+
   if (routes[key]) router.push(routes[key]);
 };
 

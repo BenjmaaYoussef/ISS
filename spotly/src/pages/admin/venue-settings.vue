@@ -506,27 +506,14 @@ import { useRouter } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { useAdminNav } from "@/composables/useAdminNav";
 
 const router = useRouter();
 const { snackbar, notifySuccess } = useSnackbar();
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
-const adminNavLinks = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "builder", label: "Builder" },
-  { key: "menu", label: "Menu" },
-  { key: "reservations", label: "Reservations" },
-  { key: "venue-settings", label: "Venue Settings" },
-];
+const { adminNavLinks, handleNav } = useAdminNav();
 
-const handleNav = (key) => {
-  const routes = {
-    dashboard: "/admin/dashboard",
-    builder: "/admin/floor-plan",
-    menu: "/admin/menu",
-    reservations: "/admin/reservations",
-    "venue-settings": "/admin/venue-settings",
-  };
   if (routes[key]) router.push(routes[key]);
 };
 

@@ -236,24 +236,13 @@ import { useRouter } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import StatCard from "@/components/ui/StatCard.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
+import { useAdminNav } from "@/composables/useAdminNav";
 
 const router = useRouter();
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
-const adminNavLinks = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "builder", label: "Builder" },
-  { key: "menu", label: "Menu" },
-  { key: "reservations", label: "Reservations" },
-];
+const { adminNavLinks, handleNav } = useAdminNav();
 
-const handleNav = (key) => {
-  const routes = {
-    dashboard: "/admin/dashboard",
-    builder: "/admin/floor-plan",
-    menu: "/admin/menu",
-    reservations: "/admin/reservations",
-  };
   if (routes[key]) router.push(routes[key]);
 };
 

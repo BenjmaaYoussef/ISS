@@ -179,24 +179,14 @@ import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import StatCard from "@/components/ui/StatCard.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
+import { useAdminNav } from "@/composables/useAdminNav";
 
 const router = useRouter();
 const { snackbar, notifySuccess, notifyError } = useSnackbar();
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
-const adminNavLinks = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "builder", label: "Builder" },
-  { key: "menu", label: "Menu" },
-  { key: "reservations", label: "Reservations" },
-];
-const handleNav = (key) => {
-  const routes = {
-    dashboard: "/admin/dashboard",
-    builder: "/admin/floor-plan",
-    menu: "/admin/menu",
-    reservations: "/admin/reservations",
-  };
+const { adminNavLinks, handleNav } = useAdminNav();
+
   if (routes[key]) router.push(routes[key]);
 };
 

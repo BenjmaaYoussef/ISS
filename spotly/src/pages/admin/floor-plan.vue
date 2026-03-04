@@ -57,54 +57,59 @@
     </template>
   </AppNavbarApp>
 
-  <!-- ── Secondary Nav: Back + Environment Tabs ── -->
-  <div
-    class="secondary-nav"
-    style="
-      background: rgba(17, 23, 32, 0.97);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-      padding: 0 20px;
-    "
-  >
-    <div class="d-flex align-center" style="height: 44px; gap: 4px">
-      <button
-        class="dash-back-btn"
-        @click="router.push('/admin/dashboard')"
-        title="Admin Dashboard"
-      >
-        <v-icon size="12" class="mr-1">mdi-view-dashboard-outline</v-icon
-        >Dashboard
-      </button>
-      <div class="bar-divider mx-4"></div>
-      <div class="env-tabs">
-        <button
-          v-for="env in environments"
-          :key="env.id"
-          class="env-tab"
-          :class="{ 'env-tab--active': currentEnvId === env.id }"
-          @click="switchEnv(env.id)"
-        >
-          <v-icon
-            size="13"
-            class="mr-1"
-            :style="{ color: currentEnvId === env.id ? '#D4AF37' : '#6A7080' }"
-            >{{ env.icon }}</v-icon
-          >
-          {{ env.name }}
-        </button>
-        <button
-          class="env-tab env-tab--add"
-          @click="openAddEnv"
-          title="Add environment"
-        >
-          <v-icon size="14">mdi-plus</v-icon>
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- MAIN 3-COLUMN BUILDER -->
   <v-main class="spotly-main">
+    <!-- ── Secondary Nav: Back + Environment Tabs ── -->
+    <div
+      class="secondary-nav"
+      style="
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(17, 23, 32, 0.97);
+        border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        padding: 0 20px;
+      "
+    >
+      <div class="d-flex align-center" style="height: 44px; gap: 4px">
+        <button
+          class="dash-back-btn"
+          @click="router.push('/admin/dashboard')"
+          title="Admin Dashboard"
+        >
+          <v-icon size="12" class="mr-1">mdi-view-dashboard-outline</v-icon
+          >Dashboard
+        </button>
+        <div class="bar-divider mx-4"></div>
+        <div class="env-tabs">
+          <button
+            v-for="env in environments"
+            :key="env.id"
+            class="env-tab"
+            :class="{ 'env-tab--active': currentEnvId === env.id }"
+            @click="switchEnv(env.id)"
+          >
+            <v-icon
+              size="13"
+              class="mr-1"
+              :style="{
+                color: currentEnvId === env.id ? '#D4AF37' : '#6A7080',
+              }"
+              >{{ env.icon }}</v-icon
+            >
+            {{ env.name }}
+          </button>
+          <button
+            class="env-tab env-tab--add"
+            @click="openAddEnv"
+            title="Add environment"
+          >
+            <v-icon size="14">mdi-plus</v-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="builder-layout">
       <!-- LEFT: Palette -->
       <transition name="panel-slide-left">
@@ -1566,7 +1571,7 @@ const saveLayout = () => {
 /* Builder layout */
 .builder-layout {
   display: flex;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 108px); /* 64px app bar + 44px secondary nav */
   overflow: hidden;
 }
 .side-panel {

@@ -91,6 +91,12 @@
 <script setup>
 const publicPages = [
   {
+    id: "P1",
+    label: "App Landing Page",
+    route: "/landing",
+    icon: "mdi-home-outline",
+  },
+  {
     id: "P2",
     label: "Global Authentication",
     route: "/auth",
@@ -110,7 +116,7 @@ const publicPages = [
   },
   {
     id: "P5",
-    label: "Visual Seat Selection v4.0 (Booking 2)",
+    label: "Seat Selection v5.0 (Booking 2)",
     route: "/booking/seats",
     icon: "mdi-seat-outline",
   },
@@ -119,6 +125,12 @@ const publicPages = [
     label: "Reservation Confirm & Notes (Booking 3)",
     route: "/booking/confirm",
     icon: "mdi-check-circle-outline",
+  },
+  {
+    id: "P19",
+    label: "Reservation Awaiting Screen (Booking 4)",
+    route: "/booking/awaiting",
+    icon: "mdi-progress-clock",
   },
   {
     id: "P13",

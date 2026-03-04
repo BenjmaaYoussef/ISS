@@ -24,11 +24,13 @@ declare module 'vue-router/auto-routes' {
     '/admin/menu': RouteRecordInfo<'/admin/menu', '/admin/menu', Record<never, never>, Record<never, never>>,
     '/admin/reservations': RouteRecordInfo<'/admin/reservations', '/admin/reservations', Record<never, never>, Record<never, never>>,
     '/auth': RouteRecordInfo<'/auth', '/auth', Record<never, never>, Record<never, never>>,
+    '/booking/awaiting': RouteRecordInfo<'/booking/awaiting', '/booking/awaiting', Record<never, never>, Record<never, never>>,
     '/booking/confirm': RouteRecordInfo<'/booking/confirm', '/booking/confirm', Record<never, never>, Record<never, never>>,
     '/booking/environment': RouteRecordInfo<'/booking/environment', '/booking/environment', Record<never, never>, Record<never, never>>,
     '/booking/seats': RouteRecordInfo<'/booking/seats', '/booking/seats', Record<never, never>, Record<never, never>>,
     '/client/dashboard': RouteRecordInfo<'/client/dashboard', '/client/dashboard', Record<never, never>, Record<never, never>>,
     '/home': RouteRecordInfo<'/home', '/home', Record<never, never>, Record<never, never>>,
+    '/landing': RouteRecordInfo<'/landing', '/landing', Record<never, never>, Record<never, never>>,
     '/menu/[tableId]': RouteRecordInfo<'/menu/[tableId]', '/menu/:tableId', { tableId: ParamValue<true> }, { tableId: ParamValue<false> }>,
     '/modals/delete-constraint': RouteRecordInfo<'/modals/delete-constraint', '/modals/delete-constraint', Record<never, never>, Record<never, never>>,
     '/modals/guest-check-in': RouteRecordInfo<'/modals/guest-check-in', '/modals/guest-check-in', Record<never, never>, Record<never, never>>,
@@ -71,6 +73,10 @@ declare module 'vue-router/auto-routes' {
       routes: '/auth'
       views: never
     }
+    'src/pages/booking/awaiting.vue': {
+      routes: '/booking/awaiting'
+      views: never
+    }
     'src/pages/booking/confirm.vue': {
       routes: '/booking/confirm'
       views: never
@@ -89,6 +95,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/home.vue': {
       routes: '/home'
+      views: never
+    }
+    'src/pages/landing.vue': {
+      routes: '/landing'
       views: never
     }
     'src/pages/menu/[tableId].vue': {

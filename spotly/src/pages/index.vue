@@ -176,6 +176,12 @@ const adminPages = [
     route: "/admin/reservations",
     icon: "mdi-clipboard-check-outline",
   },
+  {
+    id: "P16",
+    label: "Venue Identity Studio",
+    route: "/admin/venue-settings",
+    icon: "mdi-pencil-ruler",
+  },
 ];
 const staffPages = [
   {

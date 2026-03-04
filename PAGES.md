@@ -73,7 +73,7 @@
 | P10     | `/admin/floor-plan`     | Environment Floor Plan Builder | Admin         | ✅ Done    |
 | P11     | `/admin/menu`           | High-End Menu Manager          | Admin         | ✅ Done    |
 | P12     | `/admin/reservations`   | Reservation Approval Queue     | Admin         | ✅ Done    |
-| P16     | `/admin/venue-settings` | Venue Identity Studio          | Admin         | ⬜ Pending |
+| P16     | `/admin/venue-settings` | Venue Identity Studio          | Admin         | ✅ Done    |
 | P18     | `/admin/live`           | Live Venue Command Center      | Admin / Staff | ⬜ Pending |
 
 ---
@@ -103,7 +103,7 @@
 - **Role:** Admin
 - **Description:** The admin defines the venue's complete public identity — name, origin story, ambience tags, dress code, gallery order, mood descriptors, languages, opening hours per environment. A live split-screen preview panel on the right updates in real time as the admin types, showing exactly how the venue card looks to a client.
 - **Key interactions:** Real-time preview sync, image gallery reordering, per-environment hour overrides.
-- **Status:** ⬜ Pending
+- **Status:** ✅ Done
 
 ---
 
@@ -140,6 +140,6 @@
 ## Build Order (Recommended)
 
 1. ~~**P19** — Awaiting Screen~~ ✅ Built
-2. **P16** — Venue Identity Studio _(high visual payoff, admin side)_
+2. ~~**P16** — Venue Identity Studio~~ ✅ Built
 3. **P18** — Live Command Center _(the showstopper demo page)_
 4. **P17** — User Profile _(supporting feature, ties into allergy/staff flow)_

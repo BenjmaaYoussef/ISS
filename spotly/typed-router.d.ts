@@ -23,6 +23,7 @@ declare module 'vue-router/auto-routes' {
     '/admin/floor-plan': RouteRecordInfo<'/admin/floor-plan', '/admin/floor-plan', Record<never, never>, Record<never, never>>,
     '/admin/menu': RouteRecordInfo<'/admin/menu', '/admin/menu', Record<never, never>, Record<never, never>>,
     '/admin/reservations': RouteRecordInfo<'/admin/reservations', '/admin/reservations', Record<never, never>, Record<never, never>>,
+    '/admin/venue-settings': RouteRecordInfo<'/admin/venue-settings', '/admin/venue-settings', Record<never, never>, Record<never, never>>,
     '/auth': RouteRecordInfo<'/auth', '/auth', Record<never, never>, Record<never, never>>,
     '/booking/awaiting': RouteRecordInfo<'/booking/awaiting', '/booking/awaiting', Record<never, never>, Record<never, never>>,
     '/booking/confirm': RouteRecordInfo<'/booking/confirm', '/booking/confirm', Record<never, never>, Record<never, never>>,
@@ -67,6 +68,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/admin/reservations.vue': {
       routes: '/admin/reservations'
+      views: never
+    }
+    'src/pages/admin/venue-settings.vue': {
+      routes: '/admin/venue-settings'
       views: never
     }
     'src/pages/auth.vue': {

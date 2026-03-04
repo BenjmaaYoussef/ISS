@@ -383,7 +383,8 @@
           View Cart
         </button>
         <button class="cart-confirm-btn" @click="goToConfirm">
-          Continue to Confirmation <v-icon size="14" class="ml-1">mdi-arrow-right</v-icon>
+          Continue to Confirmation
+          <v-icon size="14" class="ml-1">mdi-arrow-right</v-icon>
         </button>
       </div>
     </div>

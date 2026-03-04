@@ -109,6 +109,12 @@ const publicPages = [
     icon: "mdi-view-dashboard-outline",
   },
   {
+    id: "P13.1",
+    label: "Client Home (Venue Discovery)",
+    route: "/home",
+    icon: "mdi-home-search-outline",
+  },
+  {
     id: "P15",
     label: "Digital Menu (QR View)",
     route: "/menu/demo",

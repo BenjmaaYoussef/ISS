@@ -27,6 +27,7 @@ declare module 'vue-router/auto-routes' {
     '/booking/environment': RouteRecordInfo<'/booking/environment', '/booking/environment', Record<never, never>, Record<never, never>>,
     '/booking/seats': RouteRecordInfo<'/booking/seats', '/booking/seats', Record<never, never>, Record<never, never>>,
     '/client/dashboard': RouteRecordInfo<'/client/dashboard', '/client/dashboard', Record<never, never>, Record<never, never>>,
+    '/home': RouteRecordInfo<'/home', '/home', Record<never, never>, Record<never, never>>,
     '/menu/[tableId]': RouteRecordInfo<'/menu/[tableId]', '/menu/:tableId', { tableId: ParamValue<true> }, { tableId: ParamValue<false> }>,
     '/staff/dashboard': RouteRecordInfo<'/staff/dashboard', '/staff/dashboard', Record<never, never>, Record<never, never>>,
     '/venue/[id]': RouteRecordInfo<'/venue/[id]', '/venue/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
@@ -77,6 +78,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/client/dashboard.vue': {
       routes: '/client/dashboard'
+      views: never
+    }
+    'src/pages/home.vue': {
+      routes: '/home'
       views: never
     }
     'src/pages/menu/[tableId].vue': {

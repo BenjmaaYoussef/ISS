@@ -204,37 +204,74 @@
 
                 <!-- Cart items (from P5) -->
                 <template v-if="cart.length > 0">
-                  <div v-for="(item, idx) in cart" :key="item.id"
-                    :style="idx > 0 ? 'margin-top:16px; padding-top:16px; border-top:1px solid rgba(212,175,55,0.08)' : ''">
-                    <div class="summary-row" style="margin-bottom:6px;">
-                      <span class="summary-label" style="color:#D4AF37;">Table {{ idx + 1 }}</span>
-                      <span class="summary-value" style="color:#D4AF37;">{{ item.label }}</span>
+                  <div
+                    v-for="(item, idx) in cart"
+                    :key="item.id"
+                    :style="
+                      idx > 0
+                        ? 'margin-top:16px; padding-top:16px; border-top:1px solid rgba(212,175,55,0.08)'
+                        : ''
+                    "
+                  >
+                    <div class="summary-row" style="margin-bottom: 6px">
+                      <span class="summary-label" style="color: #d4af37"
+                        >Table {{ idx + 1 }}</span
+                      >
+                      <span class="summary-value" style="color: #d4af37">{{
+                        item.label
+                      }}</span>
                     </div>
                     <div class="summary-grid">
                       <div class="summary-row">
                         <span class="summary-label">Area</span>
                         <span class="summary-value">{{ item.env }}</span>
                       </div>
-                      <v-divider style="border-color:rgba(212,175,55,0.08); margin:8px 0;"></v-divider>
+                      <v-divider
+                        style="
+                          border-color: rgba(212, 175, 55, 0.08);
+                          margin: 8px 0;
+                        "
+                      ></v-divider>
                       <div class="summary-row">
                         <span class="summary-label">Date</span>
                         <span class="summary-value">{{ item.date }}</span>
                       </div>
-                      <v-divider style="border-color:rgba(212,175,55,0.08); margin:8px 0;"></v-divider>
+                      <v-divider
+                        style="
+                          border-color: rgba(212, 175, 55, 0.08);
+                          margin: 8px 0;
+                        "
+                      ></v-divider>
                       <div class="summary-row">
                         <span class="summary-label">Time</span>
                         <span class="summary-value">{{ item.time }}</span>
                       </div>
-                      <v-divider style="border-color:rgba(212,175,55,0.08); margin:8px 0;"></v-divider>
+                      <v-divider
+                        style="
+                          border-color: rgba(212, 175, 55, 0.08);
+                          margin: 8px 0;
+                        "
+                      ></v-divider>
                       <div class="summary-row">
                         <span class="summary-label">Guests</span>
-                        <span class="summary-value">{{ item.guests }} / {{ item.cap }} capacity</span>
+                        <span class="summary-value"
+                          >{{ item.guests }} / {{ item.cap }} capacity</span
+                        >
                       </div>
                       <template v-if="item.notes">
-                        <v-divider style="border-color:rgba(212,175,55,0.08); margin:8px 0;"></v-divider>
+                        <v-divider
+                          style="
+                            border-color: rgba(212, 175, 55, 0.08);
+                            margin: 8px 0;
+                          "
+                        ></v-divider>
                         <div class="summary-row">
                           <span class="summary-label">Notes</span>
-                          <span class="summary-value" style="font-style:italic; color:#8A8FA8;">{{ item.notes }}</span>
+                          <span
+                            class="summary-value"
+                            style="font-style: italic; color: #8a8fa8"
+                            >{{ item.notes }}</span
+                          >
                         </div>
                       </template>
                     </div>
@@ -243,7 +280,9 @@
                 <template v-else>
                   <div class="summary-row">
                     <span class="summary-label">Status</span>
-                    <span class="summary-value" style="color:#6A7080;">No tables selected</span>
+                    <span class="summary-value" style="color: #6a7080"
+                      >No tables selected</span
+                    >
                   </div>
                 </template>
               </v-card-text>
@@ -298,16 +337,36 @@
                   <template v-if="firstItem">
                     <div class="d-flex align-start">
                       <div class="preview-icon mr-4">🪑</div>
-                      <div style="flex:1">
-                        <div class="preview-title">{{ firstItem.label }}<span v-if="cart.length > 1" style="font-family:Inter,sans-serif; font-size:0.7rem; color:#D4AF37; margin-left:8px;">+{{ cart.length - 1 }} more</span></div>
-                        <div class="preview-meta">{{ firstItem.env }} · {{ totalGuests }} guest{{ totalGuests !== 1 ? 's' : '' }}</div>
+                      <div style="flex: 1">
+                        <div class="preview-title">
+                          {{ firstItem.label
+                          }}<span
+                            v-if="cart.length > 1"
+                            style="
+                              font-family: Inter, sans-serif;
+                              font-size: 0.7rem;
+                              color: #d4af37;
+                              margin-left: 8px;
+                            "
+                            >+{{ cart.length - 1 }} more</span
+                          >
+                        </div>
+                        <div class="preview-meta">
+                          {{ firstItem.env }} · {{ totalGuests }} guest{{
+                            totalGuests !== 1 ? "s" : ""
+                          }}
+                        </div>
                         <div class="preview-datetime">
                           <div class="d-flex align-center mt-3">
-                            <v-icon size="14" style="color:#6a7080">mdi-calendar-blank</v-icon>
+                            <v-icon size="14" style="color: #6a7080"
+                              >mdi-calendar-blank</v-icon
+                            >
                             <span class="ml-2">{{ firstItem.date }}</span>
                           </div>
                           <div class="d-flex align-center mt-1">
-                            <v-icon size="14" style="color:#6a7080">mdi-clock-outline</v-icon>
+                            <v-icon size="14" style="color: #6a7080"
+                              >mdi-clock-outline</v-icon
+                            >
                             <span class="ml-2">{{ firstItem.time }}</span>
                           </div>
                         </div>
@@ -315,7 +374,15 @@
                     </div>
                   </template>
                   <template v-else>
-                    <div style="font-family:Inter,sans-serif; font-size:0.8rem; color:#6A7080; text-align:center; padding:12px 0;">
+                    <div
+                      style="
+                        font-family: Inter, sans-serif;
+                        font-size: 0.8rem;
+                        color: #6a7080;
+                        text-align: center;
+                        padding: 12px 0;
+                      "
+                    >
                       No tables added yet
                     </div>
                   </template>
@@ -436,19 +503,21 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 // Read cart passed from P5 via sessionStorage
-const cart = ref([])
+const cart = ref([]);
 try {
-  const raw = sessionStorage.getItem('spotly_cart')
-  if (raw) cart.value = JSON.parse(raw)
+  const raw = sessionStorage.getItem("spotly_cart");
+  if (raw) cart.value = JSON.parse(raw);
 } catch (_) {}
 
-const firstItem = computed(() => cart.value[0] ?? null)
-const totalGuests = computed(() => cart.value.reduce((s, c) => s + c.guests, 0))
+const firstItem = computed(() => cart.value[0] ?? null);
+const totalGuests = computed(() =>
+  cart.value.reduce((s, c) => s + c.guests, 0),
+);
 
 const form = ref({
   name: "",
@@ -472,25 +541,29 @@ const isFormValid = computed(() => {
   );
 });
 
-const goBack = () => router.push('/booking/seats');
+const goBack = () => router.push("/booking/seats");
 const requestReservation = () => {
-  if (!isFormValid.value) return
+  if (!isFormValid.value) return;
   const payload = {
-    guest: { name: form.value.name, email: form.value.email, phone: form.value.phone },
+    guest: {
+      name: form.value.name,
+      email: form.value.email,
+      phone: form.value.phone,
+    },
     reservations: cart.value,
     globalNotes: form.value.notes,
     submittedAt: new Date().toISOString(),
-  }
-  console.log('Reservation payload:', JSON.stringify(payload, null, 2))
-  sessionStorage.removeItem('spotly_cart')
-  showSuccess.value = true
+  };
+  console.log("Reservation payload:", JSON.stringify(payload, null, 2));
+  sessionStorage.removeItem("spotly_cart");
+  showSuccess.value = true;
 };
 const focusNotes = () => {
   const textarea = document.querySelector("textarea");
   if (textarea) textarea.focus();
 };
 const closeSuccess = () => (showSuccess.value = false);
-const goToReservations = () => router.push('/client/dashboard');
+const goToReservations = () => router.push("/client/dashboard");
 </script>
 
 <style scoped>

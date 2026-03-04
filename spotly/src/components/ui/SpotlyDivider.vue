@@ -36,7 +36,7 @@ defineProps({
   background: linear-gradient(270deg, rgba(212, 175, 55, 0.4), transparent);
 }
 .divider-text {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0.12em;

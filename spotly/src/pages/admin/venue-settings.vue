@@ -703,7 +703,7 @@ const resetForm = () => {
 }
 
 .page-eyebrow {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #d4af37;
   text-transform: uppercase;
@@ -714,7 +714,7 @@ const resetForm = () => {
 }
 
 .page-title {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 2.1rem;
   font-weight: 700;
   color: #f0ead6;
@@ -723,7 +723,7 @@ const resetForm = () => {
 }
 
 .page-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   color: #6a7080;
   margin: 0;
@@ -795,7 +795,7 @@ const resetForm = () => {
   border-radius: 50%;
   background: #d4af37;
   color: #0a0e14;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 700;
   display: flex;
@@ -806,7 +806,7 @@ const resetForm = () => {
 }
 
 .section-title {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   font-weight: 600;
   color: #f0ead6;
@@ -814,7 +814,7 @@ const resetForm = () => {
 }
 
 .section-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   color: #6a7080;
   margin-top: 2px;
@@ -834,7 +834,7 @@ const resetForm = () => {
 }
 
 .field-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 500;
   color: #b8bcc8;
@@ -846,7 +846,7 @@ const resetForm = () => {
 }
 
 .field-hint {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #4a5568;
   margin-top: 2px;
@@ -862,9 +862,9 @@ const resetForm = () => {
 .tag-chip {
   padding: 5px 13px;
   border-radius: 20px;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212,175,55,0.18);
   background: transparent;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   color: #6a7080;
   cursor: pointer;
@@ -902,7 +902,7 @@ const resetForm = () => {
   border-radius: 10px;
   border: 1px solid rgba(212, 175, 55, 0.12);
   background: rgba(255, 255, 255, 0.02);
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.74rem;
   color: #6a7080;
   cursor: pointer;
@@ -936,9 +936,9 @@ const resetForm = () => {
   gap: 7px;
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212,175,55,0.18);
   background: transparent;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   color: #6a7080;
   cursor: pointer;
@@ -977,7 +977,7 @@ const resetForm = () => {
 }
 
 .env-hours-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 500;
   color: #b8bcc8;
@@ -998,7 +998,7 @@ const resetForm = () => {
 }
 
 .hours-dash {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   color: #4a5568;
   font-size: 0.9rem;
 }
@@ -1040,7 +1040,7 @@ const resetForm = () => {
 
 .gallery-item--active .gallery-item-inner {
   border-color: rgba(212, 175, 55, 0.45);
-  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 0 0 1px rgba(212,175,55,0.18);
 }
 
 .gallery-order-badge {
@@ -1052,7 +1052,7 @@ const resetForm = () => {
   border-radius: 50%;
   background: rgba(212, 175, 55, 0.9);
   color: #0a0e14;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem;
   font-weight: 700;
   display: flex;
@@ -1076,7 +1076,7 @@ const resetForm = () => {
 }
 
 .gallery-title-input :deep(.v-field__input) {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   font-weight: 600;
   color: #f0ead6;
@@ -1085,7 +1085,7 @@ const resetForm = () => {
 }
 
 .gallery-sub-input :deep(.v-field__input) {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #6a7080;
   padding: 2px 0;
@@ -1126,7 +1126,7 @@ const resetForm = () => {
 }
 
 .preview-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 600;
   color: #f0ead6;
@@ -1135,7 +1135,7 @@ const resetForm = () => {
 }
 
 .preview-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #4a5568;
   margin-left: auto;
@@ -1144,7 +1144,7 @@ const resetForm = () => {
 
 .venue-preview-card {
   background: #13181f;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212,175,55,0.18);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
@@ -1176,7 +1176,7 @@ const resetForm = () => {
 }
 
 .vp-scene-label {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 0.95rem;
   font-weight: 700;
   color: #f0ead6;
@@ -1184,7 +1184,7 @@ const resetForm = () => {
 }
 
 .vp-scene-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.68rem;
   color: #8a8fa8;
   margin-top: 2px;
@@ -1225,7 +1225,7 @@ const resetForm = () => {
   background: rgba(212, 175, 55, 0.1);
   border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: 12px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   color: #d4af37;
   text-transform: uppercase;
@@ -1233,7 +1233,7 @@ const resetForm = () => {
 }
 
 .vp-name {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 1.3rem;
   font-weight: 700;
   color: #d4af37;
@@ -1245,13 +1245,13 @@ const resetForm = () => {
   display: flex;
   align-items: center;
   gap: 3px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #6a7080;
 }
 
 .vp-tagline {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 0.82rem;
   font-style: italic;
   color: rgba(255, 255, 255, 0.6);
@@ -1261,7 +1261,7 @@ const resetForm = () => {
 }
 
 .vp-desc {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: #6a7080;
   line-height: 1.6;
@@ -1274,10 +1274,10 @@ const resetForm = () => {
 }
 
 .vp-tag {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.68rem;
   color: rgba(212, 175, 55, 0.75);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212,175,55,0.18);
   border-radius: 10px;
   padding: 2px 8px;
   letter-spacing: 0.5px;
@@ -1293,7 +1293,7 @@ const resetForm = () => {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #8a8fa8;
 }
@@ -1309,7 +1309,7 @@ const resetForm = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   padding: 3px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
@@ -1341,7 +1341,7 @@ const resetForm = () => {
   padding: 9px 0;
   background: #d4af37;
   border-radius: 7px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 600;
   color: #0a0e14;
@@ -1356,7 +1356,7 @@ const resetForm = () => {
   padding: 9px 0;
   border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: 7px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #d4af37;
   letter-spacing: 0.04em;
@@ -1368,7 +1368,7 @@ const resetForm = () => {
   align-items: center;
   justify-content: center;
   margin-top: 10px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #4a5568;
   font-style: italic;
@@ -1378,12 +1378,12 @@ const resetForm = () => {
 .gold-btn {
   background: #d4af37 !important;
   color: #0a0e14 !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 4px 14px rgba(212,175,55,0.18);
 }
 
 .gold-btn:hover {
@@ -1393,7 +1393,7 @@ const resetForm = () => {
 .secondary-btn {
   border: 1px solid rgba(212, 175, 55, 0.3) !important;
   color: #d4af37 !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 500;
   text-transform: none;
@@ -1413,7 +1413,7 @@ const resetForm = () => {
 
 :deep(.spotly-input .v-field__input) {
   color: #f0ead6;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.88rem;
 }
 
@@ -1436,13 +1436,13 @@ const resetForm = () => {
 
 :deep(.spotly-input .v-counter) {
   color: #4a5568;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem;
 }
 
 :deep(.spotly-input .v-select__selection-text) {
   color: #f0ead6;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.88rem;
 }
 </style>

@@ -182,7 +182,7 @@ const label = computed(() => statusLabel(props.table.status));
   justify-content: space-between;
 }
 .table-id {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
@@ -210,7 +210,7 @@ const label = computed(() => statusLabel(props.table.status));
   color: #6b7a8d;
 }
 .badge--occupied {
-  background: rgba(212, 175, 55, 0.15);
+  background: rgba(212,175,55,0.18);
   color: #d4af37;
 }
 .badge--reserved {

@@ -13,7 +13,9 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
     AppNavbarApp: typeof import('./src/components/layout/AppNavbarApp.vue')['default']
+    AppNavbarPublic: typeof import('./src/components/layout/AppNavbarPublic.vue')['default']
     AppNavbarVenue: typeof import('./src/components/layout/AppNavbarVenue.vue')['default']
+    BookingStepIndicator: typeof import('./src/components/ui/BookingStepIndicator.vue')['default']
     DeleteConstraintDialog: typeof import('./src/components/dialogs/DeleteConstraintDialog.vue')['default']
     FloorPlanGrid: typeof import('./src/components/floor/FloorPlanGrid.vue')['default']
     GuestCheckInDialog: typeof import('./src/components/dialogs/GuestCheckInDialog.vue')['default']

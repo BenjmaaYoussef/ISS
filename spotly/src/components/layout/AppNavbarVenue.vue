@@ -3,7 +3,7 @@
     flat
     color="background"
     height="64"
-    style="border-bottom: 1px solid rgba(212, 175, 55, 0.15)"
+    style="border-bottom: 1px solid rgba(212, 175, 55, 0.18)"
   >
     <v-container
       class="d-flex align-center"
@@ -44,6 +44,9 @@
           </span>
         </div>
       </div>
+
+      <!-- ── Center slot (step indicators, etc.) ── -->
+      <slot name="center" />
 
       <v-spacer />
 
@@ -121,7 +124,7 @@ defineEmits(["logout"]);
 
 <style scoped>
 .venue-name {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.4rem;
   font-weight: 700;
   color: #d4af37;
@@ -137,7 +140,7 @@ defineEmits(["logout"]);
   margin-top: 1px;
 }
 .powered-text {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;

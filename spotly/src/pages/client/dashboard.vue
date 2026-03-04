@@ -17,7 +17,7 @@
 
   <!-- ── Main Content ── -->
   <v-main class="spotly-main">
-    <div class="dashboard-container pa-8">
+    <div class="spotly-container">
       <!-- Welcome Banner -->
       <div class="welcome-banner mb-8">
         <div class="welcome-glow" />
@@ -187,7 +187,7 @@
               <v-progress-linear
                 :model-value="(pastVisits.length / 10) * 100"
                 color="#D4AF37"
-                bg-color="rgba(212,175,55,0.15)"
+                bg-color="rgba(212,175,55,0.18)"
                 rounded
                 height="4"
                 class="mt-3"
@@ -402,12 +402,12 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
   --gold: #d4af37;
   --midnight: #0a0e14;
   --surface: #13181f;
-  --surface-2: #161d28;
+  --surface-2: var(--color-surface-elevated);
   --green: #2ebb57;
   --rose: #c71585;
   --muted: #6b7a8d;
   background-color: var(--midnight) !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
 }
 
 /* ── Navbar ── */
@@ -417,11 +417,11 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
   backdrop-filter: blur(14px);
 }
 .powered-by {
-  border-left: 1px solid rgba(212, 175, 55, 0.2);
+  border-left: 1px solid rgba(212, 175, 55, 0.18);
   padding-left: 12px;
 }
 .powered-text {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -464,7 +464,7 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
 .welcome-banner {
   position: relative;
   background: var(--surface);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 20px;
   padding: 32px 36px;
   overflow: hidden;
@@ -487,7 +487,7 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
   pointer-events: none;
 }
 .welcome-greeting {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 700;
   color: #fff;
@@ -502,18 +502,18 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(212, 175, 55, 0.18);
   border: 2px solid rgba(212, 175, 55, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.3rem;
   font-weight: 700;
   color: #d4af37;
   box-shadow:
     0 0 0 3px rgba(212, 175, 55, 0.25),
-    0 0 24px rgba(212, 175, 55, 0.15);
+    0 0 24px rgba(212, 175, 55, 0.18);
 }
 
 /* ── Grid ── */
@@ -534,10 +534,10 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
   align-items: center;
   gap: 10px;
   padding-bottom: 14px;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18);
 }
 .section-title {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.05rem;
   font-weight: 600;
   color: #fff;
@@ -588,7 +588,7 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
 }
 
 .res-date {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 600;
   color: #fff;
@@ -669,7 +669,7 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
 /* Empty Card */
 .empty-card {
   background: var(--surface);
-  border: 1px dashed rgba(212, 175, 55, 0.2);
+  border: 1px dashed rgba(212, 175, 55, 0.18);
   border-radius: 14px;
   padding: 40px;
   text-align: center;
@@ -697,12 +697,12 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
   animation: slideUp 0.4s ease both;
 }
 .past-item:hover {
-  border-color: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.18);
   transform: translateX(3px);
 }
 .past-date-badge {
   background: rgba(212, 175, 55, 0.1);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 8px;
   padding: 8px 12px;
   text-align: center;
@@ -710,7 +710,7 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
 }
 .badge-day {
   display: block;
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--gold);
@@ -778,7 +778,7 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
   color: var(--muted);
 }
 .loyalty-tier {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.4rem;
   font-weight: 700;
   color: #d4af37;
@@ -797,7 +797,7 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
 /* ── Dialog ── */
 .dialog-card {
   background: var(--surface-2) !important;
-  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border: 1px solid rgba(212, 175, 55, 0.18) !important;
   border-radius: 16px !important;
   overflow: hidden;
 }
@@ -806,7 +806,7 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
   background: linear-gradient(90deg, var(--gold), transparent);
 }
 .dialog-title {
-  font-family: "Playfair Display", serif !important;
+  font-family: var(--font-heading) !important;
   font-size: 1.25rem !important;
   color: #fff !important;
 }
@@ -833,7 +833,7 @@ const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
 /* Inputs */
 .spotly-input :deep(.v-field) {
   background: rgba(255, 255, 255, 0.04) !important;
-  border-color: rgba(212, 175, 55, 0.2) !important;
+  border-color: rgba(212, 175, 55, 0.18) !important;
   color: #fff !important;
   font-size: 0.85rem;
 }

@@ -9,7 +9,7 @@
 
   <!-- Main Content -->
   <v-main class="spotly-main">
-    <div class="queue-container pa-8">
+    <div class="spotly-container">
       <!-- Page Header -->
       <div class="page-header mb-8">
         <div class="d-flex align-center justify-space-between">
@@ -305,23 +305,23 @@ const reject = (res) => {
   --gold: #d4af37;
   --midnight: #0a0e14;
   --surface: #13181f;
-  --surface-2: #161d28;
+  --surface-2: var(--color-surface-elevated);
   --green: #2ebb57;
   --rose: #c71585;
   --text-muted: #6b7a8d;
   background-color: var(--midnight) !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
 }
 
 /* ── Navbar ── */
 .spotly-navbar {
   background-color: rgba(10, 14, 20, 0.95) !important;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18) !important;
   backdrop-filter: blur(12px);
 }
 
 .logo-text {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.5rem;
   font-weight: 700;
   color: #d4af37;
@@ -330,7 +330,7 @@ const reject = (res) => {
 
 .nav-btn {
   color: var(--text-muted) !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -342,7 +342,7 @@ const reject = (res) => {
 }
 
 .admin-avatar {
-  background: rgba(212, 175, 55, 0.2) !important;
+  background: rgba(212, 175, 55, 0.18) !important;
   border: 1px solid rgba(212, 175, 55, 0.4) !important;
   color: #d4af37 !important;
   font-weight: 700;
@@ -363,7 +363,7 @@ const reject = (res) => {
 
 /* ── Page Header ── */
 .queue-title {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 2.2rem;
   font-weight: 700;
   color: #d4af37;
@@ -385,7 +385,7 @@ const reject = (res) => {
   background: var(--surface) !important;
   border-color: rgba(212, 175, 55, 0.3) !important;
   color: #fff !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
 }
 .filter-select :deep(.v-field__prepend-inner .v-icon) {
@@ -398,7 +398,7 @@ const reject = (res) => {
 }
 .stat-card {
   background: var(--surface);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 12px;
   padding: 20px 32px;
   text-align: center;
@@ -412,14 +412,14 @@ const reject = (res) => {
   transform: translateY(-2px);
 }
 .stat-value {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
 }
 .stat-label {
   color: var(--text-muted);
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -429,7 +429,7 @@ const reject = (res) => {
 /* ── Table ── */
 .table-wrapper {
   background: var(--surface);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 16px;
   overflow: hidden;
 }
@@ -441,12 +441,12 @@ const reject = (res) => {
 }
 .table-th {
   color: var(--gold) !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem !important;
   font-weight: 500 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.1em !important;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18) !important;
   padding: 16px 16px !important;
   white-space: nowrap;
 }
@@ -510,7 +510,7 @@ const reject = (res) => {
 
 /* Chips */
 .vip-chip {
-  background: rgba(212, 175, 55, 0.15) !important;
+  background: rgba(212, 175, 55, 0.18) !important;
   color: var(--gold) !important;
   border: 1px solid rgba(212, 175, 55, 0.3);
   font-weight: 600;

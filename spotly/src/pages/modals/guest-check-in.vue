@@ -58,8 +58,8 @@ function onNoShow(payload) {
 
 <style scoped>
 .modal-backdrop-card {
-  background: #161d28;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: var(--color-surface-elevated);
+  border: 1px solid rgba(212,175,55,0.18);
   border-radius: 14px;
   padding: 20px 24px;
   width: 100%;
@@ -87,7 +87,7 @@ function onNoShow(payload) {
   text-transform: uppercase;
 }
 .mbc-title {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 0.92rem;
   color: #f5f0e8;
 }

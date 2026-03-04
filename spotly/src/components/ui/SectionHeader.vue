@@ -46,7 +46,7 @@ defineProps({
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 14px;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  border-bottom: 1px solid rgba(212,175,55,0.18);
   margin-bottom: 20px;
 }
 .header-left {
@@ -58,7 +58,7 @@ defineProps({
   align-items: center;
 }
 .section-title {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.05rem;
   font-weight: 600;
   color: #fff;
@@ -67,7 +67,7 @@ defineProps({
 .section-subtitle {
   color: #6b7a8d;
   font-size: 0.88rem;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   margin: 4px 0 0;
 }
 

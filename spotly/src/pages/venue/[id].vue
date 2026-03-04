@@ -160,7 +160,7 @@
               <div
                 style="
                   position: relative;
-                  border: 1px solid rgba(212, 175, 55, 0.2);
+                  border: 1px solid rgba(212, 175, 55, 0.18);
                   overflow: hidden;
                   aspect-ratio: 16/10;
                 "
@@ -431,7 +431,7 @@ const importantInfo = [
   {
     icon: "mdi-clock-outline",
     label: "Opening Hours",
-    value: "12:00 PM – 2:00 AM",
+    value: "12:00 PM - 2:00 AM",
   },
   {
     icon: "mdi-map-marker-outline",
@@ -440,18 +440,3 @@ const importantInfo = [
   },
 ];
 </script>
-
-<style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap");
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>

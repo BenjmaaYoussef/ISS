@@ -8,18 +8,28 @@
 // Headings : Playfair Display
 // Body / UI : Inter
 
-// Base resets
+// ─── Design Tokens ───────────────────────────────────────────────────────────
 :root {
   --font-heading: "Playfair Display", Georgia, serif;
   --font-body: "Inter", system-ui, sans-serif;
   --color-gold: #d4af37;
   --color-bg: #0a0e14;
+  --color-surface: #13181f;
+  --color-surface-elevated: #161e2b;
+  --color-text-primary: #f5f0e8;
+  --color-text-secondary: #9aa3b0;
+  --color-text-muted: #6b7a8d;
+  --color-rose: #c71585;
+  --color-green: #2ebb57;
+  --border-card: rgba(212, 175, 55, 0.18);
+  --border-subtle: rgba(212, 175, 55, 0.12);
 }
 
+// ─── Base resets ─────────────────────────────────────────────────────────────
 body {
   font-family: var(--font-body);
   background-color: var(--color-bg);
-  color: #f5f0e8;
+  color: var(--color-text-primary);
 }
 
 h1,
@@ -34,9 +44,186 @@ h6,
   color: var(--color-gold);
 }
 
+// ─── Animations ──────────────────────────────────────────────────────────────
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 // Gold outlined button variant (secondary action)
 .v-btn.btn-outlined-gold {
   border: 1.5px solid var(--color-gold) !important;
   color: var(--color-gold) !important;
   background: transparent !important;
+}
+
+// ─── Brand Logo Text ──────────────────────────────────────────────────────────
+.brand-logo {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  letter-spacing: 0.04em;
+}
+
+// ─── Page-level main wrapper ──────────────────────────────────────────────────
+.spotly-main {
+  background: var(--color-bg);
+  min-height: 100vh;
+}
+
+// ─── Standard page content container ─────────────────────────────────────────
+.spotly-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 48px;
+}
+.spotly-container--wide {
+  max-width: 1600px;
+}
+.spotly-container--narrow {
+  max-width: 960px;
+}
+
+// ─── Form field label ─────────────────────────────────────────────────────────
+.field-label {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+// ─── Section label (mini header without border) ───────────────────────────────
+.section-label-sm {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+// ─── Buttons ──────────────────────────────────────────────────────────────────
+.gold-btn {
+  background: var(--color-gold) !important;
+  color: #0a0e14 !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  border-radius: 4px !important;
+}
+.gold-btn:hover {
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3) !important;
+}
+.gold-btn:disabled {
+  opacity: 0.4 !important;
+}
+
+.secondary-btn {
+  border: 1px solid rgba(212, 175, 55, 0.35) !important;
+  color: var(--color-gold) !important;
+  background: transparent !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em !important;
+  border-radius: 4px !important;
+}
+.secondary-btn:hover {
+  border-color: rgba(212, 175, 55, 0.6) !important;
+  background: rgba(212, 175, 55, 0.06) !important;
+}
+
+.danger-btn {
+  background: rgba(199, 21, 133, 0.15) !important;
+  border: 1px solid var(--color-rose) !important;
+  color: var(--color-rose) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  border-radius: 4px !important;
+}
+
+// ─── Input override (Vuetify → Spotly) ───────────────────────────────────────
+.spotly-input :deep(.v-field) {
+  background: var(--color-surface-elevated);
+  border-radius: 6px;
+  font-family: var(--font-body);
+}
+.spotly-input :deep(.v-field__input) {
+  color: var(--color-text-primary);
+  font-size: 0.88rem;
+  min-height: 44px;
+}
+.spotly-input :deep(.v-field__input::placeholder) {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+.spotly-input :deep(.v-field--focused .v-field__outline) {
+  --v-field-border-color: var(--color-gold);
+}
+
+// ─── Table ───────────────────────────────────────────────────────────────────
+.spotly-table {
+  background: transparent !important;
+}
+.spotly-th {
+  font-family: var(--font-body) !important;
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: var(--color-text-muted) !important;
+  padding: 12px 20px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1) !important;
+}
+.spotly-tr {
+  transition: background 0.15s;
+}
+.spotly-tr:hover {
+  background: rgba(212, 175, 55, 0.04) !important;
+}
+.spotly-td {
+  font-family: var(--font-body) !important;
+  font-size: 0.82rem !important;
+  color: #c0c8d4 !important;
+  padding: 12px 20px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+// ─── Dialog Card ──────────────────────────────────────────────────────────────
+.spotly-dialog-card {
+  background: var(--color-surface-elevated) !important;
+  border: 1px solid var(--border-card) !important;
+  border-radius: 16px !important;
+}
+
+// ─── Step indicator (booking flow) ───────────────────────────────────────────
+.step-label {
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  color: var(--color-gold);
+  font-style: italic;
+}
+.step-title {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }

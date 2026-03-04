@@ -102,7 +102,7 @@ defineEmits(["update:modelValue"]);
 
 .hero-label {
   position: relative;
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 0.95rem;
   font-weight: 700;
   color: #fff;
@@ -114,7 +114,7 @@ defineEmits(["update:modelValue"]);
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.5);
   margin-top: 3px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   letter-spacing: 0.06em;
 }
 

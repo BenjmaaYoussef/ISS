@@ -29,7 +29,7 @@ defineProps({
 <style scoped>
 .stat-card {
   background: #13181f;
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212,175,55,0.18);
   border-radius: 12px;
   padding: 20px 32px;
   text-align: center;
@@ -43,14 +43,14 @@ defineProps({
   transform: translateY(-2px);
 }
 .stat-value {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
 }
 .stat-label {
   color: #6b7a8d;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;

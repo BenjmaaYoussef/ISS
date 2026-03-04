@@ -118,7 +118,7 @@ function handle(event) {
 <style scoped>
 .dialog-card {
   background: #161d28 !important;
-  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border: 1px solid rgba(212,175,55,0.18) !important;
   border-radius: 16px !important;
 }
 
@@ -140,7 +140,7 @@ function handle(event) {
 }
 
 .dialog-title {
-  font-family: "Playfair Display", serif !important;
+  font-family: var(--font-heading) !important;
   font-size: 1.2rem !important;
   color: #fff !important;
 }

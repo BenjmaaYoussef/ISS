@@ -1,147 +1,7 @@
 <template>
   <div>
     <!-- NAVBAR -->
-    <v-app-bar
-      flat
-      color="background"
-      style="border-bottom: 1px solid rgba(212, 175, 55, 0.15)"
-    >
-      <v-container
-        class="d-flex align-center"
-        fluid
-        style="padding: 0 48px !important"
-      >
-        <!-- LOGO -->
-        <div
-          class="d-flex align-center"
-          style="gap: 10px; cursor: pointer"
-          @click="$router.push('/')"
-        >
-          <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
-            <circle cx="50" cy="50" r="46" stroke="#D4AF37" stroke-width="3" />
-            <line
-              x1="50"
-              y1="4"
-              x2="50"
-              y2="18"
-              stroke="#D4AF37"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
-            <line
-              x1="50"
-              y1="82"
-              x2="50"
-              y2="96"
-              stroke="#D4AF37"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
-            <line
-              x1="4"
-              y1="50"
-              x2="18"
-              y2="50"
-              stroke="#D4AF37"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
-            <line
-              x1="82"
-              y1="50"
-              x2="96"
-              y2="50"
-              stroke="#D4AF37"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
-            <line
-              x1="20"
-              y1="20"
-              x2="80"
-              y2="80"
-              stroke="#D4AF37"
-              stroke-width="2"
-              opacity="0.3"
-            />
-            <line
-              x1="80"
-              y1="20"
-              x2="20"
-              y2="80"
-              stroke="#D4AF37"
-              stroke-width="2"
-              opacity="0.3"
-            />
-            <path
-              d="M38 65 L38 45 Q38 38 46 38 L58 38 Q64 38 64 44 L64 52 L44 52 L44 65"
-              stroke="#D4AF37"
-              stroke-width="2.5"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M38 65 L60 65"
-              stroke="#D4AF37"
-              stroke-width="2.5"
-              stroke-linecap="round"
-            />
-            <path
-              d="M42 65 L40 74"
-              stroke="#D4AF37"
-              stroke-width="2.5"
-              stroke-linecap="round"
-            />
-            <path
-              d="M56 65 L58 74"
-              stroke="#D4AF37"
-              stroke-width="2.5"
-              stroke-linecap="round"
-            />
-          </svg>
-          <span
-            style="
-              font-family: &quot;Playfair Display&quot;, serif;
-              font-size: 1.5rem;
-              color: #d4af37;
-              letter-spacing: 1px;
-            "
-          >
-            Spotly
-          </span>
-        </div>
-        <v-spacer />
-        <div class="d-none d-md-flex mr-8" style="gap: 8px">
-          <v-btn
-            v-for="link in navLinks"
-            :key="link"
-            variant="text"
-            style="
-              color: rgba(255, 255, 255, 0.65);
-              font-size: 0.88rem;
-              letter-spacing: 0.5px;
-              border-radius: 0;
-            "
-          >
-            {{ link }}
-          </v-btn>
-        </div>
-        <v-btn
-          variant="outlined"
-          color="primary"
-          to="/auth"
-          style="
-            border-radius: 0;
-            font-size: 0.8rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-          "
-        >
-          Login
-        </v-btn>
-      </v-container>
-    </v-app-bar>
+    <AppNavbarPublic />
 
     <v-main>
       <!-- HERO SECTION -->
@@ -291,8 +151,8 @@
               <v-card
                 class="feature-card"
                 style="
-                  background: #111620;
-                  border: 1px solid rgba(212, 175, 55, 0.15);
+                  background: var(--color-surface);
+                  border: 1px solid rgba(212, 175, 55, 0.18);
                   border-radius: 0;
                   padding: 32px;
                   height: 100%;
@@ -309,7 +169,7 @@
                 @mouseleave="
                   (e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.15)';
+                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.18)';
                   }
                 "
               >
@@ -390,6 +250,7 @@
 </template>
 
 <script setup>
+import AppNavbarPublic from "@/components/layout/AppNavbarPublic.vue";
 const navLinks = ["Features", "Pricing", "About Us"];
 const trustedBrands = ["Le Meridian", "Sunset Beach Club", "Rosewood"];
 const footerLinks = ["Contact", "Terms of Service", "Privacy Policy"];
@@ -416,17 +277,3 @@ const features = [
   },
 ];
 </script>
-
-<style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap");
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>

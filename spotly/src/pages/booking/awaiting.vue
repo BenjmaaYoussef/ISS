@@ -1,5 +1,5 @@
 <template>
-  <v-app :style="{ background: '#0A0E14' }">
+  <div class="page-root">
     <!-- ── Ambient Background ── -->
     <div class="ambient-bg">
       <div class="ambient-orb orb--gold" />
@@ -8,78 +8,24 @@
     </div>
 
     <!-- ── App Bar ── -->
-    <v-app-bar
-      flat
-      :height="64"
-      style="
-        background: rgba(10, 14, 20, 0.7);
-        backdrop-filter: blur(16px);
-        border-bottom: 1px solid rgba(212, 175, 55, 0.12);
-        position: relative;
-        z-index: 10;
-      "
+    <AppNavbarVenue
+      venue-name="Sunset Beach Club"
+      venue-sub-label="Awaiting Decision"
+      :show-powered-by="false"
+      :show-default-actions="false"
     >
-      <v-container fluid class="d-flex align-center px-6">
-        <!-- Logo -->
-        <div class="d-flex align-center">
-          <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
-            <circle
-              cx="20"
-              cy="20"
-              r="18"
-              stroke="#D4AF37"
-              stroke-width="1.5"
-            />
-            <path
-              d="M12 28 C12 20 16 14 20 12 C24 14 28 20 28 28"
-              stroke="#D4AF37"
-              stroke-width="1.5"
-              fill="none"
-            />
-            <path
-              d="M8 20 C12 16 16 14 20 14 C24 14 28 16 32 20"
-              stroke="#D4AF37"
-              stroke-width="1.5"
-              fill="none"
-            />
-            <circle
-              cx="20"
-              cy="20"
-              r="3"
-              stroke="#D4AF37"
-              stroke-width="1.5"
-              fill="none"
-            />
-          </svg>
-          <span class="brand-logo ml-3">Spotly</span>
-        </div>
-
-        <v-spacer />
-
-        <div class="step-indicator d-none d-md-flex align-center">
-          <span class="step-label">Booking</span>
-          <span class="mx-2" style="color: rgba(212, 175, 55, 0.35)">·</span>
-          <span class="step-title">Awaiting Decision</span>
-        </div>
-
-        <v-spacer />
-
+      <template #actions>
         <v-btn
           variant="outlined"
           :ripple="false"
           size="small"
-          class="text-none"
-          style="
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: #d4af37;
-            font-weight: 500;
-          "
+          class="text-none secondary-btn"
           @click="router.push('/client/dashboard')"
         >
           My Reservations
         </v-btn>
-      </v-container>
-    </v-app-bar>
+      </template>
+    </AppNavbarVenue>
 
     <!-- ── Main ── -->
     <v-main style="position: relative; z-index: 2">
@@ -276,7 +222,7 @@
                 <v-btn
                   flat
                   size="small"
-                  class="gold-button flex-1"
+                  class="gold-btn flex-1"
                   @click="simulateDecision('approved')"
                 >
                   <v-icon start size="14">mdi-check-circle</v-icon>
@@ -371,7 +317,7 @@
                 flat
                 size="large"
                 block
-                class="gold-button"
+                class="gold-btn"
                 @click="router.push('/client/dashboard')"
               >
                 View My Dashboard
@@ -445,7 +391,7 @@
                 <v-btn
                   flat
                   size="large"
-                  class="gold-button flex-1"
+                  class="gold-btn flex-1"
                   @click="router.push('/booking/environment')"
                 >
                   <v-icon start size="16">mdi-refresh</v-icon>
@@ -454,7 +400,7 @@
                 <v-btn
                   variant="outlined"
                   size="large"
-                  class="secondary-button flex-1"
+                  class="secondary-btn flex-1"
                   @click="router.push('/client/dashboard')"
                 >
                   My Dashboard
@@ -465,13 +411,14 @@
         </Transition>
       </div>
     </v-main>
-  </v-app>
+  </div>
 </template>
 
 <script setup>
 // P19 — Reservation Awaiting Screen
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
+import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 
 const router = useRouter();
 
@@ -616,23 +563,15 @@ const simulateDecision = (decision) => {
 }
 
 /* ═══ TYPOGRAPHY ═══ */
-.brand-logo {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #d4af37;
-  letter-spacing: 0.04em;
-}
-
 .step-label {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 0.82rem;
   color: #d4af37;
   font-style: italic;
 }
 
 .step-title {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 500;
   color: #f0ead6;
@@ -707,9 +646,9 @@ const simulateDecision = (decision) => {
   align-items: center;
   padding: 6px 14px;
   background: rgba(212, 175, 55, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 20px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   color: #b8bcc8;
   letter-spacing: 0.03em;
@@ -776,7 +715,7 @@ const simulateDecision = (decision) => {
 
 /* ═══ HEADINGS ═══ */
 .await-title {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 2.4rem;
   font-weight: 700;
   color: #f0ead6;
@@ -785,7 +724,7 @@ const simulateDecision = (decision) => {
 }
 
 .await-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   color: #8a8fa8;
   line-height: 1.7;
@@ -876,7 +815,7 @@ const simulateDecision = (decision) => {
 }
 
 .tl-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
   color: #f0ead6;
@@ -888,7 +827,7 @@ const simulateDecision = (decision) => {
 }
 
 .tl-meta {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: #6a7080;
   margin-top: 2px;
@@ -912,7 +851,7 @@ const simulateDecision = (decision) => {
 }
 
 .summary-card-title {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 600;
   color: #d4af37;
@@ -921,7 +860,7 @@ const simulateDecision = (decision) => {
 }
 
 .summary-ref {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem;
   color: #4a5568;
   letter-spacing: 0.06em;
@@ -952,7 +891,7 @@ const simulateDecision = (decision) => {
 }
 
 .summary-row-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem;
   color: #6a7080;
   text-transform: uppercase;
@@ -961,7 +900,7 @@ const simulateDecision = (decision) => {
 }
 
 .summary-row-value {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.88rem;
   font-weight: 600;
   color: #f0ead6;
@@ -974,7 +913,7 @@ const simulateDecision = (decision) => {
   gap: 12px;
   padding: 14px 16px;
   background: rgba(212, 175, 55, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-left: 3px solid #d4af37;
   border-radius: 8px;
 }
@@ -985,7 +924,7 @@ const simulateDecision = (decision) => {
 }
 
 .leave-notice-title {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
   color: #f0ead6;
@@ -993,7 +932,7 @@ const simulateDecision = (decision) => {
 }
 
 .leave-notice-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   color: #8a8fa8;
   line-height: 1.5;
@@ -1020,7 +959,7 @@ const simulateDecision = (decision) => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: #6a7080;
   letter-spacing: 0.04em;
@@ -1050,13 +989,13 @@ const simulateDecision = (decision) => {
   width: 100%;
   padding: 16px 20px;
   background: rgba(19, 24, 31, 0.6);
-  border: 1px dashed rgba(212, 175, 55, 0.2);
+  border: 1px dashed rgba(212, 175, 55, 0.18);
   border-radius: 10px;
   margin-top: auto;
 }
 
 .demo-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem;
   color: #4a5568;
   text-transform: uppercase;
@@ -1131,7 +1070,7 @@ const simulateDecision = (decision) => {
   background: rgba(212, 175, 55, 0.12);
   border: 1px solid rgba(212, 175, 55, 0.5);
   border-radius: 20px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 700;
   color: #d4af37;
@@ -1140,7 +1079,7 @@ const simulateDecision = (decision) => {
 }
 
 .approved-title {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 2.4rem;
   font-weight: 700;
   color: #f0ead6;
@@ -1148,7 +1087,7 @@ const simulateDecision = (decision) => {
 }
 
 .approved-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   color: #8a8fa8;
   line-height: 1.7;
@@ -1184,7 +1123,7 @@ const simulateDecision = (decision) => {
     rgba(212, 175, 55, 0.18) 0%,
     rgba(212, 175, 55, 0.06) 100%
   );
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18);
   padding: 16px 24px;
   display: flex;
   align-items: center;
@@ -1192,7 +1131,7 @@ const simulateDecision = (decision) => {
 }
 
 .keepsake-venue {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 0.95rem;
   font-weight: 700;
   color: #d4af37;
@@ -1205,7 +1144,7 @@ const simulateDecision = (decision) => {
 }
 
 .keepsake-env {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #8a8fa8;
   text-transform: uppercase;
@@ -1229,7 +1168,7 @@ const simulateDecision = (decision) => {
 }
 
 .keepsake-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: #6a7080;
   text-transform: uppercase;
@@ -1237,7 +1176,7 @@ const simulateDecision = (decision) => {
 }
 
 .keepsake-value {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.88rem;
   font-weight: 600;
   color: #f0ead6;
@@ -1253,14 +1192,14 @@ const simulateDecision = (decision) => {
 }
 
 .keepsake-id {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem;
   color: #4a5568;
   letter-spacing: 0.08em;
 }
 
 .keepsake-logo {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 0.85rem;
   font-weight: 700;
   color: rgba(212, 175, 55, 0.5);
@@ -1305,7 +1244,7 @@ const simulateDecision = (decision) => {
   background: rgba(199, 21, 133, 0.1);
   border: 1px solid rgba(199, 21, 133, 0.4);
   border-radius: 20px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 700;
   color: #c71585;
@@ -1314,7 +1253,7 @@ const simulateDecision = (decision) => {
 }
 
 .rejected-title {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 2.2rem;
   font-weight: 700;
   color: #f0ead6;
@@ -1322,7 +1261,7 @@ const simulateDecision = (decision) => {
 }
 
 .rejected-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   color: #8a8fa8;
   line-height: 1.7;
@@ -1331,14 +1270,14 @@ const simulateDecision = (decision) => {
 .decline-card {
   padding: 20px 24px;
   background: rgba(19, 24, 31, 0.8);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-left: 3px solid #d4af37;
   border-radius: 10px;
   max-width: 400px;
 }
 
 .decline-suggestion {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.88rem;
   color: #b8bcc8;
   line-height: 1.6;
@@ -1346,42 +1285,13 @@ const simulateDecision = (decision) => {
 }
 
 /* ═══ BUTTONS ═══ */
-.gold-button {
-  background: #d4af37 !important;
-  color: #0a0e14 !important;
-  font-family: "Inter", sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  box-shadow: 0 4px 18px rgba(212, 175, 55, 0.25);
-  transition: all 0.2s;
-}
-
-.gold-button:hover {
-  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4);
-}
-
-.secondary-button {
-  border: 1px solid rgba(212, 175, 55, 0.35) !important;
-  color: #d4af37 !important;
-  font-family: "Inter", sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
-  text-transform: none;
-  letter-spacing: 0.04em;
-}
-
-.secondary-button:hover {
-  border-color: rgba(212, 175, 55, 0.6) !important;
-  background: rgba(212, 175, 55, 0.06) !important;
-}
+/* .gold-btn and .secondary-btn are global — see settings.scss */
 
 .reject-button {
   background: rgba(199, 21, 133, 0.15) !important;
   color: #c71585 !important;
   border: 1px solid rgba(199, 21, 133, 0.35) !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: none;

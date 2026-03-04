@@ -3,13 +3,33 @@
   <AppNavbarVenue
     venue-name="Sunset Beach Club"
     :show-powered-by="true"
-    :show-default-actions="true"
-    @logout="$router.push('/auth')"
-  />
+    :show-default-actions="false"
+  >
+    <template #actions>
+      <BookingStepIndicator
+        :steps="[
+          { label: 'Environment' },
+          { label: 'Select Table' },
+          { label: 'Confirm' },
+        ]"
+        :current-step="1"
+      />
+      <v-btn
+        variant="text"
+        :ripple="false"
+        class="text-none px-4 ml-4"
+        size="small"
+        style="color: rgba(255, 255, 255, 0.55); font-size: 0.78rem"
+        @click="router.back()"
+      >
+        <v-icon size="14" class="mr-1">mdi-arrow-left</v-icon>Back
+      </v-btn>
+    </template>
+  </AppNavbarVenue>
 
-  <v-main>
+  <v-main class="spotly-main">
     <v-sheet color="background" style="min-height: 100vh; padding-bottom: 80px">
-      <v-container style="max-width: 1100px; padding: 40px 48px">
+      <div class="spotly-container spotly-container--narrow">
         <!-- Back -->
         <v-btn
           variant="text"
@@ -80,7 +100,7 @@
                 border:
                   selected === env.name
                     ? '1px solid #D4AF37'
-                    : '1px solid rgba(212,175,55,0.15)',
+                    : '1px solid rgba(212,175,55,0.18)',
                 background:
                   selected === env.name ? 'rgba(212,175,55,0.05)' : '#13181f',
                 cursor: 'pointer',
@@ -210,7 +230,7 @@
             <v-icon end icon="mdi-arrow-right" size="18" />
           </v-btn>
         </div>
-      </v-container>
+      </div>
     </v-sheet>
   </v-main>
 </template>
@@ -219,6 +239,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
+import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
 
 const router = useRouter();
 const selected = ref("");
@@ -249,19 +270,6 @@ function continueBooking() {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap");
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .env-card:hover {
   border-color: rgba(212, 175, 55, 0.4) !important;
   transform: translateY(-4px);

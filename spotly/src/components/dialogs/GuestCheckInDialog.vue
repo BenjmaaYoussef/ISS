@@ -39,7 +39,7 @@
         </v-btn>
       </v-card-title>
 
-      <v-divider style="border-color: rgba(212, 175, 55, 0.15)" />
+      <v-divider style="border-color: rgba(212,175,55,0.18)" />
 
       <!-- Body -->
       <v-card-text class="px-6 py-4">
@@ -168,7 +168,7 @@ function handle(event) {
 /* ── Card shell ──────────────────────────────────────── */
 .gcid-card {
   background: #161d28 !important;
-  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border: 1px solid rgba(212,175,55,0.18) !important;
   border-radius: 16px !important;
 }
 
@@ -181,7 +181,7 @@ function handle(event) {
 
 /* ── Title ───────────────────────────────────────────── */
 .gcid-title {
-  font-family: "Playfair Display", serif !important;
+  font-family: var(--font-heading) !important;
   font-size: 1rem !important;
   color: #f5f0e8 !important;
 }

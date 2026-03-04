@@ -24,7 +24,7 @@
 
   <!-- ── Main Content ── -->
   <v-main class="spotly-main">
-    <div class="staff-container pa-6">
+    <div class="spotly-container">
       <!-- ── ALERTS PANEL ── -->
       <v-expand-transition>
         <div v-if="alertsPanel" class="alerts-panel mb-5">
@@ -339,13 +339,13 @@ const resolveCall = (t) => {
 .spotly-app {
   --gold: #d4af37;
   --midnight: #0a0e14;
-  --surface: #111720;
-  --surface2: #161d28;
+  --surface: var(--color-surface);
+  --surface2: var(--color-surface-elevated);
   --green: #2ebb57;
   --rose: #c71585;
   --muted: #6b7a8d;
   background: var(--midnight) !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
 }
 
 /* ── Navbar ── */
@@ -355,7 +355,7 @@ const resolveCall = (t) => {
   backdrop-filter: blur(14px);
 }
 .logo-text {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.3rem;
   font-weight: 700;
   color: #d4af37;
@@ -429,7 +429,7 @@ const resolveCall = (t) => {
   align-items: center;
   justify-content: center;
   background: rgba(212, 175, 55, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 10px;
   transition: background 0.2s;
 }
@@ -454,7 +454,7 @@ const resolveCall = (t) => {
 }
 
 .admin-avatar {
-  background: rgba(212, 175, 55, 0.2) !important;
+  background: rgba(212, 175, 55, 0.18) !important;
   border: 1px solid rgba(212, 175, 55, 0.4) !important;
   color: #d4af37 !important;
 }
@@ -475,7 +475,7 @@ const resolveCall = (t) => {
 /* ── Alerts Panel ── */
 .alerts-panel {
   background: var(--surface);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-left: 3px solid var(--gold);
   border-radius: 12px;
   padding: 16px 20px;
@@ -666,7 +666,7 @@ const resolveCall = (t) => {
   justify-content: space-between;
 }
 .table-id {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
@@ -693,7 +693,7 @@ const resolveCall = (t) => {
   color: #6b7a8d;
 }
 .badge--occupied {
-  background: rgba(212, 175, 55, 0.15);
+  background: rgba(212, 175, 55, 0.18);
   color: var(--gold);
 }
 .badge--reserved {
@@ -758,7 +758,7 @@ const resolveCall = (t) => {
 /* ── Guest List Table ── */
 .table-wrapper {
   background: var(--surface);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 14px;
   overflow: hidden;
 }
@@ -770,7 +770,7 @@ const resolveCall = (t) => {
   font-size: 0.7rem !important;
   text-transform: uppercase !important;
   letter-spacing: 0.1em !important;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18) !important;
   padding: 14px 16px !important;
   font-weight: 500 !important;
 }
@@ -798,7 +798,7 @@ const resolveCall = (t) => {
   font-weight: 700 !important;
 }
 .status-chip--occupied {
-  background: rgba(212, 175, 55, 0.15) !important;
+  background: rgba(212, 175, 55, 0.18) !important;
   color: var(--gold) !important;
 }
 .status-chip--reserved {
@@ -817,7 +817,7 @@ const resolveCall = (t) => {
 /* ── Dialog ── */
 .dialog-card {
   background: var(--surface2) !important;
-  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border: 1px solid rgba(212, 175, 55, 0.18) !important;
   border-radius: 16px !important;
 }
 .dialog-strip {
@@ -836,7 +836,7 @@ const resolveCall = (t) => {
   background: linear-gradient(90deg, #334, transparent);
 }
 .dialog-title {
-  font-family: "Playfair Display", serif !important;
+  font-family: var(--font-heading) !important;
   font-size: 1.2rem !important;
   color: #fff !important;
   display: flex;

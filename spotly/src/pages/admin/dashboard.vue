@@ -9,7 +9,7 @@
 
   <!-- ── Main Content ── -->
   <v-main class="spotly-main">
-    <div class="dash-container pa-8">
+    <div class="spotly-container">
       <!-- ── Welcome Banner ── -->
       <div class="welcome-banner mb-8">
         <div class="welcome-glow" />
@@ -437,7 +437,7 @@ const recentReservations = reservations.slice(0, 5);
 .welcome-banner {
   position: relative;
   background: linear-gradient(135deg, #13181f 0%, #1a222d 100%);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 16px;
   padding: 32px 36px;
   overflow: hidden;
@@ -459,7 +459,7 @@ const recentReservations = reservations.slice(0, 5);
   pointer-events: none;
 }
 .welcome-eyebrow {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -469,7 +469,7 @@ const recentReservations = reservations.slice(0, 5);
   align-items: center;
 }
 .welcome-title {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 700;
   color: #f0ead6;
@@ -477,7 +477,7 @@ const recentReservations = reservations.slice(0, 5);
   line-height: 1.1;
 }
 .welcome-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
   color: #6b7a8d;
   margin: 0;
@@ -492,7 +492,7 @@ const recentReservations = reservations.slice(0, 5);
 
 /* ─── Section Label ─── */
 .section-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -539,7 +539,7 @@ const recentReservations = reservations.slice(0, 5);
   height: 44px;
   border-radius: 10px;
   background: rgba(212, 175, 55, 0.1);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -549,14 +549,14 @@ const recentReservations = reservations.slice(0, 5);
   flex: 1;
 }
 .action-title {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.88rem;
   font-weight: 600;
   color: #e8dfc8;
   margin-bottom: 2px;
 }
 .action-desc {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: #6b7a8d;
 }
@@ -591,7 +591,7 @@ const recentReservations = reservations.slice(0, 5);
   flex-shrink: 0;
 }
 .status-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   color: #9aa3b0;
 }
@@ -602,7 +602,7 @@ const recentReservations = reservations.slice(0, 5);
   flex: 1;
 }
 .status-count {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.1rem;
   font-weight: 700;
   width: 24px;
@@ -655,14 +655,14 @@ const recentReservations = reservations.slice(0, 5);
   flex-shrink: 0;
 }
 .env-name {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
   color: #e8dfc8;
   line-height: 1.2;
 }
 .env-meta {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: #6b7a8d;
   margin-top: 2px;
@@ -679,7 +679,7 @@ const recentReservations = reservations.slice(0, 5);
   transition: width 0.4s ease;
 }
 .occ-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem;
   color: #5a6370;
 }
@@ -695,7 +695,7 @@ const recentReservations = reservations.slice(0, 5);
   background: transparent !important;
 }
 .t-th {
-  font-family: "Inter", sans-serif !important;
+  font-family: var(--font-body) !important;
   font-size: 0.68rem !important;
   font-weight: 600 !important;
   text-transform: uppercase !important;
@@ -712,7 +712,7 @@ const recentReservations = reservations.slice(0, 5);
   background: rgba(212, 175, 55, 0.04) !important;
 }
 .t-td {
-  font-family: "Inter", sans-serif !important;
+  font-family: var(--font-body) !important;
   font-size: 0.82rem !important;
   color: #c0c8d4 !important;
   padding: 12px 20px !important;
@@ -751,7 +751,7 @@ const recentReservations = reservations.slice(0, 5);
   border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 .see-all-btn {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   color: #d4af37;
   background: none;

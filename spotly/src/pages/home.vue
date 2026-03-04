@@ -30,7 +30,7 @@
 
   <!-- ── Main Content ── -->
   <v-main class="spotly-main">
-    <div class="home-container pa-8">
+    <div class="spotly-container">
       <!-- ── Welcome Banner ── -->
       <div class="welcome-banner mb-8">
         <div class="welcome-glow" />
@@ -272,7 +272,7 @@ function handleLogout() {
   --surface: #13181f;
   --muted: #6b7a8d;
   background: #0a0e14 !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
 }
 
 .home-container {
@@ -306,7 +306,7 @@ function handleLogout() {
 .welcome-banner {
   position: relative;
   background: var(--surface);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 20px;
   padding: 32px 36px;
   overflow: hidden;
@@ -329,7 +329,7 @@ function handleLogout() {
   pointer-events: none;
 }
 .welcome-greeting {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 700;
   color: #fff;
@@ -347,18 +347,18 @@ function handleLogout() {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(212, 175, 55, 0.18);
   border: 2px solid rgba(212, 175, 55, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.3rem;
   font-weight: 700;
   color: #d4af37;
   box-shadow:
     0 0 0 3px rgba(212, 175, 55, 0.25),
-    0 0 24px rgba(212, 175, 55, 0.15);
+    0 0 24px rgba(212, 175, 55, 0.18);
 }
 
 /* ── Discovery Panel ── */
@@ -372,7 +372,7 @@ function handleLogout() {
 /* ── Search input ── */
 .spotly-input :deep(.v-field) {
   background: rgba(255, 255, 255, 0.04) !important;
-  border-color: rgba(212, 175, 55, 0.2) !important;
+  border-color: rgba(212, 175, 55, 0.18) !important;
   color: #fff !important;
   font-size: 0.88rem;
   border-radius: 10px;
@@ -390,7 +390,7 @@ function handleLogout() {
 /* ── Filter label ── */
 .filter-label {
   font-size: 0.72rem;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: #6b7a8d;
@@ -414,7 +414,7 @@ function handleLogout() {
   color: #d4af37 !important;
 }
 .filter-chip--active {
-  background: rgba(212, 175, 55, 0.15) !important;
+  background: rgba(212, 175, 55, 0.18) !important;
   border-color: rgba(212, 175, 55, 0.5) !important;
   color: #d4af37 !important;
   font-weight: 600;
@@ -441,7 +441,11 @@ function handleLogout() {
 }
 
 .venue-image-area {
-  background: linear-gradient(135deg, #1a2332 0%, #13181f 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-surface-elevated) 0%,
+    #13181f 100%
+  );
   height: 200px;
   display: flex;
   align-items: center;
@@ -470,7 +474,7 @@ function handleLogout() {
   flex: 1;
 }
 .venue-name {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.05rem;
   font-weight: 600;
   color: #fff;
@@ -485,7 +489,7 @@ function handleLogout() {
 .ambience-chip {
   background: rgba(212, 175, 55, 0.08) !important;
   color: rgba(212, 175, 55, 0.75) !important;
-  border: 1px solid rgba(212, 175, 55, 0.15) !important;
+  border: 1px solid rgba(212, 175, 55, 0.18) !important;
   font-size: 0.7rem !important;
 }
 
@@ -504,7 +508,7 @@ function handleLogout() {
 /* ── Empty State ── */
 .empty-state {
   background: var(--surface);
-  border: 1px dashed rgba(212, 175, 55, 0.2);
+  border: 1px dashed rgba(212, 175, 55, 0.18);
   border-radius: 14px;
   padding: 48px;
   text-align: center;

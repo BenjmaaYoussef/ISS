@@ -1,522 +1,466 @@
 <template>
-  <v-app :style="{ background: '#0A0E14' }">
-    <!-- APP BAR -->
-    <v-app-bar
-      flat
-      :height="58"
-      style="
-        background: rgba(17, 23, 32, 0.97);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(212, 175, 55, 0.18);
-        z-index: 100;
-      "
-    >
-      <v-container fluid class="d-flex align-center px-6">
-        <div class="d-flex align-center">
-          <svg width="30" height="30" viewBox="0 0 40 40" fill="none">
-            <circle
-              cx="20"
-              cy="20"
-              r="18"
-              stroke="#D4AF37"
-              stroke-width="1.5"
-            />
-            <path
-              d="M12 28 C12 20 16 14 20 12 C24 14 28 20 28 28"
-              stroke="#D4AF37"
-              stroke-width="1.5"
-              fill="none"
-            />
-            <path
-              d="M8 20 C12 16 16 14 20 14 C24 14 28 16 32 20"
-              stroke="#D4AF37"
-              stroke-width="1.5"
-              fill="none"
-            />
-            <circle
-              cx="20"
-              cy="20"
-              r="3"
-              stroke="#D4AF37"
-              stroke-width="1.5"
-              fill="none"
-            />
-          </svg>
-          <span class="brand-logo ml-3">Spotly</span>
-        </div>
+  <!-- APP BAR -->
+  <AppNavbarVenue
+    venue-name="Sunset Beach Club"
+    :show-powered-by="true"
+    :show-default-actions="false"
+  >
+    <template #actions>
+      <BookingStepIndicator
+        :steps="[
+          { label: 'Environment' },
+          { label: 'Select Table' },
+          { label: 'Confirm' },
+        ]"
+        :current-step="2"
+      />
+      <v-btn
+        variant="text"
+        :ripple="false"
+        class="text-none px-4 ml-4"
+        size="small"
+        style="color: rgba(255, 255, 255, 0.55); font-size: 0.78rem"
+        @click="$router.push('/booking/environment')"
+      >
+        <v-icon size="14" class="mr-1">mdi-arrow-left</v-icon>Back
+      </v-btn>
+    </template>
+  </AppNavbarVenue>
 
-        <v-spacer />
-
-        <div class="step-indicator d-flex align-center">
-          <div class="step-pip step-pip--done">1</div>
-          <div class="step-line step-line--done"></div>
-          <div class="step-pip step-pip--active">2</div>
-          <div class="step-line"></div>
-          <div class="step-pip">3</div>
-          <span class="step-lbl ml-3">Select Your Table</span>
-        </div>
-
-        <v-spacer />
-
-        <v-btn
-          variant="outlined"
-          :ripple="false"
-          class="text-none px-4 mr-2"
-          size="small"
-          style="
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: #d4af37;
-            font-size: 0.78rem;
-          "
-          @click="$router.push('/booking/environment')"
-        >
-          <v-icon size="14" class="mr-1">mdi-arrow-left</v-icon>Back
-        </v-btn>
-        <div
-          class="cart-nav-btn"
-          v-if="cart.length > 0"
-          @click="showCartSheet = true"
-        >
-          <v-icon size="15" class="mr-1">mdi-cart-outline</v-icon>
-          {{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }}
-        </div>
-      </v-container>
-    </v-app-bar>
-
-    <!-- MAIN LAYOUT -->
-    <v-main style="padding-top: 58px">
-      <div class="booking-layout">
-        <!-- CENTER: Floor plan -->
-        <div class="floor-col">
-          <!-- Env tabs -->
-          <div class="env-tab-bar">
-            <div class="env-tabs">
-              <button
-                v-for="env in floorPlan.environments"
-                :key="env.id"
-                class="env-tab"
-                :class="{ 'env-tab--active': currentEnvId === env.id }"
-                @click="switchEnv(env.id)"
+  <!-- MAIN LAYOUT -->
+  <v-main class="spotly-main">
+    <div class="booking-layout">
+      <!-- CENTER: Floor plan -->
+      <div class="floor-col">
+        <!-- Env tabs -->
+        <div class="env-tab-bar">
+          <div class="env-tabs">
+            <button
+              v-for="env in floorPlan.environments"
+              :key="env.id"
+              class="env-tab"
+              :class="{ 'env-tab--active': currentEnvId === env.id }"
+              @click="switchEnv(env.id)"
+            >
+              <v-icon
+                size="13"
+                class="mr-1"
+                :style="{
+                  color: currentEnvId === env.id ? '#D4AF37' : '#6A7080',
+                }"
+                >{{ env.icon }}</v-icon
               >
-                <v-icon
-                  size="13"
-                  class="mr-1"
-                  :style="{
-                    color: currentEnvId === env.id ? '#D4AF37' : '#6A7080',
-                  }"
-                  >{{ env.icon }}</v-icon
-                >
-                {{ env.name }}
-              </button>
-            </div>
-            <div class="legend">
-              <span class="legend-dot legend-dot--avail"></span
-              ><span class="legend-lbl">Available</span>
-              <span class="legend-dot legend-dot--rsvd ml-3"></span
-              ><span class="legend-lbl">Reserved</span>
-              <span class="legend-dot legend-dot--cart ml-3"></span
-              ><span class="legend-lbl">In cart</span>
-            </div>
+              {{ env.name }}
+            </button>
           </div>
+          <div class="legend">
+            <span class="legend-dot legend-dot--avail"></span
+            ><span class="legend-lbl">Available</span>
+            <span class="legend-dot legend-dot--rsvd ml-3"></span
+            ><span class="legend-lbl">Reserved</span>
+            <span class="legend-dot legend-dot--cart ml-3"></span
+            ><span class="legend-lbl">In cart</span>
+          </div>
+        </div>
 
-          <!-- Canvas -->
-          <div class="canvas-scroll">
-            <div class="canvas-wrap">
-              <!-- Grid -->
-              <svg
-                class="grid-svg"
-                :width="currentEnv?.canvas.width ?? 1000"
-                :height="currentEnv?.canvas.height ?? 660"
-              >
-                <defs>
-                  <pattern
-                    id="g40"
-                    width="40"
-                    height="40"
-                    patternUnits="userSpaceOnUse"
-                  >
-                    <path
-                      d="M 40 0 L 0 0 0 40"
-                      fill="none"
-                      stroke="rgba(212,175,55,0.05)"
-                      stroke-width="0.5"
-                    />
-                  </pattern>
-                  <pattern
-                    id="g200"
-                    width="200"
-                    height="200"
-                    patternUnits="userSpaceOnUse"
-                  >
-                    <path
-                      d="M 200 0 L 0 0 0 200"
-                      fill="none"
-                      stroke="rgba(212,175,55,0.1)"
-                      stroke-width="1"
-                    />
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#g40)" />
-                <rect width="100%" height="100%" fill="url(#g200)" />
-              </svg>
+        <!-- Canvas -->
+        <div class="canvas-scroll">
+          <div class="canvas-wrap">
+            <!-- Grid -->
+            <svg
+              class="grid-svg"
+              :width="currentEnv?.canvas.width ?? 1000"
+              :height="currentEnv?.canvas.height ?? 660"
+            >
+              <defs>
+                <pattern
+                  id="g40"
+                  width="40"
+                  height="40"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 40 0 L 0 0 0 40"
+                    fill="none"
+                    stroke="rgba(212,175,55,0.05)"
+                    stroke-width="0.5"
+                  />
+                </pattern>
+                <pattern
+                  id="g200"
+                  width="200"
+                  height="200"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 200 0 L 0 0 0 200"
+                    fill="none"
+                    stroke="rgba(212,175,55,0.1)"
+                    stroke-width="1"
+                  />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#g40)" />
+              <rect width="100%" height="100%" fill="url(#g200)" />
+            </svg>
 
-              <!-- Elements -->
-              <div
-                v-for="el in currentEnvElements"
-                :key="el.id"
-                class="placed-el"
-                :class="[
-                  el.type.startsWith('table_')
-                    ? getTableClass(el)
-                    : 'placed-el--decor',
-                ]"
-                :style="getElementStyle(el)"
-                @click="onTableClick(el)"
-              >
-                <!-- Table -->
-                <template v-if="el.type.startsWith('table_')">
-                  <div
-                    class="table-unit"
-                    :class="{ 'table-unit--round': isRound(el) }"
-                  >
-                    <div class="chair-row">
-                      <div
-                        v-for="i in getChairs(el).top"
-                        :key="'t' + i"
-                        class="chair chair--h"
-                      ></div>
-                    </div>
+            <!-- Elements -->
+            <div
+              v-for="el in currentEnvElements"
+              :key="el.id"
+              class="placed-el"
+              :class="[
+                el.type.startsWith('table_')
+                  ? getTableClass(el)
+                  : 'placed-el--decor',
+              ]"
+              :style="getElementStyle(el)"
+              @click="onTableClick(el)"
+            >
+              <!-- Table -->
+              <template v-if="el.type.startsWith('table_')">
+                <div
+                  class="table-unit"
+                  :class="{ 'table-unit--round': isRound(el) }"
+                >
+                  <div class="chair-row">
                     <div
-                      class="table-surface"
-                      :class="{ 'table-surface--round': isRound(el) }"
-                    >
-                      <v-icon
-                        v-if="isInCart(el.id)"
-                        size="14"
-                        style="
-                          color: #d4af37;
-                          position: absolute;
-                          top: 50%;
-                          left: 50%;
-                          transform: translate(-50%, -50%);
-                        "
-                        >mdi-cart</v-icon
-                      >
-                    </div>
-                    <div class="chair-row">
-                      <div
-                        v-for="i in getChairs(el).bottom"
-                        :key="'b' + i"
-                        class="chair chair--h"
-                      ></div>
-                    </div>
+                      v-for="i in getChairs(el).top"
+                      :key="'t' + i"
+                      class="chair chair--h"
+                    ></div>
                   </div>
-                  <div class="el-label">
-                    <span class="el-name">{{ el.label }}</span>
-                    <span class="el-seats">{{ el.capacity }}p</span>
-                  </div>
-                </template>
-
-                <!-- Decor / structure -->
-                <template v-else>
                   <div
-                    class="struct-el"
-                    :class="'struct-el--' + el.type"
-                    :style="getStructStyle(el)"
+                    class="table-surface"
+                    :class="{ 'table-surface--round': isRound(el) }"
                   >
-                    <v-icon size="18" class="struct-icon">{{
-                      getElementDef(el.type)?.icon
-                    }}</v-icon>
-                    <span v-if="(el.w ?? 1) > 1" class="struct-label">{{
-                      el.label
-                    }}</span>
+                    <v-icon
+                      v-if="isInCart(el.id)"
+                      size="14"
+                      style="
+                        color: #d4af37;
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                      "
+                      >mdi-cart</v-icon
+                    >
                   </div>
-                </template>
-              </div>
+                  <div class="chair-row">
+                    <div
+                      v-for="i in getChairs(el).bottom"
+                      :key="'b' + i"
+                      class="chair chair--h"
+                    ></div>
+                  </div>
+                </div>
+                <div class="el-label">
+                  <span class="el-name">{{ el.label }}</span>
+                  <span class="el-seats">{{ el.capacity }}p</span>
+                </div>
+              </template>
+
+              <!-- Decor / structure -->
+              <template v-else>
+                <div
+                  class="struct-el"
+                  :class="'struct-el--' + el.type"
+                  :style="getStructStyle(el)"
+                >
+                  <v-icon size="18" class="struct-icon">{{
+                    getElementDef(el.type)?.icon
+                  }}</v-icon>
+                  <span v-if="(el.w ?? 1) > 1" class="struct-label">{{
+                    el.label
+                  }}</span>
+                </div>
+              </template>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- RIGHT: Table detail panel -->
-        <transition name="panel-in">
-          <div v-if="selectedTable" class="detail-panel">
-            <div class="dp-head">
-              <div>
-                <div class="dp-title">{{ selectedTable.label }}</div>
-                <div class="dp-sub">
-                  <v-icon size="12" class="mr-1" style="color: #6a7080"
-                    >mdi-map-marker-outline</v-icon
-                  >
-                  {{ currentEnv?.name }}
-                </div>
-              </div>
-              <button class="dp-close" @click="selectedTable = null">
-                <v-icon size="16">mdi-close</v-icon>
-              </button>
-            </div>
-
-            <!-- Status -->
-            <div class="dp-status-row">
-              <span
-                class="status-chip"
-                :class="
-                  selectedTable.status === 'reserved'
-                    ? 'status-chip--rsvd'
-                    : isInCart(selectedTable.id)
-                      ? 'status-chip--cart'
-                      : 'status-chip--avail'
-                "
-              >
-                {{
-                  selectedTable.status === "reserved"
-                    ? "Reserved"
-                    : isInCart(selectedTable.id)
-                      ? "In your cart"
-                      : "Available"
-                }}
-              </span>
-              <div class="dp-cap">
-                <v-icon size="13" class="mr-1" style="color: #6a7080"
-                  >mdi-account-group-outline</v-icon
+      <!-- RIGHT: Table detail panel -->
+      <transition name="panel-in">
+        <div v-if="selectedTable" class="detail-panel">
+          <div class="dp-head">
+            <div>
+              <div class="dp-title">{{ selectedTable.label }}</div>
+              <div class="dp-sub">
+                <v-icon size="12" class="mr-1" style="color: #6a7080"
+                  >mdi-map-marker-outline</v-icon
                 >
-                Up to {{ selectedTable.capacity }} guests
+                {{ currentEnv?.name }}
               </div>
             </div>
+            <button class="dp-close" @click="selectedTable = null">
+              <v-icon size="16">mdi-close</v-icon>
+            </button>
+          </div>
 
-            <template v-if="selectedTable.status !== 'reserved'">
-              <div class="dp-divider"></div>
-
-              <!-- Date -->
-              <div class="dp-field">
-                <label class="dp-lbl">Date</label>
-                <div class="date-pills">
-                  <button
-                    v-for="d in dateOptions"
-                    :key="d.value"
-                    class="date-pill"
-                    :class="{ 'date-pill--on': bookingDate === d.value }"
-                    @click="bookingDate = d.value"
-                  >
-                    <div class="date-pill-day">{{ d.day }}</div>
-                    <div class="date-pill-num">{{ d.num }}</div>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Time -->
-              <div class="dp-field">
-                <label class="dp-lbl">Time</label>
-                <div class="time-pills">
-                  <button
-                    v-for="t in timeSlots"
-                    :key="t"
-                    class="time-pill"
-                    :class="{ 'time-pill--on': bookingTime === t }"
-                    @click="bookingTime = t"
-                  >
-                    {{ t }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Guests -->
-              <div class="dp-field">
-                <label class="dp-lbl">Guests</label>
-                <div class="guest-stepper">
-                  <button
-                    class="gs-btn"
-                    @click="guestCount = Math.max(1, guestCount - 1)"
-                  >
-                    −
-                  </button>
-                  <span class="gs-val">{{ guestCount }}</span>
-                  <button
-                    class="gs-btn"
-                    @click="
-                      guestCount = Math.min(
-                        selectedTable.capacity,
-                        guestCount + 1,
-                      )
-                    "
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <!-- Notes -->
-              <div class="dp-field">
-                <label class="dp-lbl">Special Requests</label>
-                <textarea
-                  v-model="specialRequests"
-                  class="dp-notes"
-                  placeholder="Allergies, celebrations, preferences…"
-                  rows="2"
-                ></textarea>
-              </div>
-
-              <div class="dp-divider"></div>
-
-              <!-- Add to cart -->
-              <button
-                v-if="!isInCart(selectedTable.id)"
-                class="add-cart-btn"
-                :disabled="!bookingDate || !bookingTime"
-                @click="addToCart"
+          <!-- Status -->
+          <div class="dp-status-row">
+            <span
+              class="status-chip"
+              :class="
+                selectedTable.status === 'reserved'
+                  ? 'status-chip--rsvd'
+                  : isInCart(selectedTable.id)
+                    ? 'status-chip--cart'
+                    : 'status-chip--avail'
+              "
+            >
+              {{
+                selectedTable.status === "reserved"
+                  ? "Reserved"
+                  : isInCart(selectedTable.id)
+                    ? "In your cart"
+                    : "Available"
+              }}
+            </span>
+            <div class="dp-cap">
+              <v-icon size="13" class="mr-1" style="color: #6a7080"
+                >mdi-account-group-outline</v-icon
               >
-                <v-icon size="16" class="mr-2">mdi-cart-plus</v-icon>
-                Add to Cart
-              </button>
-              <div v-else class="in-cart-cta">
-                <div class="in-cart-msg">
-                  <v-icon size="14" class="mr-1" style="color: #d4af37"
-                    >mdi-check-circle</v-icon
-                  >
-                  Added · {{ bookingDate }}, {{ bookingTime }},
-                  {{ guestCount }}p
-                </div>
+              Up to {{ selectedTable.capacity }} guests
+            </div>
+          </div>
+
+          <template v-if="selectedTable.status !== 'reserved'">
+            <div class="dp-divider"></div>
+
+            <!-- Date -->
+            <div class="dp-field">
+              <label class="dp-lbl">Date</label>
+              <div class="date-pills">
                 <button
-                  class="remove-btn"
-                  @click="removeFromCart(selectedTable.id)"
+                  v-for="d in dateOptions"
+                  :key="d.value"
+                  class="date-pill"
+                  :class="{ 'date-pill--on': bookingDate === d.value }"
+                  @click="bookingDate = d.value"
                 >
-                  Remove
+                  <div class="date-pill-day">{{ d.day }}</div>
+                  <div class="date-pill-num">{{ d.num }}</div>
                 </button>
               </div>
-            </template>
+            </div>
 
-            <template v-else>
-              <div class="dp-divider"></div>
-              <div class="reserved-msg">
-                <v-icon
-                  size="28"
-                  style="color: rgba(199, 21, 133, 0.4); margin-bottom: 8px"
-                  >mdi-lock-outline</v-icon
+            <!-- Time -->
+            <div class="dp-field">
+              <label class="dp-lbl">Time</label>
+              <div class="time-pills">
+                <button
+                  v-for="t in timeSlots"
+                  :key="t"
+                  class="time-pill"
+                  :class="{ 'time-pill--on': bookingTime === t }"
+                  @click="bookingTime = t"
                 >
-                <p>
-                  This table is already reserved and not available for booking.
-                </p>
+                  {{ t }}
+                </button>
               </div>
-            </template>
-          </div>
+            </div>
 
-          <!-- Idle prompt when nothing selected -->
-          <div v-else class="detail-panel detail-panel--idle">
-            <v-icon
-              size="44"
-              style="color: rgba(212, 175, 55, 0.18); margin-bottom: 14px"
-              >mdi-cursor-default-click-outline</v-icon
+            <!-- Guests -->
+            <div class="dp-field">
+              <label class="dp-lbl">Guests</label>
+              <div class="guest-stepper">
+                <button
+                  class="gs-btn"
+                  @click="guestCount = Math.max(1, guestCount - 1)"
+                >
+                  −
+                </button>
+                <span class="gs-val">{{ guestCount }}</span>
+                <button
+                  class="gs-btn"
+                  @click="
+                    guestCount = Math.min(
+                      selectedTable.capacity,
+                      guestCount + 1,
+                    )
+                  "
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="dp-field">
+              <label class="dp-lbl">Special Requests</label>
+              <textarea
+                v-model="specialRequests"
+                class="dp-notes"
+                placeholder="Allergies, celebrations, preferences…"
+                rows="2"
+              ></textarea>
+            </div>
+
+            <div class="dp-divider"></div>
+
+            <!-- Add to cart -->
+            <button
+              v-if="!isInCart(selectedTable.id)"
+              class="add-cart-btn"
+              :disabled="!bookingDate || !bookingTime"
+              @click="addToCart"
             >
-            <div class="idle-title">Select a Table</div>
-            <p class="idle-sub">
-              Click any available table on the floor plan to see details and add
-              it to your reservation.
-            </p>
-          </div>
-        </transition>
-      </div>
-    </v-main>
-
-    <!-- CART BAR -->
-    <transition name="cart-bar-in">
-      <div v-if="cart.length > 0" class="cart-bar">
-        <div class="cart-bar-info">
-          <v-icon size="16" class="mr-2" style="color: #d4af37"
-            >mdi-cart-outline</v-icon
-          >
-          <span class="cart-bar-count"
-            >{{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }}</span
-          >
-          <span class="cart-bar-dot mx-2">·</span>
-          <span class="cart-bar-guests"
-            >{{ totalGuests }} guest{{ totalGuests !== 1 ? "s" : "" }}</span
-          >
-          <span class="cart-bar-dot mx-2">·</span>
-          <span class="cart-bar-date"
-            >{{ cart[0]?.date }}, {{ cart[0]?.time }}</span
-          >
-        </div>
-        <div class="d-flex gap-2">
-          <button class="cart-outline-btn" @click="showCartSheet = true">
-            View Cart
-          </button>
-          <button class="cart-confirm-btn" @click="goToConfirm">
-            Reserve Now <v-icon size="14" class="ml-1">mdi-arrow-right</v-icon>
-          </button>
-        </div>
-      </div>
-    </transition>
-
-    <!-- CART SHEET -->
-    <v-dialog v-model="showCartSheet" max-width="480" :scrim-opacity="0.6">
-      <v-card
-        flat
-        style="
-          background: #111720;
-          border: 1px solid rgba(212, 175, 55, 0.18);
-          border-radius: 16px;
-        "
-      >
-        <v-card-text class="pa-0">
-          <div class="cs-head">
-            <div class="cs-title">Your Cart</div>
-            <button class="dp-close" @click="showCartSheet = false">
-              <v-icon size="18">mdi-close</v-icon>
+              <v-icon size="16" class="mr-2">mdi-cart-plus</v-icon>
+              Add to Cart
             </button>
-          </div>
-
-          <div class="cs-list">
-            <div v-for="item in cart" :key="item.id" class="cs-item">
-              <div class="cs-item-main">
-                <div class="cs-item-name">{{ item.label }}</div>
-                <div class="cs-item-meta">
-                  <v-icon size="11" class="mr-1" style="color: #6a7080"
-                    >mdi-map-marker-outline</v-icon
-                  >{{ item.env }}
-                  <span class="mx-2" style="color: rgba(212, 175, 55, 0.3)"
-                    >·</span
-                  >
-                  <v-icon size="11" class="mr-1" style="color: #6a7080"
-                    >mdi-account-outline</v-icon
-                  >{{ item.guests }}p
-                  <span class="mx-2" style="color: rgba(212, 175, 55, 0.3)"
-                    >·</span
-                  >
-                  <v-icon size="11" class="mr-1" style="color: #6a7080"
-                    >mdi-clock-outline</v-icon
-                  >{{ item.date }}, {{ item.time }}
-                </div>
-                <div v-if="item.notes" class="cs-item-notes">
-                  "{{ item.notes }}"
-                </div>
+            <div v-else class="in-cart-cta">
+              <div class="in-cart-msg">
+                <v-icon size="14" class="mr-1" style="color: #d4af37"
+                  >mdi-check-circle</v-icon
+                >
+                Added · {{ bookingDate }}, {{ bookingTime }}, {{ guestCount }}p
               </div>
-              <button class="cs-remove" @click="removeFromCart(item.id)">
-                <v-icon size="16">mdi-delete-outline</v-icon>
+              <button
+                class="remove-btn"
+                @click="removeFromCart(selectedTable.id)"
+              >
+                Remove
               </button>
             </div>
-          </div>
+          </template>
 
-          <div class="cs-footer">
-            <div class="cs-total">
-              <span class="cs-total-lbl">Total</span>
-              <span class="cs-total-val"
-                >{{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }},
-                {{ totalGuests }} guests</span
+          <template v-else>
+            <div class="dp-divider"></div>
+            <div class="reserved-msg">
+              <v-icon
+                size="28"
+                style="color: rgba(199, 21, 133, 0.4); margin-bottom: 8px"
+                >mdi-lock-outline</v-icon
               >
+              <p>
+                This table is already reserved and not available for booking.
+              </p>
             </div>
-            <button class="cart-confirm-btn w-100 mt-3" @click="goToConfirm">
-              Continue to Confirmation
-              <v-icon size="14" class="ml-1">mdi-arrow-right</v-icon>
+          </template>
+        </div>
+
+        <!-- Idle prompt when nothing selected -->
+        <div v-else class="detail-panel detail-panel--idle">
+          <v-icon
+            size="44"
+            style="color: rgba(212, 175, 55, 0.18); margin-bottom: 14px"
+            >mdi-cursor-default-click-outline</v-icon
+          >
+          <div class="idle-title">Select a Table</div>
+          <p class="idle-sub">
+            Click any available table on the floor plan to see details and add
+            it to your reservation.
+          </p>
+        </div>
+      </transition>
+    </div>
+  </v-main>
+
+  <!-- CART BAR -->
+  <transition name="cart-bar-in">
+    <div v-if="cart.length > 0" class="cart-bar">
+      <div class="cart-bar-info">
+        <v-icon size="16" class="mr-2" style="color: #d4af37"
+          >mdi-cart-outline</v-icon
+        >
+        <span class="cart-bar-count"
+          >{{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }}</span
+        >
+        <span class="cart-bar-dot mx-2">·</span>
+        <span class="cart-bar-guests"
+          >{{ totalGuests }} guest{{ totalGuests !== 1 ? "s" : "" }}</span
+        >
+        <span class="cart-bar-dot mx-2">·</span>
+        <span class="cart-bar-date"
+          >{{ cart[0]?.date }}, {{ cart[0]?.time }}</span
+        >
+      </div>
+      <div class="d-flex gap-2">
+        <button class="cart-outline-btn" @click="showCartSheet = true">
+          View Cart
+        </button>
+        <button class="cart-confirm-btn" @click="goToConfirm">
+          Reserve Now <v-icon size="14" class="ml-1">mdi-arrow-right</v-icon>
+        </button>
+      </div>
+    </div>
+  </transition>
+
+  <!-- CART SHEET -->
+  <v-dialog v-model="showCartSheet" max-width="480" :scrim-opacity="0.6">
+    <v-card
+      flat
+      style="
+        background: var(--color-surface);
+        border: 1px solid rgba(212, 175, 55, 0.18);
+        border-radius: 16px;
+      "
+    >
+      <v-card-text class="pa-0">
+        <div class="cs-head">
+          <div class="cs-title">Your Cart</div>
+          <button class="dp-close" @click="showCartSheet = false">
+            <v-icon size="18">mdi-close</v-icon>
+          </button>
+        </div>
+
+        <div class="cs-list">
+          <div v-for="item in cart" :key="item.id" class="cs-item">
+            <div class="cs-item-main">
+              <div class="cs-item-name">{{ item.label }}</div>
+              <div class="cs-item-meta">
+                <v-icon size="11" class="mr-1" style="color: #6a7080"
+                  >mdi-map-marker-outline</v-icon
+                >{{ item.env }}
+                <span class="mx-2" style="color: rgba(212, 175, 55, 0.3)"
+                  >·</span
+                >
+                <v-icon size="11" class="mr-1" style="color: #6a7080"
+                  >mdi-account-outline</v-icon
+                >{{ item.guests }}p
+                <span class="mx-2" style="color: rgba(212, 175, 55, 0.3)"
+                  >·</span
+                >
+                <v-icon size="11" class="mr-1" style="color: #6a7080"
+                  >mdi-clock-outline</v-icon
+                >{{ item.date }}, {{ item.time }}
+              </div>
+              <div v-if="item.notes" class="cs-item-notes">
+                "{{ item.notes }}"
+              </div>
+            </div>
+            <button class="cs-remove" @click="removeFromCart(item.id)">
+              <v-icon size="16">mdi-delete-outline</v-icon>
             </button>
           </div>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-  </v-app>
+        </div>
+
+        <div class="cs-footer">
+          <div class="cs-total">
+            <span class="cs-total-lbl">Total</span>
+            <span class="cs-total-val"
+              >{{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }},
+              {{ totalGuests }} guests</span
+            >
+          </div>
+          <button class="cart-confirm-btn w-100 mt-3" @click="goToConfirm">
+            Continue to Confirmation
+            <v-icon size="14" class="ml-1">mdi-arrow-right</v-icon>
+          </button>
+        </div>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
+import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
 
 const router = useRouter();
 
@@ -872,14 +816,6 @@ const goToConfirm = () => {
 </script>
 
 <style scoped>
-.brand-logo {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #d4af37;
-  letter-spacing: 0.04em;
-}
-
 /* Step indicator */
 .step-indicator {
   display: flex;
@@ -893,11 +829,11 @@ const goToConfirm = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   font-weight: 700;
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   color: #6a7080;
   flex-shrink: 0;
 }
@@ -915,14 +851,14 @@ const goToConfirm = () => {
 .step-line {
   width: 28px;
   height: 1px;
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(212, 175, 55, 0.18);
   flex-shrink: 0;
 }
 .step-line--done {
   background: #2ebb57;
 }
 .step-lbl {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 600;
   color: #f0ead6;
@@ -931,7 +867,7 @@ const goToConfirm = () => {
 .cart-nav-btn {
   display: flex;
   align-items: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 600;
   color: #0a0e14;
@@ -978,7 +914,7 @@ const goToConfirm = () => {
 .env-tab {
   display: flex;
   align-items: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.76rem;
   font-weight: 500;
   color: #6a7080;
@@ -1021,7 +957,7 @@ const goToConfirm = () => {
   background: #d4af37;
 }
 .legend-lbl {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   color: #6a7080;
 }
@@ -1116,13 +1052,13 @@ const goToConfirm = () => {
   align-items: center;
 }
 .el-name {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.66rem;
   font-weight: 700;
   color: #9a9fa8;
 }
 .el-seats {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.58rem;
   color: #5a6070;
 }
@@ -1183,7 +1119,7 @@ const goToConfirm = () => {
   box-shadow: 0 0 16px rgba(212, 175, 55, 0.25) !important;
 }
 .placed-el--cart .chair {
-  background: rgba(212, 175, 55, 0.2) !important;
+  background: rgba(212, 175, 55, 0.18) !important;
   border-color: rgba(212, 175, 55, 0.5) !important;
 }
 .placed-el--cart .el-name {
@@ -1201,7 +1137,7 @@ const goToConfirm = () => {
   gap: 6px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   min-width: 40px;
   min-height: 40px;
 }
@@ -1209,7 +1145,7 @@ const goToConfirm = () => {
   color: #6a7080 !important;
 }
 .struct-label {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.62rem;
   color: #6a7080;
   white-space: nowrap;
@@ -1221,7 +1157,7 @@ const goToConfirm = () => {
 }
 .struct-el--bar_counter {
   background: rgba(212, 175, 55, 0.06);
-  border-color: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.18);
 }
 .struct-el--stage {
   background: rgba(46, 187, 87, 0.06);
@@ -1243,7 +1179,7 @@ const goToConfirm = () => {
   width: 4px;
 }
 .detail-panel::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(212, 175, 55, 0.18);
   border-radius: 2px;
 }
 .detail-panel--idle {
@@ -1253,7 +1189,7 @@ const goToConfirm = () => {
   text-align: center;
 }
 .idle-title {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 600;
   color: #f0ead6;
@@ -1261,7 +1197,7 @@ const goToConfirm = () => {
   font-style: italic;
 }
 .idle-sub {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: #4a5060;
   line-height: 1.6;
@@ -1275,7 +1211,7 @@ const goToConfirm = () => {
   border-bottom: 1px solid rgba(212, 175, 55, 0.1);
 }
 .dp-title {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 1.05rem;
   font-weight: 700;
   color: #f0ead6;
@@ -1284,7 +1220,7 @@ const goToConfirm = () => {
 .dp-sub {
   display: flex;
   align-items: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   color: #6a7080;
   margin-top: 2px;
@@ -1308,7 +1244,7 @@ const goToConfirm = () => {
   padding: 8px 14px;
 }
 .status-chip {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.63rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1327,14 +1263,14 @@ const goToConfirm = () => {
   border: 1px solid rgba(199, 21, 133, 0.25);
 }
 .status-chip--cart {
-  background: rgba(212, 175, 55, 0.15);
+  background: rgba(212, 175, 55, 0.18);
   color: #d4af37;
   border: 1px solid rgba(212, 175, 55, 0.3);
 }
 .dp-cap {
   display: flex;
   align-items: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   color: #6a7080;
 }
@@ -1350,7 +1286,7 @@ const goToConfirm = () => {
   gap: 6px;
 }
 .dp-lbl {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.62rem;
   font-weight: 700;
   color: #6a7080;
@@ -1370,7 +1306,7 @@ const goToConfirm = () => {
   align-items: center;
   padding: 5px 8px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s;
@@ -1384,7 +1320,7 @@ const goToConfirm = () => {
   border-color: #d4af37 !important;
 }
 .date-pill-day {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.55rem;
   color: #6a7080;
   text-transform: uppercase;
@@ -1393,7 +1329,7 @@ const goToConfirm = () => {
   color: #d4af37;
 }
 .date-pill-num {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 0.9rem;
   font-weight: 700;
   color: #f0ead6;
@@ -1409,12 +1345,12 @@ const goToConfirm = () => {
   gap: 4px;
 }
 .time-pill {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   font-weight: 500;
   color: #8a8fa8;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 6px;
   padding: 4px 8px;
   cursor: pointer;
@@ -1435,7 +1371,7 @@ const goToConfirm = () => {
   display: flex;
   align-items: center;
   background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 6px;
   height: 32px;
   overflow: hidden;
@@ -1457,7 +1393,7 @@ const goToConfirm = () => {
 }
 .gs-val {
   padding: 0 14px;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 0.95rem;
   font-weight: 700;
   color: #f0ead6;
@@ -1472,7 +1408,7 @@ const goToConfirm = () => {
   border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 6px;
   color: #f0ead6;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.76rem;
   padding: 7px 10px;
   resize: none;
@@ -1494,7 +1430,7 @@ const goToConfirm = () => {
   width: calc(100% - 28px);
   margin: 10px 14px 14px;
   padding: 9px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1529,14 +1465,14 @@ const goToConfirm = () => {
 .in-cart-msg {
   display: flex;
   align-items: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.68rem;
   color: #d4af37;
 }
 .remove-btn {
   background: none;
   border: none;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   color: #c71585;
   cursor: pointer;
@@ -1550,7 +1486,7 @@ const goToConfirm = () => {
   padding: 24px 16px;
 }
 .reserved-msg p {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.74rem;
   color: #4a5060;
   line-height: 1.5;
@@ -1601,7 +1537,7 @@ const goToConfirm = () => {
 .cart-bar-info {
   display: flex;
   align-items: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
 }
 .cart-bar-count {
@@ -1618,7 +1554,7 @@ const goToConfirm = () => {
   color: #8a8fa8;
 }
 .cart-outline-btn {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.76rem;
   font-weight: 500;
   color: #d4af37;
@@ -1636,7 +1572,7 @@ const goToConfirm = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1665,7 +1601,7 @@ const goToConfirm = () => {
   border-bottom: 1px solid rgba(212, 175, 55, 0.12);
 }
 .cs-title {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 1.1rem;
   font-weight: 700;
   color: #f0ead6;
@@ -1684,7 +1620,7 @@ const goToConfirm = () => {
   border-bottom: 1px solid rgba(212, 175, 55, 0.07);
 }
 .cs-item-name {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 700;
   color: #f0ead6;
@@ -1693,13 +1629,13 @@ const goToConfirm = () => {
 .cs-item-meta {
   display: flex;
   align-items: center;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   color: #6a7080;
   flex-wrap: wrap;
 }
 .cs-item-notes {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   color: #8a8fa8;
   font-style: italic;
@@ -1727,7 +1663,7 @@ const goToConfirm = () => {
   justify-content: space-between;
 }
 .cs-total-lbl {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1735,7 +1671,7 @@ const goToConfirm = () => {
   color: #6a7080;
 }
 .cs-total-val {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 0.95rem;
   font-weight: 700;
   color: #f0ead6;

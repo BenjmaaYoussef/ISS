@@ -150,7 +150,7 @@ const adminInitials = computed(() => {
 /* Nav links (text row — admin/reservations style) */
 .nav-btn {
   color: #6b7a8d !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -190,7 +190,7 @@ const adminInitials = computed(() => {
 
 /* Admin avatar */
 .admin-avatar {
-  background: rgba(212, 175, 55, 0.2) !important;
+  background: rgba(212,175,55,0.18) !important;
   border: 1px solid rgba(212, 175, 55, 0.4) !important;
   color: #d4af37 !important;
   font-weight: 700;
@@ -198,6 +198,6 @@ const adminInitials = computed(() => {
 .admin-name {
   color: #6b7a8d;
   font-size: 0.82rem;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
 }
 </style>

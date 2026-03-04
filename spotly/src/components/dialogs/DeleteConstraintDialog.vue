@@ -118,7 +118,7 @@ defineEmits(["update:modelValue"]);
 
 /* ── Title ───────────────────────────────────────────── */
 .dcd-title {
-  font-family: "Playfair Display", serif !important;
+  font-family: var(--font-heading) !important;
   font-size: 1.05rem !important;
   color: #e05252 !important;
   letter-spacing: 0.01em;

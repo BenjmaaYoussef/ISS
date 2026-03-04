@@ -252,13 +252,13 @@ const callWaiter = () =>
 .spotly-app {
   --gold: #d4af37;
   --midnight: #0a0e14;
-  --surface: #111720;
-  --surface2: #161d28;
+  --surface: var(--color-surface);
+  --surface2: var(--color-surface-elevated);
   --green: #2ebb57;
   --rose: #c71585;
   --muted: #6b7a8d;
   background: var(--midnight) !important;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
 }
 
 /* ── Navbar ── */
@@ -271,7 +271,7 @@ const callWaiter = () =>
   height: 100%;
 }
 .venue-name {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
   color: #d4af37;
@@ -287,11 +287,11 @@ const callWaiter = () =>
   white-space: nowrap;
 }
 .powered-by {
-  border-left: 1px solid rgba(212, 175, 55, 0.2);
+  border-left: 1px solid rgba(212,175,55,0.18);
   padding-left: 10px;
 }
 .powered-text {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -340,7 +340,7 @@ const callWaiter = () =>
 
 /* ── Welcome ── */
 .welcome-heading {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: clamp(1.4rem, 5vw, 2.4rem);
   font-weight: 700;
   color: #fff;
@@ -443,7 +443,7 @@ const callWaiter = () =>
 .hero-label {
   position: relative;
   z-index: 1;
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.1rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
@@ -476,7 +476,7 @@ const callWaiter = () =>
 .divider-line {
   flex: 1;
   height: 1px;
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(212,175,55,0.18);
 }
 .divider-text {
   font-family: "Cormorant Garamond", serif;
@@ -530,7 +530,7 @@ const callWaiter = () =>
   flex: 1;
 }
 .item-name {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 0.95rem;
   font-weight: 600;
   color: #fff;
@@ -556,7 +556,7 @@ const callWaiter = () =>
   border-radius: 10px;
   background: rgba(212, 175, 55, 0.1);
   color: var(--gold);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212,175,55,0.18);
   white-space: nowrap;
 }
 
@@ -568,7 +568,7 @@ const callWaiter = () =>
   padding-top: 2px;
 }
 .item-price {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--gold);

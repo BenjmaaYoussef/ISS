@@ -118,7 +118,7 @@ defineEmits(["edit", "delete"]);
 }
 
 .item-name {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 600;
   color: #fff;
@@ -139,14 +139,14 @@ defineEmits(["edit", "delete"]);
   border-radius: 20px;
   border: 1px solid rgba(212, 175, 55, 0.3);
   color: rgba(212, 175, 55, 0.7);
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
 }
 
 .item-right {
   flex-shrink: 0;
 }
 .item-price {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
   color: #d4af37;

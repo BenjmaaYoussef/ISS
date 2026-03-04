@@ -493,7 +493,7 @@ const requestReservation = () => {
   };
   console.log("Reservation payload:", JSON.stringify(payload, null, 2));
   sessionStorage.removeItem("spotly_cart");
-  showSuccess.value = true;
+  router.push("/booking/awaiting");
 };
 const focusNotes = () => {
   const textarea = document.querySelector("textarea");

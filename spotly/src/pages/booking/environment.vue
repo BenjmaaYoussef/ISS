@@ -265,7 +265,7 @@ const environments = [
   },
 ];
 function continueBooking() {
-  router.push("/floor-plan"); // ← Changé de '/booking/floor-plan' à '/floor-plan'
+  router.push("/booking/seats");
 }
 </script>
 

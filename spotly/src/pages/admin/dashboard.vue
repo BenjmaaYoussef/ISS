@@ -243,9 +243,6 @@ const router = useRouter();
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 const { adminNavLinks, handleNav } = useAdminNav();
 
-  if (routes[key]) router.push(routes[key]);
-};
-
 // ─── Date ─────────────────────────────────────────────────────────────────────
 const todayLabel = computed(() => {
   return new Date().toLocaleDateString("en-US", {

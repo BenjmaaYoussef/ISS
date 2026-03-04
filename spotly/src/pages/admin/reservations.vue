@@ -187,9 +187,6 @@ const { snackbar, notifySuccess, notifyError } = useSnackbar();
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 const { adminNavLinks, handleNav } = useAdminNav();
 
-  if (routes[key]) router.push(routes[key]);
-};
-
 // ─── State ────────────────────────────────────────────────────────────────────
 const statusFilter = ref("All");
 const filterOptions = ["All", "Pending", "Approved", "Rejected"];

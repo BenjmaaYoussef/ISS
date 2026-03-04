@@ -785,9 +785,6 @@ const router = useRouter();
 // ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
 const { adminNavLinks, handleNav } = useAdminNav();
 
-  if (routes[key]) router.push(routes[key]);
-};
-
 // ── Element catalog ──────────────────────────────────────────────────────────
 const elementDefs = {
   table_round_2: {

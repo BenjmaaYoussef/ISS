@@ -514,9 +514,6 @@ const { snackbar, notifySuccess } = useSnackbar();
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 const { adminNavLinks, handleNav } = useAdminNav();
 
-  if (routes[key]) router.push(routes[key]);
-};
-
 // ─── Static options ───────────────────────────────────────────────────────────
 const venueTypes = [
   "Beach Club",
@@ -849,7 +846,7 @@ const resetForm = () => {
 .tag-chip {
   padding: 5px 13px;
   border-radius: 20px;
-  border: 1px solid rgba(212,175,55,0.18);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   background: transparent;
   font-family: var(--font-body);
   font-size: 0.78rem;
@@ -923,7 +920,7 @@ const resetForm = () => {
   gap: 7px;
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1px solid rgba(212,175,55,0.18);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   background: transparent;
   font-family: var(--font-body);
   font-size: 0.8rem;
@@ -1027,7 +1024,7 @@ const resetForm = () => {
 
 .gallery-item--active .gallery-item-inner {
   border-color: rgba(212, 175, 55, 0.45);
-  box-shadow: 0 0 0 1px rgba(212,175,55,0.18);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.18);
 }
 
 .gallery-order-badge {
@@ -1131,7 +1128,7 @@ const resetForm = () => {
 
 .venue-preview-card {
   background: #13181f;
-  border: 1px solid rgba(212,175,55,0.18);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
@@ -1264,7 +1261,7 @@ const resetForm = () => {
   font-family: var(--font-body);
   font-size: 0.68rem;
   color: rgba(212, 175, 55, 0.75);
-  border: 1px solid rgba(212,175,55,0.18);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 10px;
   padding: 2px 8px;
   letter-spacing: 0.5px;
@@ -1370,7 +1367,7 @@ const resetForm = () => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  box-shadow: 0 4px 14px rgba(212,175,55,0.18);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.18);
 }
 
 .gold-btn:hover {

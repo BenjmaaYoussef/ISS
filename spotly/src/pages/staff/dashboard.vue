@@ -1,83 +1,83 @@
 <template>
-    <!-- ── Top Navigation Bar ── -->
-    <AppNavbarApp
-      :nav-tabs="tabs"
-      :active-link="activeTab"
-      admin-label="Admin"
-      @nav="activeTab = $event"
-    >
-      <template #actions>
-        <!-- Alerts Badge -->
-        <div class="alerts-btn mr-4" @click="alertsPanel = !alertsPanel">
-          <v-icon size="18" color="#D4AF37">mdi-bell-outline</v-icon>
-          <span class="alerts-count" v-if="unacknowledgedAlerts > 0">{{
-            unacknowledgedAlerts
-          }}</span>
-        </div>
-        <!-- Live indicator -->
-        <div class="live-indicator mr-4">
-          <span class="live-dot" />
-          LIVE
-        </div>
-      </template>
-    </AppNavbarApp>
+  <!-- ── Top Navigation Bar ── -->
+  <AppNavbarApp
+    :nav-tabs="tabs"
+    :active-link="activeTab"
+    admin-label="Admin"
+    @nav="activeTab = $event"
+  >
+    <template #actions>
+      <!-- Alerts Badge -->
+      <div class="alerts-btn mr-4" @click="alertsPanel = !alertsPanel">
+        <v-icon size="18" color="#D4AF37">mdi-bell-outline</v-icon>
+        <span class="alerts-count" v-if="unacknowledgedAlerts > 0">{{
+          unacknowledgedAlerts
+        }}</span>
+      </div>
+      <!-- Live indicator -->
+      <div class="live-indicator mr-4">
+        <span class="live-dot" />
+        LIVE
+      </div>
+    </template>
+  </AppNavbarApp>
 
-    <!-- ── Main Content ── -->
-    <v-main class="spotly-main">
-      <div class="staff-container pa-6">
-        <!-- ── ALERTS PANEL ── -->
-        <v-expand-transition>
-          <div v-if="alertsPanel" class="alerts-panel mb-5">
-            <div class="alerts-header mb-3">
-              <v-icon color="#D4AF37" size="16" class="mr-2">mdi-bell</v-icon>
-              Active Alerts
-            </div>
-            <div
-              v-for="alert in alerts"
-              :key="alert.id"
-              class="alert-row"
-              :class="{ 'alert-row--ack': alert.acked }"
-            >
-              <div class="alert-left">
-                <v-icon
-                  size="14"
-                  :color="alert.acked ? '#555' : '#D4AF37'"
-                  class="mr-2"
-                >
-                  {{
-                    alert.type === "waiter"
-                      ? "mdi-room-service"
-                      : "mdi-phone-alert"
-                  }}
-                </v-icon>
-                <span class="alert-text">
-                  <strong>{{ alert.table }}</strong> — {{ alert.message }}
-                </span>
-                <span class="alert-time ml-3">{{ alert.time }}</span>
-              </div>
-              <v-btn
-                v-if="!alert.acked"
-                size="x-small"
-                class="ack-btn"
-                @click="acknowledge(alert)"
-                >Acknowledge</v-btn
-              >
-              <span v-else class="acked-label">✓ Acknowledged</span>
-            </div>
+  <!-- ── Main Content ── -->
+  <v-main class="spotly-main">
+    <div class="staff-container pa-6">
+      <!-- ── ALERTS PANEL ── -->
+      <v-expand-transition>
+        <div v-if="alertsPanel" class="alerts-panel mb-5">
+          <div class="alerts-header mb-3">
+            <v-icon color="#D4AF37" size="16" class="mr-2">mdi-bell</v-icon>
+            Active Alerts
           </div>
-        </v-expand-transition>
+          <div
+            v-for="alert in alerts"
+            :key="alert.id"
+            class="alert-row"
+            :class="{ 'alert-row--ack': alert.acked }"
+          >
+            <div class="alert-left">
+              <v-icon
+                size="14"
+                :color="alert.acked ? '#555' : '#D4AF37'"
+                class="mr-2"
+              >
+                {{
+                  alert.type === "waiter"
+                    ? "mdi-room-service"
+                    : "mdi-phone-alert"
+                }}
+              </v-icon>
+              <span class="alert-text">
+                <strong>{{ alert.table }}</strong> — {{ alert.message }}
+              </span>
+              <span class="alert-time ml-3">{{ alert.time }}</span>
+            </div>
+            <v-btn
+              v-if="!alert.acked"
+              size="x-small"
+              class="ack-btn"
+              @click="acknowledge(alert)"
+              >Acknowledge</v-btn
+            >
+            <span v-else class="acked-label">✓ Acknowledged</span>
+          </div>
+        </div>
+      </v-expand-transition>
 
-        <!-- ── FLOOR PLAN TAB ── -->
-        <div v-if="activeTab === 'floor'">
-          <FloorPlanGrid
-            :tables="tables"
-            :environments="environments"
-            v-model:active-env="activeEnv"
-            @table-click="openTableDetail"
-            @check-in="checkIn"
-            @check-out="checkOut"
-            @resolve-call="resolveCall"
-          />
+      <!-- ── FLOOR PLAN TAB ── -->
+      <div v-if="activeTab === 'floor'">
+        <FloorPlanGrid
+          :tables="tables"
+          :environments="environments"
+          v-model:active-env="activeEnv"
+          @table-click="openTableDetail"
+          @check-in="checkIn"
+          @check-out="checkOut"
+          @resolve-call="resolveCall"
+        />
 
         <!-- ── GUEST LIST TAB ── -->
         <div v-if="activeTab === 'guests'">
@@ -113,19 +113,20 @@
           </div>
         </div>
       </div>
-    </v-main>
+    </div>
+  </v-main>
 
-    <!-- ── Table Detail Dialog ── -->
-    <TableDetailDialog
-      v-model="detailDialog"
-      :table="selectedTable"
-      @check-in="checkIn(selectedTable)"
-      @check-out="checkOut(selectedTable)"
-      @resolve-call="resolveCall(selectedTable)"
-    />
+  <!-- ── Table Detail Dialog ── -->
+  <TableDetailDialog
+    v-model="detailDialog"
+    :table="selectedTable"
+    @check-in="checkIn(selectedTable)"
+    @check-out="checkOut(selectedTable)"
+    @resolve-call="resolveCall(selectedTable)"
+  />
 
-    <!-- Snackbar -->
-    <SpotlySnackbar :snackbar="snackbar" />
+  <!-- Snackbar -->
+  <SpotlySnackbar :snackbar="snackbar" />
 </template>
 
 <script setup>
@@ -332,7 +333,6 @@ const resolveCall = (t) => {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 // statusLabel imported from useTableStatus composable
-
 </script>
 
 <style scoped>

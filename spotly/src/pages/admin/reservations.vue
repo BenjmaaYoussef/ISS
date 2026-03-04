@@ -1,15 +1,10 @@
 <template>
   <!-- Top Navigation Bar -->
   <AppNavbarApp
-    :nav-links="[
-      { key: 'dashboard', label: 'Dashboard' },
-      { key: 'builder', label: 'Builder' },
-      { key: 'menu', label: 'Menu' },
-      { key: 'reservations', label: 'Reservations' },
-      { key: 'settings', label: 'Settings' },
-    ]"
+    :nav-links="adminNavLinks"
     active-link="reservations"
     admin-label="Admin"
+    @nav="handleNav"
   />
 
   <!-- Main Content -->
@@ -178,13 +173,32 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 import { useSnackbar } from "@/composables/useSnackbar";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import StatCard from "@/components/ui/StatCard.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
 
+const router = useRouter();
 const { snackbar, notifySuccess, notifyError } = useSnackbar();
+
+// ─── Nav ──────────────────────────────────────────────────────────────────────
+const adminNavLinks = [
+  { key: 'dashboard',    label: 'Dashboard' },
+  { key: 'builder',      label: 'Builder' },
+  { key: 'menu',         label: 'Menu' },
+  { key: 'reservations', label: 'Reservations' },
+]
+const handleNav = (key) => {
+  const routes = {
+    dashboard:    '/admin/dashboard',
+    builder:      '/admin/floor-plan',
+    menu:         '/admin/menu',
+    reservations: '/admin/reservations',
+  }
+  if (routes[key]) router.push(routes[key])
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const statusFilter = ref("All");

@@ -83,7 +83,7 @@
             class="nav-tab"
             :class="{ 'nav-tab--active': currentTab === tab.value }"
             size="small"
-            @click="currentTab = tab.value"
+            @click="handleTabClick(tab)"
           >
             {{ tab.label }}
           </v-btn>
@@ -451,7 +451,9 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const currentTab = ref("menu");
 const selectedCategory = ref("starters");
 const showItemDialog = ref(false);
@@ -460,12 +462,19 @@ const isEditing = ref(false);
 const itemToDelete = ref(null);
 
 const tabs = [
-  { label: "Dashboard", value: "dashboard" },
-  { label: "Builder", value: "builder" },
-  { label: "Menu", value: "menu" },
-  { label: "Reservations", value: "reservations" },
-  { label: "Settings", value: "settings" },
+  { label: "Dashboard",    value: "dashboard",    route: "/admin/dashboard" },
+  { label: "Builder",      value: "builder",      route: "/admin/floor-plan" },
+  { label: "Menu",         value: "menu",         route: null },
+  { label: "Reservations", value: "reservations", route: "/admin/reservations" },
 ];
+
+const handleTabClick = (tab) => {
+  if (tab.route) {
+    router.push(tab.route);
+  } else {
+    currentTab.value = tab.value;
+  }
+};
 
 const categories = [
   { label: "Starters", value: "starters" },

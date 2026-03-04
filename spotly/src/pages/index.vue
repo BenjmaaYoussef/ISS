@@ -64,6 +64,24 @@
               >
             </v-list-item>
           </v-list>
+
+          <v-divider class="my-4" />
+          <p class="text-overline text-primary mb-2">Modals</p>
+          <v-list density="compact" bg-color="transparent">
+            <v-list-item
+              v-for="p in modalPages"
+              :key="p.route"
+              :to="p.route"
+              :prepend-icon="p.icon"
+            >
+              <v-list-item-title>{{ p.label }}</v-list-item-title>
+              <template #append
+                ><v-chip size="x-small" color="primary" variant="tonal">{{
+                  p.id
+                }}</v-chip></template
+              >
+            </v-list-item>
+          </v-list>
         </v-card>
       </v-col>
     </v-row>
@@ -92,7 +110,7 @@ const publicPages = [
   },
   {
     id: "P5",
-    label: "Visual Seat Selection (Booking 2)",
+    label: "Visual Seat Selection v4.0 (Booking 2)",
     route: "/booking/seats",
     icon: "mdi-seat-outline",
   },
@@ -123,8 +141,14 @@ const publicPages = [
 ];
 const adminPages = [
   {
+    id: "P9",
+    label: "Admin Dashboard",
+    route: "/admin/dashboard",
+    icon: "mdi-view-dashboard-outline",
+  },
+  {
     id: "P10",
-    label: "Floor Plan Builder",
+    label: "Floor Plan Builder v3.0",
     route: "/admin/floor-plan",
     icon: "mdi-floor-plan",
   },
@@ -147,6 +171,20 @@ const staffPages = [
     label: "Staff Live Dashboard",
     route: "/staff/dashboard",
     icon: "mdi-account-hard-hat-outline",
+  },
+];
+const modalPages = [
+  {
+    id: "D1",
+    label: "Delete Constraint Warning",
+    route: "/modals/delete-constraint",
+    icon: "mdi-alert-outline",
+  },
+  {
+    id: "D2",
+    label: "Guest Check-In & Operational Notes",
+    route: "/modals/guest-check-in",
+    icon: "mdi-account-check-outline",
   },
 ];
 </script>

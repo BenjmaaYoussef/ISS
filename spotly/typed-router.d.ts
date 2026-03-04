@@ -19,6 +19,7 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
+    '/admin/dashboard': RouteRecordInfo<'/admin/dashboard', '/admin/dashboard', Record<never, never>, Record<never, never>>,
     '/admin/floor-plan': RouteRecordInfo<'/admin/floor-plan', '/admin/floor-plan', Record<never, never>, Record<never, never>>,
     '/admin/menu': RouteRecordInfo<'/admin/menu', '/admin/menu', Record<never, never>, Record<never, never>>,
     '/admin/reservations': RouteRecordInfo<'/admin/reservations', '/admin/reservations', Record<never, never>, Record<never, never>>,
@@ -29,6 +30,8 @@ declare module 'vue-router/auto-routes' {
     '/client/dashboard': RouteRecordInfo<'/client/dashboard', '/client/dashboard', Record<never, never>, Record<never, never>>,
     '/home': RouteRecordInfo<'/home', '/home', Record<never, never>, Record<never, never>>,
     '/menu/[tableId]': RouteRecordInfo<'/menu/[tableId]', '/menu/:tableId', { tableId: ParamValue<true> }, { tableId: ParamValue<false> }>,
+    '/modals/delete-constraint': RouteRecordInfo<'/modals/delete-constraint', '/modals/delete-constraint', Record<never, never>, Record<never, never>>,
+    '/modals/guest-check-in': RouteRecordInfo<'/modals/guest-check-in', '/modals/guest-check-in', Record<never, never>, Record<never, never>>,
     '/staff/dashboard': RouteRecordInfo<'/staff/dashboard', '/staff/dashboard', Record<never, never>, Record<never, never>>,
     '/venue/[id]': RouteRecordInfo<'/venue/[id]', '/venue/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
   }
@@ -46,6 +49,10 @@ declare module 'vue-router/auto-routes' {
   export interface _RouteFileInfoMap {
     'src/pages/index.vue': {
       routes: '/'
+      views: never
+    }
+    'src/pages/admin/dashboard.vue': {
+      routes: '/admin/dashboard'
       views: never
     }
     'src/pages/admin/floor-plan.vue': {
@@ -86,6 +93,14 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/menu/[tableId].vue': {
       routes: '/menu/[tableId]'
+      views: never
+    }
+    'src/pages/modals/delete-constraint.vue': {
+      routes: '/modals/delete-constraint'
+      views: never
+    }
+    'src/pages/modals/guest-check-in.vue': {
+      routes: '/modals/guest-check-in'
       views: never
     }
     'src/pages/staff/dashboard.vue': {

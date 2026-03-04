@@ -25,7 +25,6 @@
                   letter-spacing: 3px;
                   text-transform: uppercase;
                   color: rgba(212, 175, 55, 0.7);
-                  font-family: &quot;Inter&quot;, sans-serif;
                   margin-bottom: 12px;
                 "
               >
@@ -33,7 +32,6 @@
               </div>
               <h1
                 style="
-                  font-family: &quot;Playfair Display&quot;, serif;
                   font-size: clamp(2rem, 4vw, 3.2rem);
                   font-weight: 700;
                   color: #d4af37;
@@ -56,7 +54,6 @@
               >
                 <p
                   style="
-                    font-family: &quot;Playfair Display&quot;, serif;
                     font-size: 1.1rem;
                     font-style: italic;
                     color: rgba(255, 255, 255, 0.7);
@@ -84,7 +81,6 @@
                   style="
                     border-color: rgba(212, 175, 55, 0.3);
                     color: rgba(212, 175, 55, 0.8);
-                    font-family: &quot;Inter&quot;, sans-serif;
                     font-size: 0.78rem;
                     letter-spacing: 1px;
                   "
@@ -183,7 +179,6 @@
                   <div>
                     <div
                       style="
-                        font-family: &quot;Playfair Display&quot;, serif;
                         font-size: 1.3rem;
                         color: #fff;
                         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
@@ -193,7 +188,6 @@
                     </div>
                     <div
                       style="
-                        font-family: &quot;Inter&quot;, sans-serif;
                         font-size: 0.8rem;
                         color: rgba(255, 255, 255, 0.6);
                         margin-top: 4px;
@@ -287,20 +281,12 @@
               letter-spacing: 3px;
               text-transform: uppercase;
               color: rgba(212, 175, 55, 0.6);
-              font-family: &quot;Inter&quot;, sans-serif;
               margin-bottom: 8px;
             "
           >
             What to know
           </div>
-          <h2
-            style="
-              font-family: &quot;Playfair Display&quot;, serif;
-              font-size: 1.8rem;
-              color: #fff;
-              margin-bottom: 40px;
-            "
-          >
+          <h2 style="font-size: 1.8rem; color: #fff; margin-bottom: 40px">
             Important Info
           </h2>
 
@@ -352,20 +338,12 @@
                     letter-spacing: 2px;
                     text-transform: uppercase;
                     color: rgba(212, 175, 55, 0.6);
-                    font-family: &quot;Inter&quot;, sans-serif;
                     margin-bottom: 6px;
                   "
                 >
                   {{ info.label }}
                 </div>
-                <div
-                  style="
-                    font-family: &quot;Playfair Display&quot;, serif;
-                    font-size: 1rem;
-                    color: #fff;
-                    line-height: 1.5;
-                  "
-                >
+                <div style="font-size: 1rem; color: #fff; line-height: 1.5">
                   {{ info.value }}
                 </div>
               </v-card>

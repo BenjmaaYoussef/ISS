@@ -20,7 +20,12 @@
               :to="p.route"
               :prepend-icon="p.icon"
             >
-              <v-list-item-title>{{ p.label }}</v-list-item-title>
+              <v-list-item-title
+                >{{ p.label }}
+                <span class="text-caption text-medium-emphasis"
+                  >({{ p.author }})</span
+                ></v-list-item-title
+              >
               <template #append
                 ><v-chip size="x-small" color="primary" variant="tonal">{{
                   p.id
@@ -38,7 +43,12 @@
               :to="p.route"
               :prepend-icon="p.icon"
             >
-              <v-list-item-title>{{ p.label }}</v-list-item-title>
+              <v-list-item-title
+                >{{ p.label }}
+                <span class="text-caption text-medium-emphasis"
+                  >({{ p.author }})</span
+                ></v-list-item-title
+              >
               <template #append
                 ><v-chip size="x-small" color="primary" variant="tonal">{{
                   p.id
@@ -56,7 +66,12 @@
               :to="p.route"
               :prepend-icon="p.icon"
             >
-              <v-list-item-title>{{ p.label }}</v-list-item-title>
+              <v-list-item-title
+                >{{ p.label }}
+                <span class="text-caption text-medium-emphasis"
+                  >({{ p.author }})</span
+                ></v-list-item-title
+              >
               <template #append
                 ><v-chip size="x-small" color="primary" variant="tonal">{{
                   p.id
@@ -95,60 +110,70 @@ const publicPages = [
     label: "App Landing Page",
     route: "/landing",
     icon: "mdi-home-outline",
+    author: "Eya",
   },
   {
     id: "P2",
     label: "Global Authentication",
     route: "/auth",
     icon: "mdi-account-circle-outline",
+    author: "Eya",
   },
   {
     id: "P3",
     label: "Venue Landing Page",
     route: "/venue/demo",
     icon: "mdi-store-outline",
+    author: "Eya",
   },
   {
     id: "P4",
     label: "Environment Selection (Booking 1)",
     route: "/booking/environment",
     icon: "mdi-map-marker-outline",
+    author: "Eya",
   },
   {
     id: "P5",
     label: "Seat Selection v5.0 (Booking 2)",
     route: "/booking/seats",
     icon: "mdi-seat-outline",
+    author: "Cyrine",
   },
   {
     id: "P6",
     label: "Reservation Confirm & Notes (Booking 3)",
     route: "/booking/confirm",
     icon: "mdi-check-circle-outline",
+    author: "Cyrine",
   },
   {
     id: "P19",
     label: "Reservation Awaiting Screen (Booking 4)",
     route: "/booking/awaiting",
     icon: "mdi-progress-clock",
+    author: "Youssef",
   },
   {
     id: "P13",
     label: "Client Dashboard",
     route: "/client/dashboard",
     icon: "mdi-view-dashboard-outline",
+    author: "Lina",
   },
   {
     id: "P13.1",
     label: "Client Home (Venue Discovery)",
     route: "/home",
     icon: "mdi-home-search-outline",
+    author: "Youssef",
   },
   {
     id: "P15",
     label: "Digital Menu (QR View)",
     route: "/menu/demo",
     icon: "mdi-qrcode-scan",
+    author: "Lina",
   },
 ];
 const adminPages = [
@@ -157,30 +182,35 @@ const adminPages = [
     label: "Admin Dashboard",
     route: "/admin/dashboard",
     icon: "mdi-view-dashboard-outline",
+    author: "Youssef",
   },
   {
     id: "P10",
     label: "Floor Plan Builder v3.0",
     route: "/admin/floor-plan",
     icon: "mdi-floor-plan",
+    author: "Cyrine",
   },
   {
     id: "P11",
     label: "Menu Manager",
     route: "/admin/menu",
     icon: "mdi-silverware-fork-knife",
+    author: "Cyrine",
   },
   {
     id: "P12",
     label: "Reservation Approval Queue",
     route: "/admin/reservations",
     icon: "mdi-clipboard-check-outline",
+    author: "Lina",
   },
   {
     id: "P16",
     label: "Venue Identity Studio",
     route: "/admin/venue-settings",
     icon: "mdi-pencil-ruler",
+    author: "Youssef",
   },
 ];
 const staffPages = [
@@ -189,6 +219,7 @@ const staffPages = [
     label: "Staff Live Dashboard",
     route: "/staff/dashboard",
     icon: "mdi-account-hard-hat-outline",
+    author: "Lina",
   },
 ];
 const modalPages = [

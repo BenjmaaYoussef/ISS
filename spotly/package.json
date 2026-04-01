@@ -17,6 +17,7 @@
     "vuetify": "^3.11.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "eslint": "^9.35.0",
     "eslint-config-vuetify": "^4.2.0",

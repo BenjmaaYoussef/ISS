@@ -12,6 +12,12 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Playwright tests (local only, not committed)
+e2e/
+playwright-report/
+playwright.config.js
+test-results/
+
 # Editor directories and files
 .idea
 .vscode

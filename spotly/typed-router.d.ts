@@ -36,6 +36,7 @@ declare module 'vue-router/auto-routes' {
     '/modals/delete-constraint': RouteRecordInfo<'/modals/delete-constraint', '/modals/delete-constraint', Record<never, never>, Record<never, never>>,
     '/modals/guest-check-in': RouteRecordInfo<'/modals/guest-check-in', '/modals/guest-check-in', Record<never, never>, Record<never, never>>,
     '/staff/dashboard': RouteRecordInfo<'/staff/dashboard', '/staff/dashboard', Record<never, never>, Record<never, never>>,
+    '/test': RouteRecordInfo<'/test', '/test', Record<never, never>, Record<never, never>>,
     '/venue/[id]': RouteRecordInfo<'/venue/[id]', '/venue/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
   }
 
@@ -120,6 +121,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/staff/dashboard.vue': {
       routes: '/staff/dashboard'
+      views: never
+    }
+    'src/pages/test.vue': {
+      routes: '/test'
       views: never
     }
     'src/pages/venue/[id].vue': {

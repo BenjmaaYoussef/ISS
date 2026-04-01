@@ -36,10 +36,10 @@ Replace all hardcoded data in the UI with live reads/writes to `src/datamodel/` 
 **Goal:** Admin can edit venue info and save floor plan layouts to localStorage.
 
 ### Tasks
-- [ ] Wire `admin/venue-settings.vue` to read/write `VENUE_LIST[0]` (single venue for now)
-- [ ] Wire `admin/floor-plan.vue`: replace hardcoded `environments` ref with `ENVIRONMENT_LIST`
-- [ ] `saveLayout` button writes to `ENVIRONMENT_LIST` via CRUD (currently does nothing)
-- [ ] Delete element constraint check: block delete if element has future reservations in `RESERVATION_LIST`
+- [x] Wire `admin/venue-settings.vue` to read/write `VENUE_LIST[0]` (single venue for now)
+- [x] Wire `admin/floor-plan.vue`: replace hardcoded `environments` ref with `ENVIRONMENT_LIST`
+- [x] `saveLayout` button writes to `ENVIRONMENT_LIST` via CRUD (currently does nothing)
+- [x] Delete element constraint check: block delete if element has future reservations in `RESERVATION_LIST`
 
 ### Playwright verification (`e2e/phase2.spec.js`)
 - Navigate to floor plan, rename a table label, click Save, reload, verify label persists
@@ -98,6 +98,6 @@ Replace all hardcoded data in the UI with live reads/writes to `src/datamodel/` 
 ## Session Notes
 *(Update this section at the end of every session)*
 
-**Last session:** Phase 1 complete — all 6 datamodel files created with localStorage persistence and cross-tab sync. Playwright config + `e2e/phase1.spec.js` written; all 4 tests pass (addUser persists, addVenue persists, storage event cross-tab sync, seed data loads).
-**Next session starts at:** Phase 2 — wire admin/venue-settings.vue and admin/floor-plan.vue to datamodel.
+**Last session:** Phase 2 complete — venue-settings reads name/description/ambienceTags/dressCode/supportedLanguages from VENUE_LIST[0] on init and writes back via updateVenue() on save. Floor-plan initializes from a deep copy of ENVIRONMENT_LIST and saveLayout() splices ENVIRONMENT_LIST (triggering localStorage watch). deleteSelected() checks RESERVATION_LIST for future APPROVED/REQUESTED reservations and shows DeleteConstraintDialog if blocked. All 4 Playwright tests pass.
+**Next session starts at:** Phase 3 — wire admin/menu.vue and admin/reservations.vue to datamodel.
 **Blockers / decisions pending:** None.

@@ -745,6 +745,13 @@
     </v-card>
   </v-dialog>
 
+  <!-- Delete constraint dialog -->
+  <DeleteConstraintDialog
+    v-model="showDeleteConstraintDialog"
+    :table-name="deleteConstraintTableName"
+    :reservations="deleteConstraintReservations"
+  />
+
   <!-- Delete environment dialog -->
   <v-dialog v-model="showDeleteEnvDialog" max-width="360">
     <v-card
@@ -785,6 +792,8 @@ import { ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
+import { ENVIRONMENT_LIST, Environment } from "@/datamodel/Environment.js";
+import { RESERVATION_LIST } from "@/datamodel/Reservation.js";
 const router = useRouter();
 
 // ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
@@ -872,204 +881,8 @@ const paletteCategories = [
   },
 ];
 
-// ── Data model (canonical JSON — will be POST'd to API) ──────────────────────
-const environments = ref([
-  {
-    id: "env_indoor",
-    name: "Indoor Lounge",
-    icon: "mdi-sofa-outline",
-    canvas: { width: 1000, height: 660 },
-    elements: [
-      {
-        id: "e1",
-        type: "table_rect_4",
-        shape: "rect",
-        label: "Table A1",
-        capacity: 4,
-        x: 100,
-        y: 90,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "e2",
-        type: "table_rect_4",
-        shape: "rect",
-        label: "Table A2",
-        capacity: 4,
-        x: 240,
-        y: 90,
-        rotation: 0,
-        status: "reserved",
-      },
-      {
-        id: "e3",
-        type: "table_rect_4",
-        shape: "rect",
-        label: "Table A3",
-        capacity: 4,
-        x: 100,
-        y: 230,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "e4",
-        type: "table_rect_6",
-        shape: "rect",
-        label: "Table B1",
-        capacity: 6,
-        x: 80,
-        y: 390,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "e5",
-        type: "table_rect_6",
-        shape: "rect",
-        label: "Table B2",
-        capacity: 6,
-        x: 270,
-        y: 390,
-        rotation: 0,
-        status: "reserved",
-      },
-      {
-        id: "e6",
-        type: "table_large_8",
-        shape: "round",
-        label: "VIP 1",
-        capacity: 8,
-        x: 540,
-        y: 80,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "e7",
-        type: "table_round_2",
-        shape: "round",
-        label: "VIP 2",
-        capacity: 2,
-        x: 720,
-        y: 80,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "e8",
-        type: "table_large_8",
-        shape: "round",
-        label: "VIP 3",
-        capacity: 8,
-        x: 540,
-        y: 330,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "e9",
-        type: "entrance",
-        label: "Entrance",
-        capacity: 0,
-        w: 1,
-        h: 1,
-        x: 440,
-        y: 590,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "e10",
-        type: "bar_counter",
-        label: "Bar",
-        capacity: 0,
-        w: 3,
-        h: 1,
-        x: 820,
-        y: 450,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "e11",
-        type: "plant",
-        label: "Plant",
-        capacity: 0,
-        w: 1,
-        h: 1,
-        x: 910,
-        y: 100,
-        rotation: 0,
-        status: "available",
-      },
-    ],
-  },
-  {
-    id: "env_terrace",
-    name: "Outdoor Terrace",
-    icon: "mdi-umbrella-beach-outline",
-    canvas: { width: 1000, height: 660 },
-    elements: [
-      {
-        id: "et1",
-        type: "table_rect_4",
-        shape: "rect",
-        label: "T1",
-        capacity: 4,
-        x: 120,
-        y: 80,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "et2",
-        type: "table_rect_4",
-        shape: "rect",
-        label: "T2",
-        capacity: 4,
-        x: 280,
-        y: 80,
-        rotation: 0,
-        status: "reserved",
-      },
-      {
-        id: "et3",
-        type: "table_rect_4",
-        shape: "rect",
-        label: "T3",
-        capacity: 4,
-        x: 440,
-        y: 80,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "et4",
-        type: "table_rect_6",
-        shape: "rect",
-        label: "T4",
-        capacity: 6,
-        x: 120,
-        y: 320,
-        rotation: 0,
-        status: "available",
-      },
-      {
-        id: "et5",
-        type: "table_rect_6",
-        shape: "rect",
-        label: "T5",
-        capacity: 6,
-        x: 360,
-        y: 320,
-        rotation: 0,
-        status: "available",
-      },
-    ],
-  },
-]);
+// ── Data model — initialized from ENVIRONMENT_LIST (local working copy) ───────
+const environments = ref(JSON.parse(JSON.stringify(ENVIRONMENT_LIST)));
 
 // ── Environment state ─────────────────────────────────────────────────────────
 const currentEnvId = ref("env_indoor");
@@ -1261,9 +1074,36 @@ const redo = () => {
 };
 pushHistory();
 
+// ── Delete constraint dialog ──────────────────────────────────────────────────
+const showDeleteConstraintDialog = ref(false);
+const deleteConstraintTableName = ref("");
+const deleteConstraintReservations = ref([]);
+
 // ── Delete ────────────────────────────────────────────────────────────────────
 const deleteSelected = () => {
   if (!selectedId.value) return;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const blockingRes = RESERVATION_LIST.filter(
+    (r) =>
+      r.elementId === selectedId.value &&
+      r.environmentId === currentEnvId.value &&
+      (r.status === "APPROVED" || r.status === "REQUESTED") &&
+      r.date >= today,
+  );
+
+  if (blockingRes.length > 0) {
+    const el = currentEnvElements.value.find((el) => el.id === selectedId.value);
+    deleteConstraintTableName.value = el?.label ?? selectedId.value;
+    deleteConstraintReservations.value = blockingRes.map((r) => ({
+      id: r.id,
+      guest: r.name,
+      datetime: `${r.date}, ${r.time}`,
+    }));
+    showDeleteConstraintDialog.value = true;
+    return;
+  }
+
   const idx = currentEnv.value.elements.findIndex(
     (el) => el.id === selectedId.value,
   );
@@ -1376,13 +1216,13 @@ const confirmDeleteEnv = () => {
 const showSaveDialog = ref(false);
 const jsonPreview = ref("");
 const saveLayout = () => {
-  const payload = {
-    venueId: "venue_demo",
-    savedAt: new Date().toISOString(),
-    environments: environments.value,
-  };
-  console.log("Floor plan JSON:", JSON.stringify(payload, null, 2));
-  jsonPreview.value = JSON.stringify(payload, null, 2).slice(0, 280) + "\n  …";
+  // Persist local working copy back to ENVIRONMENT_LIST (triggers localStorage watch)
+  ENVIRONMENT_LIST.splice(
+    0,
+    ENVIRONMENT_LIST.length,
+    ...environments.value.map((e) => new Environment(e)),
+  );
+  jsonPreview.value = JSON.stringify(environments.value, null, 2).slice(0, 280) + "\n  …";
   showSaveDialog.value = true;
 };
 </script>

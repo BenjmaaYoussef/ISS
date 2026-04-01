@@ -507,6 +507,7 @@ import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useAdminNav } from "@/composables/useAdminNav";
+import { VENUE_LIST, updateVenue } from "@/datamodel/Venue.js";
 
 const router = useRouter();
 const { snackbar, notifySuccess } = useSnackbar();
@@ -560,18 +561,21 @@ const availableLangs = [
   { code: "zh", label: "Chinese", flag: "🇨🇳" },
 ];
 
-// ─── Defaults (pre-populated for demo) ────────────────────────────────────────
-const defaultForm = () => ({
-  name: "Sunset Beach Club",
-  tagline: "Where every sunset tells a story",
-  description:
-    "A premier beachfront destination offering an unparalleled dining and lounge experience. Nestled along the azure coast of Sidi Bou Said, our venue blends Mediterranean elegance with modern luxury.",
-  location: "Sidi Bou Said, Tunisia",
-  venueType: "Beach Club",
-  tags: ["Beach", "Luxury", "Sunset", "Sea View"],
-  dressCode: "Smart Casual",
-  languages: ["en", "fr", "ar"],
-  environments: [
+// ─── Defaults (pre-populated from datamodel) ──────────────────────────────────
+const defaultForm = () => {
+  const v = VENUE_LIST[0] ?? {};
+  return {
+    name: v.name ?? "Sunset Beach Club",
+    tagline: "Where every sunset tells a story",
+    description:
+      v.description ??
+      "A premier beachfront destination offering an unparalleled dining and lounge experience. Nestled along the azure coast of Sidi Bou Said, our venue blends Mediterranean elegance with modern luxury.",
+    location: "Sidi Bou Said, Tunisia",
+    venueType: "Beach Club",
+    tags: v.ambienceTags?.length ? [...v.ambienceTags] : ["Beach", "Luxury", "Sunset", "Sea View"],
+    dressCode: v.dressCode ?? "Smart Casual",
+    languages: v.supportedLanguages?.length ? [...v.supportedLanguages] : ["en", "fr", "ar"],
+    environments: [
     {
       name: "Indoor Dining",
       icon: "mdi-silverware",
@@ -600,25 +604,26 @@ const defaultForm = () => ({
       close: "20:00",
       active: false,
     },
-  ],
-  slides: [
-    {
-      title: "Beachfront Terrace",
-      sub: "Open-air seating with panoramic ocean views",
-      bg: "linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)",
-    },
-    {
-      title: "Sunset Lounge",
-      sub: "Premium indoor seating for exclusive events",
-      bg: "linear-gradient(135deg, #2a1a0a 0%, #1f0d00 50%, #0a0a0a 100%)",
-    },
-    {
-      title: "Beach Club",
-      sub: "Sunbeds, cocktails and the Mediterranean",
-      bg: "linear-gradient(135deg, #0a1a2a 0%, #0d2030 50%, #0a1420 100%)",
-    },
-  ],
-});
+    ],
+    slides: [
+      {
+        title: "Beachfront Terrace",
+        sub: "Open-air seating with panoramic ocean views",
+        bg: "linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)",
+      },
+      {
+        title: "Sunset Lounge",
+        sub: "Premium indoor seating for exclusive events",
+        bg: "linear-gradient(135deg, #2a1a0a 0%, #1f0d00 50%, #0a0a0a 100%)",
+      },
+      {
+        title: "Beach Club",
+        sub: "Sunbeds, cocktails and the Mediterranean",
+        bg: "linear-gradient(135deg, #0a1a2a 0%, #0d2030 50%, #0a1420 100%)",
+      },
+    ],
+  };
+};
 
 const form = reactive(defaultForm());
 
@@ -650,8 +655,13 @@ const saving = ref(false);
 
 const saveChanges = () => {
   saving.value = true;
-  // Persist to localStorage
-  localStorage.setItem("spotly_venue", JSON.stringify({ ...form }));
+  updateVenue(VENUE_LIST[0].id, {
+    name: form.name,
+    description: form.description,
+    ambienceTags: [...form.tags],
+    dressCode: form.dressCode,
+    supportedLanguages: [...form.languages],
+  });
   setTimeout(() => {
     saving.value = false;
     notifySuccess("Venue identity saved successfully");

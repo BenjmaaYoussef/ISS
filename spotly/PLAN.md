@@ -52,10 +52,10 @@ Replace all hardcoded data in the UI with live reads/writes to `src/datamodel/` 
 **Goal:** Menu items and reservation state changes persist.
 
 ### Tasks
-- [ ] Wire `admin/menu.vue` to read from `MENU_ITEM_LIST` and write on add/edit/delete
-- [ ] Wire `admin/reservations.vue` to read from `RESERVATION_LIST`
-- [ ] `approve(res)` / `reject(res)` writes status + appends a `ReservationLog` entry
-- [ ] Stats cards derive from live `RESERVATION_LIST` (already computed, just swap data source)
+- [x] Wire `admin/menu.vue` to read from `MENU_ITEM_LIST` and write on add/edit/delete
+- [x] Wire `admin/reservations.vue` to read from `RESERVATION_LIST`
+- [x] `approve(res)` / `reject(res)` writes status + appends a `ReservationLog` entry
+- [x] Stats cards derive from live `RESERVATION_LIST` (already computed, just swap data source)
 
 ### Playwright verification (`e2e/phase3.spec.js`)
 - Add a menu item, reload, verify it appears in the list
@@ -98,6 +98,6 @@ Replace all hardcoded data in the UI with live reads/writes to `src/datamodel/` 
 ## Session Notes
 *(Update this section at the end of every session)*
 
-**Last session:** Phase 2 complete — venue-settings reads name/description/ambienceTags/dressCode/supportedLanguages from VENUE_LIST[0] on init and writes back via updateVenue() on save. Floor-plan initializes from a deep copy of ENVIRONMENT_LIST and saveLayout() splices ENVIRONMENT_LIST (triggering localStorage watch). deleteSelected() checks RESERVATION_LIST for future APPROVED/REQUESTED reservations and shows DeleteConstraintDialog if blocked. All 4 Playwright tests pass.
-**Next session starts at:** Phase 3 — wire admin/menu.vue and admin/reservations.vue to datamodel.
+**Last session:** Phase 3 complete — menu.vue reads/writes MENU_ITEM_LIST (add via addMenuItem, edit via updateMenuItem, delete via deleteMenuItem; desc↔description mapped between datamodel and form). reservations.vue reads RESERVATION_LIST; approve/reject call updateReservationStatus + addReservationLog with actor=admin; stats computed from canonical statuses (REQUESTED/APPROVED/REJECTED); filter maps display labels to canonical; template updated to use res.guests and res.elementId.
+**Next session starts at:** Phase 4 — booking flow.
 **Blockers / decisions pending:** None.

@@ -8,12 +8,15 @@
 /** Human-readable label */
 export const statusLabel = (status) =>
   ({
-    // Reservation
-    Pending: "Pending",
-    Approved: "Approved",
-    Rejected: "Rejected",
-    Cancelled: "Cancelled",
-    // Floor
+    // Canonical datamodel statuses
+    REQUESTED: "Pending",
+    APPROVED: "Confirmed",
+    REJECTED: "Rejected",
+    CANCELLED: "Cancelled",
+    CHECKED_IN: "Checked In",
+    COMPLETED: "Completed",
+    NO_SHOW: "No Show",
+    // Floor-plan statuses
     free: "Free",
     occupied: "Occupied",
     reserved: "Reserved",
@@ -23,10 +26,15 @@ export const statusLabel = (status) =>
 /** MDI icon name */
 export const statusIcon = (status) =>
   ({
-    Pending: "mdi-clock-outline",
-    Approved: "mdi-check-circle-outline",
-    Rejected: "mdi-close-circle-outline",
-    Cancelled: "mdi-cancel",
+    // Canonical
+    REQUESTED: "mdi-clock-outline",
+    APPROVED: "mdi-check-circle-outline",
+    REJECTED: "mdi-close-circle-outline",
+    CANCELLED: "mdi-cancel",
+    CHECKED_IN: "mdi-login",
+    COMPLETED: "mdi-flag-checkered",
+    NO_SHOW: "mdi-account-off-outline",
+    // Floor
     free: "mdi-circle-outline",
     occupied: "mdi-account",
     reserved: "mdi-bookmark-outline",
@@ -39,11 +47,13 @@ export const statusIcon = (status) =>
  */
 export const statusVuetifyColor = (status) =>
   ({
-    Pending: "error", // rose
-    Approved: "secondary", // green
-    occupied: "primary", // gold
-    reserved: "error", // rose
-    call: "error", // rose (urgent)
+    REQUESTED: "error",
+    APPROVED: "secondary",
+    CHECKED_IN: "secondary",
+    // Floor
+    occupied: "primary",
+    reserved: "error",
+    call: "error",
   })[status] ?? undefined;
 
 /**
@@ -51,10 +61,14 @@ export const statusVuetifyColor = (status) =>
  */
 export const statusHexColor = (status) =>
   ({
-    Pending: "#C71585",
-    Approved: "#2EBB57",
-    Rejected: "#666666",
-    Cancelled: "#555555",
+    REQUESTED: "#C71585",
+    APPROVED: "#2EBB57",
+    REJECTED: "#666666",
+    CANCELLED: "#555555",
+    CHECKED_IN: "#2EBB57",
+    COMPLETED: "#888888",
+    NO_SHOW: "#555555",
+    // Floor
     free: "#6b7a8d",
     occupied: "#D4AF37",
     reserved: "#C71585",

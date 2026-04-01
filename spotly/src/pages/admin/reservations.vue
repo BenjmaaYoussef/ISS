@@ -83,18 +83,18 @@
                   <v-icon size="14" class="mr-1" color="#D4AF37"
                     >mdi-account-group</v-icon
                   >
-                  {{ res.size }}
+                  {{ res.guests }}
                 </div>
               </td>
               <td class="table-td">
                 <v-chip
                   :class="
-                    res.table.startsWith('VIP') ? 'vip-chip' : 'table-chip'
+                    res.elementId.startsWith('VIP') ? 'vip-chip' : 'table-chip'
                   "
                   size="small"
                   variant="tonal"
                 >
-                  {{ res.table }}
+                  {{ res.elementId }}
                 </v-chip>
               </td>
               <td class="table-td notes-cell">
@@ -113,7 +113,7 @@
                     size="small"
                     class="action-btn action-btn--approve"
                     @click="approve(res)"
-                    :disabled="res.status === 'Approved'"
+                    :disabled="res.status === 'APPROVED'"
                     title="Approve"
                   >
                     <v-icon size="16">mdi-check</v-icon>
@@ -123,7 +123,7 @@
                     size="small"
                     class="action-btn action-btn--reject"
                     @click="reject(res)"
-                    :disabled="res.status === 'Rejected'"
+                    :disabled="res.status === 'REJECTED'"
                     title="Reject"
                   >
                     <v-icon size="16">mdi-close</v-icon>
@@ -150,7 +150,7 @@
       <div class="footer-note mt-6 d-flex align-center justify-space-between">
         <span
           >Showing {{ filteredReservations.length }} of
-          {{ reservations.length }} reservations</span
+          {{ RESERVATION_LIST.length }} reservations</span
         >
         <div class="legend d-flex align-center ga-4">
           <div class="legend-item">
@@ -180,6 +180,8 @@ import StatCard from "@/components/ui/StatCard.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
+import { RESERVATION_LIST, updateReservationStatus } from "@/datamodel/Reservation";
+import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog";
 
 const router = useRouter();
 const { snackbar, notifySuccess, notifyError } = useSnackbar();
@@ -190,95 +192,50 @@ const { adminNavLinks, handleNav } = useAdminNav();
 // ─── State ────────────────────────────────────────────────────────────────────
 const statusFilter = ref("All");
 const filterOptions = ["All", "Pending", "Approved", "Rejected"];
-
-const reservations = ref([
-  {
-    id: 102,
-    name: "John Doe",
-    date: "Feb 15",
-    time: "19:00",
-    size: 5,
-    table: "VIP-01",
-    notes: "Allergy: nuts",
-    status: "Pending",
-  },
-  {
-    id: 105,
-    name: "Sarah Smith",
-    date: "Feb 16",
-    time: "20:00",
-    size: 4,
-    table: "T-12",
-    notes: "",
-    status: "Pending",
-  },
-  {
-    id: 108,
-    name: "Marcus Lee",
-    date: "Feb 17",
-    time: "18:30",
-    size: 2,
-    table: "T-05",
-    notes: "Anniversary",
-    status: "Approved",
-  },
-  {
-    id: 111,
-    name: "Layla Hassan",
-    date: "Feb 17",
-    time: "21:00",
-    size: 6,
-    table: "VIP-02",
-    notes: "Corporate event",
-    status: "Pending",
-  },
-  {
-    id: 114,
-    name: "Tom Rivera",
-    date: "Feb 18",
-    time: "19:30",
-    size: 3,
-    table: "T-08",
-    notes: "",
-    status: "Rejected",
-  },
-]);
+// Map display labels → canonical statuses
+const displayToStatus = { Pending: "REQUESTED", Approved: "APPROVED", Rejected: "REJECTED" };
 
 const stats = computed(() => [
-  { label: "Total", value: reservations.value.length, color: "#D4AF37" },
-  {
-    label: "Pending",
-    value: reservations.value.filter((r) => r.status === "Pending").length,
-    color: "#C71585",
-  },
-  {
-    label: "Approved",
-    value: reservations.value.filter((r) => r.status === "Approved").length,
-    color: "#2EBB57",
-  },
-  {
-    label: "Rejected",
-    value: reservations.value.filter((r) => r.status === "Rejected").length,
-    color: "#888",
-  },
+  { label: "Total", value: RESERVATION_LIST.length, color: "#D4AF37" },
+  { label: "Pending", value: RESERVATION_LIST.filter((r) => r.status === "REQUESTED").length, color: "#C71585" },
+  { label: "Approved", value: RESERVATION_LIST.filter((r) => r.status === "APPROVED").length, color: "#2EBB57" },
+  { label: "Rejected", value: RESERVATION_LIST.filter((r) => r.status === "REJECTED").length, color: "#888" },
 ]);
 
-const filteredReservations = computed(() =>
-  statusFilter.value === "All"
-    ? reservations.value
-    : reservations.value.filter((r) => r.status === statusFilter.value),
-);
+const filteredReservations = computed(() => {
+  if (statusFilter.value === "All") return RESERVATION_LIST;
+  const canonical = displayToStatus[statusFilter.value];
+  return RESERVATION_LIST.filter((r) => r.status === canonical);
+});
 
 // ─── Snackbar ─────────────────────────────────────────────────────────────────
 // snackbar state managed by useSnackbar composable
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
 const approve = (res) => {
-  res.status = "Approved";
+  const prev = res.status;
+  updateReservationStatus(res.id, "APPROVED");
+  addReservationLog(new ReservationLog({
+    id: Date.now(),
+    reservationId: res.id,
+    previousStatus: prev,
+    newStatus: "APPROVED",
+    timestamp: new Date().toISOString(),
+    actorRole: "admin",
+  }));
   notifySuccess(`Reservation #${res.id} approved`);
 };
 const reject = (res) => {
-  res.status = "Rejected";
+  const prev = res.status;
+  updateReservationStatus(res.id, "REJECTED");
+  addReservationLog(new ReservationLog({
+    id: Date.now(),
+    reservationId: res.id,
+    previousStatus: prev,
+    newStatus: "REJECTED",
+    timestamp: new Date().toISOString(),
+    actorRole: "admin",
+  }));
   notifyError(`Reservation #${res.id} rejected`);
 };
 

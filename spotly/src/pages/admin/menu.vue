@@ -364,6 +364,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
+import { MENU_ITEM_LIST, MenuItem, addMenuItem, updateMenuItem, deleteMenuItem } from "@/datamodel/MenuItem";
 
 const router = useRouter();
 
@@ -430,44 +431,8 @@ const headers = [
   { title: "Actions", key: "actions", sortable: false, align: "end" },
 ];
 
-const menuItems = ref([
-  {
-    id: 1,
-    name: "Truffle Fries",
-    price: 18.0,
-    category: "starters",
-    allergens: [],
-    tags: ["Vegetarian"],
-    selected: false,
-  },
-  {
-    id: 2,
-    name: "Caesar Salad",
-    price: 15.0,
-    category: "starters",
-    allergens: ["Dairy", "Eggs"],
-    tags: [],
-    selected: false,
-  },
-  {
-    id: 3,
-    name: "Grilled Salmon",
-    price: 35.0,
-    category: "mains",
-    allergens: ["Fish"],
-    tags: ["Chef Special"],
-    selected: false,
-  },
-  {
-    id: 4,
-    name: "Beef Wellington",
-    price: 42.0,
-    category: "mains",
-    allergens: ["Gluten"],
-    tags: ["Popular"],
-    selected: false,
-  },
-]);
+// Live list from datamodel — filters by venueId 1 (single venue for now)
+const VENUE_ID = 1;
 
 const formData = ref({
   name: "",
@@ -478,11 +443,11 @@ const formData = ref({
   description: "",
 });
 
-const filteredItems = computed(() => {
-  return menuItems.value.filter(
-    (item) => item.category === selectedCategory.value,
-  );
-});
+const filteredItems = computed(() =>
+  MENU_ITEM_LIST.filter(
+    (item) => item.venueId === VENUE_ID && item.category === selectedCategory.value,
+  ),
+);
 
 const openAddDialog = () => {
   isEditing.value = false;
@@ -499,7 +464,7 @@ const openAddDialog = () => {
 
 const editItem = (item) => {
   isEditing.value = true;
-  formData.value = { ...item };
+  formData.value = { ...item, description: item.desc };
   showItemDialog.value = true;
 };
 
@@ -509,28 +474,26 @@ const deleteItem = (item) => {
 };
 
 const confirmDelete = () => {
-  const index = menuItems.value.findIndex(
-    (i) => i.id === itemToDelete.value.id,
-  );
-  if (index !== -1) {
-    menuItems.value.splice(index, 1);
-  }
+  deleteMenuItem(itemToDelete.value.id);
   showDeleteDialog.value = false;
   itemToDelete.value = null;
 };
 
 const saveItem = () => {
+  const { name, price, category, allergens, tags, description } = formData.value;
   if (isEditing.value) {
-    const index = menuItems.value.findIndex((i) => i.id === formData.value.id);
-    if (index !== -1) {
-      menuItems.value[index] = { ...formData.value };
-    }
+    updateMenuItem(formData.value.id, { name, price: Number(price), category, allergens, tags, desc: description });
   } else {
-    menuItems.value.push({
+    addMenuItem(new MenuItem({
       id: Date.now(),
-      ...formData.value,
-      selected: false,
-    });
+      venueId: VENUE_ID,
+      name,
+      price: Number(price),
+      category,
+      allergens,
+      tags,
+      desc: description,
+    }));
   }
   closeDialog();
 };

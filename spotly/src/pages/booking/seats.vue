@@ -36,7 +36,7 @@
         <div class="env-tab-bar">
           <div class="env-tabs">
             <button
-              v-for="env in floorPlan.environments"
+              v-for="env in ENVIRONMENT_LIST"
               :key="env.id"
               class="env-tab"
               :class="{ 'env-tab--active': currentEnvId === env.id }"
@@ -204,7 +204,7 @@
             <span
               class="status-chip"
               :class="
-                selectedTable.status === 'reserved'
+                selectedTableStatus === 'reserved'
                   ? 'status-chip--rsvd'
                   : isInCart(selectedTable.id)
                     ? 'status-chip--cart'
@@ -212,7 +212,7 @@
               "
             >
               {{
-                selectedTable.status === "reserved"
+                selectedTableStatus === "reserved"
                   ? "Reserved"
                   : isInCart(selectedTable.id)
                     ? "In your cart"
@@ -227,7 +227,7 @@
             </div>
           </div>
 
-          <template v-if="selectedTable.status !== 'reserved'">
+          <template v-if="selectedTableStatus !== 'reserved'">
             <div class="dp-divider"></div>
 
             <!-- Date -->
@@ -458,10 +458,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
+import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
+import { RESERVATION_LIST } from "@/datamodel/Reservation.js";
 
 const router = useRouter();
 
@@ -675,15 +677,22 @@ const elementDefs = {
 const getElementDef = (type) => elementDefs[type] ?? null;
 
 // ── Environment ───────────────────────────────────────────────────────────────
-const currentEnvId = ref(floorPlan.environments[0].id);
+const currentEnvId = ref(ENVIRONMENT_LIST[0]?.id ?? "");
 const currentEnv = computed(() =>
-  floorPlan.environments.find((e) => e.id === currentEnvId.value),
+  ENVIRONMENT_LIST.find((e) => e.id === currentEnvId.value),
 );
 const currentEnvElements = computed(() => currentEnv.value?.elements ?? []);
 const switchEnv = (id) => {
   currentEnvId.value = id;
   selectedTable.value = null;
 };
+
+onMounted(() => {
+  const saved = sessionStorage.getItem("spotly_selected_env");
+  if (saved && ENVIRONMENT_LIST.some((e) => e.id === saved)) {
+    currentEnvId.value = saved;
+  }
+});
 
 // ── Canvas helpers ────────────────────────────────────────────────────────────
 const GRID = 40;
@@ -704,7 +713,8 @@ const getElementStyle = (el) => ({
   transform: "rotate(" + el.rotation + "deg)",
   transformOrigin: "center center",
   cursor:
-    el.type.startsWith("table_") && el.status !== "reserved"
+    el.type.startsWith("table_") &&
+    getComputedStatus(currentEnvId.value, el.id) !== "reserved"
       ? "pointer"
       : "default",
 });
@@ -712,7 +722,7 @@ const getElementStyle = (el) => ({
 // ── Table status / class ──────────────────────────────────────────────────────
 const isInCart = (id) => cart.value.some((c) => c.id === id);
 const getTableClass = (el) => {
-  if (el.status === "reserved") return "placed-el--reserved";
+  if (getComputedStatus(currentEnvId.value, el.id) === "reserved") return "placed-el--reserved";
   if (isInCart(el.id)) return "placed-el--cart";
   if (selectedTable.value?.id === el.id) return "placed-el--selected";
   return "placed-el--available";
@@ -724,6 +734,26 @@ const bookingDate = ref(null);
 const bookingTime = ref(null);
 const guestCount = ref(2);
 const specialRequests = ref("");
+
+// ── Availability check (computed from RESERVATION_LIST) ───────────────────────
+const getComputedStatus = (envId, elementId) => {
+  if (!bookingDate.value || !bookingTime.value) return "available";
+  return RESERVATION_LIST.some(
+    (r) =>
+      r.environmentId === envId &&
+      r.elementId === elementId &&
+      r.date === bookingDate.value &&
+      r.time === bookingTime.value &&
+      (r.status === "APPROVED" || r.status === "REQUESTED"),
+  )
+    ? "reserved"
+    : "available";
+};
+const selectedTableStatus = computed(() =>
+  selectedTable.value
+    ? getComputedStatus(currentEnvId.value, selectedTable.value.id)
+    : "available",
+);
 
 const onTableClick = (el) => {
   if (!el.type.startsWith("table_")) return;

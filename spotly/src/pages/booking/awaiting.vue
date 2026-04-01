@@ -415,96 +415,81 @@
 </template>
 
 <script setup>
-// P19 — Reservation Awaiting Screen
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
+import {
+  RESERVATION_LIST,
+  updateReservationStatus,
+} from "@/datamodel/Reservation.js";
+import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog.js";
+import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
 
 const router = useRouter();
 
-// ─── Reservation data (read from sessionStorage, set by P6) ──────────────────
-const reservationId = ref("10482");
-const reservationDate = ref("Sep 14, 2026");
-const reservationTime = ref("19:00");
-const reservationGuests = ref(2);
-const reservationTable = ref("Table A1");
-const reservationEnv = ref("Beachfront Terrace");
-const guestName = ref("John Doe");
-const guestEmail = ref("john@example.com");
+const pendingId = ref(null);
 const submittedAt = ref("");
 
 onMounted(() => {
-  // Set submitted timestamp
+  const raw = sessionStorage.getItem("spotly_pending_reservation_id");
+  pendingId.value = raw ? Number(raw) : null;
   submittedAt.value = new Date().toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
   });
-
-  // Read cart from sessionStorage if available (passed from P6)
-  try {
-    const raw = sessionStorage.getItem("spotly_cart");
-    if (raw) {
-      const cart = JSON.parse(raw);
-      const first = cart[0];
-      if (first) {
-        reservationTable.value = first.tableName ?? reservationTable.value;
-        reservationDate.value = first.date ?? reservationDate.value;
-        reservationTime.value = first.time ?? reservationTime.value;
-        reservationGuests.value = first.guests ?? reservationGuests.value;
-        reservationEnv.value = first.environment ?? reservationEnv.value;
-      }
-    }
-    const guestRaw = sessionStorage.getItem("spotly_guest");
-    if (guestRaw) {
-      const guest = JSON.parse(guestRaw);
-      guestName.value = guest.name ?? guestName.value;
-      guestEmail.value = guest.email ?? guestEmail.value;
-    }
-  } catch (_) {}
-
-  // Listen for cross-tab admin decision via storage event
-  window.addEventListener("storage", onStorageEvent);
 });
 
-onUnmounted(() => {
-  window.removeEventListener("storage", onStorageEvent);
+// ─── Reactive reservation from RESERVATION_LIST ───────────────────────────────
+const currentReservation = computed(() =>
+  pendingId.value !== null
+    ? RESERVATION_LIST.find((r) => r.id === pendingId.value) ?? null
+    : null,
+);
+
+// ─── Status — derived from canonical REQUESTED/APPROVED/REJECTED ─────────────
+const status = computed(() => {
+  const s = currentReservation.value?.status;
+  if (s === "APPROVED") return "approved";
+  if (s === "REJECTED") return "rejected";
+  return "pending";
 });
 
-// ─── Status state machine ─────────────────────────────────────────────────────
-// pending → approved | rejected
-const status = ref("pending");
+// ─── Display fields ───────────────────────────────────────────────────────────
+const reservationId = computed(() => currentReservation.value?.id ?? "");
+const reservationDate = computed(() => currentReservation.value?.date ?? "");
+const reservationTime = computed(() => currentReservation.value?.time ?? "");
+const reservationGuests = computed(() => currentReservation.value?.guests ?? 0);
+const guestName = computed(() => currentReservation.value?.name ?? "");
+const guestEmail = computed(() => currentReservation.value?.email ?? "");
 
-// Listen for admin decision from another tab via LocalStorage
-const onStorageEvent = (e) => {
-  if (e.key !== "spotly_reservation_decision") return;
-  try {
-    const payload = JSON.parse(e.newValue);
-    if (payload?.id === reservationId.value || payload?.latest) {
-      applyDecision(payload.decision);
-    }
-  } catch (_) {}
-};
+const reservationEnv = computed(() => {
+  const envId = currentReservation.value?.environmentId;
+  return ENVIRONMENT_LIST.find((e) => e.id === envId)?.name ?? "";
+});
 
-const applyDecision = (decision) => {
-  if (decision === "approved" || decision === "rejected") {
-    status.value = decision;
-  }
-};
+const reservationTable = computed(() => {
+  const r = currentReservation.value;
+  if (!r) return "";
+  const env = ENVIRONMENT_LIST.find((e) => e.id === r.environmentId);
+  return env?.elements.find((el) => el.id === r.elementId)?.label ?? r.elementId;
+});
 
-// ─── Demo: simulate admin decision from this tab ──────────────────────────────
+// ─── Demo: simulate admin decision ───────────────────────────────────────────
 const simulateDecision = (decision) => {
-  // Write to LocalStorage to also trigger storage event in any other open tab
-  localStorage.setItem(
-    "spotly_reservation_decision",
-    JSON.stringify({
-      id: reservationId.value,
-      decision,
-      latest: true,
-      decidedAt: new Date().toISOString(),
+  if (!pendingId.value) return;
+  const newStatus = decision === "approved" ? "APPROVED" : "REJECTED";
+  const prev = currentReservation.value?.status ?? "REQUESTED";
+  updateReservationStatus(pendingId.value, newStatus);
+  addReservationLog(
+    new ReservationLog({
+      id: Date.now(),
+      reservationId: pendingId.value,
+      previousStatus: prev,
+      newStatus,
+      timestamp: new Date().toISOString(),
+      actorRole: "admin",
     }),
   );
-  // Apply immediately in this tab (storage event doesn't fire for same tab)
-  applyDecision(decision);
 };
 </script>
 

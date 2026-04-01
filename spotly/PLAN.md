@@ -68,10 +68,10 @@ Replace all hardcoded data in the UI with live reads/writes to `src/datamodel/` 
 **Goal:** A client can complete a booking that creates a real `Reservation` record.
 
 ### Tasks
-- [ ] `booking/environment.vue`: read environments from `ENVIRONMENT_LIST` (filtered by venueId)
-- [ ] `booking/seats.vue`: read elements from selected environment; compute seat status from `RESERVATION_LIST` (element is unavailable if it has an APPROVED/REQUESTED reservation overlapping date+time)
-- [ ] `booking/confirm.vue`: on submit, call `addReservation()` with form data + selected seat/env/venue; write initial `ReservationLog` entry (status: REQUESTED, actor: client)
-- [ ] `booking/awaiting.vue`: read reservation status from `RESERVATION_LIST` by id; poll via `storage` event for cross-tab updates when admin approves
+- [x] `booking/environment.vue`: read environments from `ENVIRONMENT_LIST` (filtered by venueId)
+- [x] `booking/seats.vue`: read elements from selected environment; compute seat status from `RESERVATION_LIST` (element is unavailable if it has an APPROVED/REQUESTED reservation overlapping date+time)
+- [x] `booking/confirm.vue`: on submit, call `addReservation()` with form data + selected seat/env/venue; write initial `ReservationLog` entry (status: REQUESTED, actor: client)
+- [x] `booking/awaiting.vue`: read reservation status from `RESERVATION_LIST` by id; poll via `storage` event for cross-tab updates when admin approves
 
 ### Playwright verification (`e2e/phase4.spec.js`)
 - Complete full booking flow (env → seat → confirm form), verify reservation appears in localStorage with status REQUESTED
@@ -98,6 +98,6 @@ Replace all hardcoded data in the UI with live reads/writes to `src/datamodel/` 
 ## Session Notes
 *(Update this section at the end of every session)*
 
-**Last session:** Phase 3 complete — menu.vue reads/writes MENU_ITEM_LIST (add via addMenuItem, edit via updateMenuItem, delete via deleteMenuItem; desc↔description mapped between datamodel and form). reservations.vue reads RESERVATION_LIST; approve/reject call updateReservationStatus + addReservationLog with actor=admin; stats computed from canonical statuses (REQUESTED/APPROVED/REJECTED); filter maps display labels to canonical; template updated to use res.guests and res.elementId.
-**Next session starts at:** Phase 4 — booking flow.
+**Last session:** Phase 4 complete — environment.vue reads ENVIRONMENT_LIST (venueId=1 filter), stores selected env id in sessionStorage. seats.vue reads ENVIRONMENT_LIST + RESERVATION_LIST; getComputedStatus checks APPROVED/REQUESTED reservations for the chosen date+time; selectedTableStatus computed drives detail-panel reserved gate; onMounted reads spotly_selected_env to pre-select the tab. confirm.vue generates Reservation + ReservationLog records on submit, stores first id in spotly_pending_reservation_id. awaiting.vue reads that id, derives all display fields from currentReservation computed; status tracks REQUESTED→APPROVED/REJECTED reactively; simulateDecision calls updateReservationStatus + addReservationLog directly.
+**Next session starts at:** Phase 5 — client + staff dashboards.
 **Blockers / decisions pending:** None.

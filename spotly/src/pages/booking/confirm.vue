@@ -441,6 +441,8 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
+import { Reservation, addReservation, RESERVATION_LIST } from "@/datamodel/Reservation.js";
+import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog.js";
 
 const router = useRouter();
 
@@ -481,17 +483,43 @@ const isFormValid = computed(() => {
 const goBack = () => router.push("/booking/seats");
 const requestReservation = () => {
   if (!isFormValid.value) return;
-  const payload = {
-    guest: {
-      name: form.value.name,
-      email: form.value.email,
-      phone: form.value.phone,
-    },
-    reservations: cart.value,
-    globalNotes: form.value.notes,
-    submittedAt: new Date().toISOString(),
-  };
-  console.log("Reservation payload:", JSON.stringify(payload, null, 2));
+  const baseId =
+    RESERVATION_LIST.length > 0
+      ? Math.max(...RESERVATION_LIST.map((r) => r.id)) + 1
+      : 1;
+  cart.value.forEach((item, idx) => {
+    const resId = baseId + idx;
+    addReservation(
+      new Reservation({
+        id: resId,
+        venueId: 1,
+        environmentId: item.envId,
+        elementId: item.id,
+        userId: "",
+        name: form.value.name,
+        email: form.value.email,
+        phone: form.value.phone,
+        date: item.date,
+        time: item.time,
+        guests: item.guests,
+        notes: form.value.notes || item.notes,
+        status: "REQUESTED",
+      }),
+    );
+    addReservationLog(
+      new ReservationLog({
+        id: Date.now() + idx,
+        reservationId: resId,
+        previousStatus: null,
+        newStatus: "REQUESTED",
+        timestamp: new Date().toISOString(),
+        actorRole: "client",
+      }),
+    );
+  });
+  if (cart.value.length > 0) {
+    sessionStorage.setItem("spotly_pending_reservation_id", String(baseId));
+  }
   sessionStorage.removeItem("spotly_cart");
   router.push("/booking/awaiting");
 };

@@ -94,15 +94,15 @@
           >
             <div
               class="env-card"
-              :class="{ selected: selected === env.name }"
-              @click="selected = env.name"
+              :class="{ selected: selected === env.id }"
+              @click="selected = env.id"
               :style="{
                 border:
-                  selected === env.name
+                  selected === env.id
                     ? '1px solid #D4AF37'
                     : '1px solid rgba(212,175,55,0.18)',
                 background:
-                  selected === env.name ? 'rgba(212,175,55,0.05)' : '#13181f',
+                  selected === env.id ? 'rgba(212,175,55,0.05)' : '#13181f',
                 cursor: 'pointer',
                 transition: 'all 0.3s',
                 position: 'relative',
@@ -128,7 +128,7 @@
 
                 <!-- Selected badge -->
                 <div
-                  v-if="selected === env.name"
+                  v-if="selected === env.id"
                   style="
                     position: absolute;
                     top: 12px;
@@ -172,8 +172,8 @@
 
                 <!-- Select Button -->
                 <v-btn
-                  :color="selected === env.name ? 'primary' : ''"
-                  :variant="selected === env.name ? 'flat' : 'outlined'"
+                  :color="selected === env.id ? 'primary' : ''"
+                  :variant="selected === env.id ? 'flat' : 'outlined'"
                   block
                   style="
                     font-size: 0.78rem;
@@ -182,20 +182,20 @@
                     height: 42px;
                   "
                   :style="
-                    selected === env.name
+                    selected === env.id
                       ? 'color:#0A0E14; font-weight:600;'
                       : 'border-color:rgba(212,175,55,0.3); color:rgba(212,175,55,0.8);'
                   "
-                  @click.stop="selected = env.name"
+                  @click.stop="selected = env.id"
                 >
                   <v-icon
                     end
                     :icon="
-                      selected === env.name ? 'mdi-check' : 'mdi-arrow-right'
+                      selected === env.id ? 'mdi-check' : 'mdi-arrow-right'
                     "
                     size="16"
                   />
-                  {{ selected === env.name ? "Selected" : "Select" }}
+                  {{ selected === env.id ? "Selected" : "Select" }}
                 </v-btn>
               </div>
             </div>
@@ -236,35 +236,19 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
+import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
 
 const router = useRouter();
 const selected = ref("");
 
-const environments = [
-  {
-    name: "Indoor",
-    desc: "Elegant dining with air conditioning. Perfect for an intimate, refined experience.",
-    icon: "mdi-ceiling-light-outline",
-    gradient: "linear-gradient(135deg, #1a1005 0%, #0d0a05 100%)",
-  },
-  {
-    name: "Beach",
-    desc: "Sand & sunset views. Feel the breeze while dining steps from the shoreline.",
-    icon: "mdi-beach",
-    gradient: "linear-gradient(135deg, #0a1a2a 0%, #051015 100%)",
-  },
-  {
-    name: "Terrace",
-    desc: "Open-air garden setting. A lush outdoor escape under the stars.",
-    icon: "mdi-flower-outline",
-    gradient: "linear-gradient(135deg, #0a1a0a 0%, #051005 100%)",
-  },
-];
+const environments = computed(() => ENVIRONMENT_LIST.filter((e) => e.venueId === 1));
+
 function continueBooking() {
+  sessionStorage.setItem("spotly_selected_env", selected.value);
   router.push("/booking/seats");
 }
 </script>

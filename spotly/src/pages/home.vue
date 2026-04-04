@@ -178,6 +178,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import SectionHeader from "@/components/ui/SectionHeader.vue";
+import { VENUE_LIST } from "@/datamodel/Venue.js";
 
 const router = useRouter();
 
@@ -190,55 +191,14 @@ const searchQuery = ref("");
 const selectedActivities = ref([]);
 const hoveredCard = ref(null);
 
-const activities = ["Outdoors", "Indoors", "Football", "Beach", "Party"];
-
-const venues = ref([
-  {
-    id: 1,
-    name: "Sunset Beach Club",
-    description: "Premium lounge with breathtaking sunset views",
-    ambienceTags: ["Beach", "Luxury", "Sunset"],
-    activities: ["Outdoors", "Beach", "Party"],
-  },
-  {
-    id: 2,
-    name: "Urban Elegance",
-    description: "Sophisticated indoor fine-dining experience",
-    ambienceTags: ["Indoor", "Elegant", "Modern"],
-    activities: ["Indoors", "Party"],
-  },
-  {
-    id: 3,
-    name: "Sports Lounge",
-    description: "Premier sports bar with premium seating",
-    ambienceTags: ["Sports", "Casual", "Vibrant"],
-    activities: ["Indoors", "Football"],
-  },
-  {
-    id: 4,
-    name: "Garden Terrace",
-    description: "Open-air garden with ambient lighting",
-    ambienceTags: ["Outdoor", "Natural", "Romantic"],
-    activities: ["Outdoors", "Party", "Beach"],
-  },
-  {
-    id: 5,
-    name: "Rooftop Paradise",
-    description: "City views with panoramic urban scenery",
-    ambienceTags: ["Modern", "Urban", "Chic"],
-    activities: ["Outdoors", "Indoors", "Party"],
-  },
-  {
-    id: 6,
-    name: "Coastal Club",
-    description: "Beachfront venue with exclusive private access",
-    ambienceTags: ["Luxury", "Beach", "Exclusive"],
-    activities: ["Beach", "Outdoors"],
-  },
-]);
+const activities = computed(() => {
+  const all = new Set();
+  VENUE_LIST.forEach(v => v.activities.forEach(a => all.add(a)));
+  return [...all];
+});
 
 const filteredVenues = computed(() =>
-  venues.value.filter((v) => {
+  VENUE_LIST.filter((v) => {
     const matchesSearch = v.name
       .toLowerCase()
       .includes(searchQuery.value.toLowerCase());
@@ -261,7 +221,7 @@ function clearFilters() {
 }
 
 function selectVenue(venue) {
-  router.push({ path: "/booking/environment", query: { venueId: venue.id } });
+  router.push(`/venue/${venue.id}`);
 }
 
 function handleLogout() {

@@ -361,7 +361,7 @@ function enrichReservation(r) {
 }
 
 // ── Computed lists ─────────────────────────────────────────────────────────────
-const ACTIVE_STATUSES = ["REQUESTED", "APPROVED", "CHECKED_IN"];
+const ACTIVE_STATUSES = ["REQUESTED", "APPROVED", "CHECKED_IN", "CANCELLED", "REJECTED"];
 const PAST_STATUSES = ["COMPLETED", "NO_SHOW"];
 
 const baseList = computed(() =>

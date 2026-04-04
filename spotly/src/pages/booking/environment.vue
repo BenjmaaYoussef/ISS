@@ -237,18 +237,21 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
 import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
 
+const route = useRoute();
 const router = useRouter();
 const selected = ref("");
 
-const environments = computed(() => ENVIRONMENT_LIST.filter((e) => e.venueId === 1));
+const venueId = computed(() => Number(route.query.venueId) || 1);
+const environments = computed(() => ENVIRONMENT_LIST.filter((e) => e.venueId === venueId.value));
 
 function continueBooking() {
   sessionStorage.setItem("spotly_selected_env", selected.value);
+  sessionStorage.setItem("spotly_booking", JSON.stringify({ venueId: venueId.value, environmentId: selected.value }));
   router.push("/booking/seats");
 }
 </script>

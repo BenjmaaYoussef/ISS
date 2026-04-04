@@ -81,24 +81,24 @@ This plan addresses every gap found in a full multi-role audit (5 parallel explo
 
 ### Tasks
 
-- [ ] **home.vue — use VENUE_LIST** — Import `VENUE_LIST` from `src/datamodel/Venue.js`. Replace the hardcoded `venues` ref with a computed that derives from `VENUE_LIST`. Wire search and activity filter against live data. Keep "Book Now" navigating to `/venue/${venue.id}`.
+- [x] **home.vue — use VENUE_LIST** — Import `VENUE_LIST` from `src/datamodel/Venue.js`. Replace the hardcoded `venues` ref with a computed that derives from `VENUE_LIST`. Wire search and activity filter against live data. Keep "Book Now" navigating to `/venue/${venue.id}`.
 
-- [ ] **venue/[id].vue — use route param** — Import `useRoute` and `getVenueById`. Read `route.params.id`, look up the venue, display all real fields (`name`, `description`, `ambienceTags`, `dressCode`, `images`). Wire:
+- [x] **venue/[id].vue — use route param** — Import `useRoute` and `getVenueById`. Read `route.params.id`, look up the venue, display all real fields (`name`, `description`, `ambienceTags`, `dressCode`, `images`). Wire:
   - "Make Reservation" → `router.push('/booking/environment?venueId=' + id)`
   - "Explore Menu" → `router.push('/menu/' + id)` (or first environment's tableId)
   - "Choose Your Environment" → same as Make Reservation
 
-- [ ] **booking/environment.vue — read venueId from query** — Replace the hardcoded `venueId === 1` filter with `Number(route.query.venueId)`. Also store `venueId` in the sessionStorage booking object: `spotly_booking = { venueId, environmentId }`.
+- [x] **booking/environment.vue — read venueId from query** — Replace the hardcoded `venueId === 1` filter with `Number(route.query.venueId)`. Also store `venueId` in the sessionStorage booking object: `spotly_booking = { venueId, environmentId }`.
 
-- [ ] **booking/seats.vue — fix date format** — Change cart item date to ISO string format (`selectedDate.toISOString().split('T')[0]` or `YYYY-MM-DD` string), not a localized display string like `"Fri 5 Apr"`.
+- [x] **booking/seats.vue — fix date format** — Change cart item date to ISO string format (`selectedDate.toISOString().split('T')[0]` or `YYYY-MM-DD` string), not a localized display string like `"Fri 5 Apr"`.
 
-- [ ] **booking/confirm.vue — validate cart on mount** — On `onMounted`, if `sessionStorage.spotly_cart` is empty or missing, show a toast and `router.replace('/booking/seats')` rather than silently rendering an empty summary. Remove the dead `showSuccess` ref and its dialog block.
+- [x] **booking/confirm.vue — validate cart on mount** — On `onMounted`, if `sessionStorage.spotly_cart` is empty or missing, show a toast and `router.replace('/booking/seats')` rather than silently rendering an empty summary. Remove the dead `showSuccess` ref and its dialog block.
 
-- [ ] **booking/awaiting.vue — real-time listener** — Add a `window.addEventListener('storage', handler)` that checks for changes to the `spotly_reservations` key. When the reservation matching `pendingId` changes status, the already-reactive `RESERVATION_LIST` computed will update automatically (the storage listener in `Reservation.js` does the splice). Verify that `currentReservation` is a `computed(() => RESERVATION_LIST.find(r => r.id === pendingId))` — if not, fix it.
+- [x] **booking/awaiting.vue — real-time listener** — Add a `window.addEventListener('storage', handler)` that checks for changes to the `spotly_reservations` key. When the reservation matching `pendingId` changes status, the already-reactive `RESERVATION_LIST` computed will update automatically (the storage listener in `Reservation.js` does the splice). Verify that `currentReservation` is a `computed(() => RESERVATION_LIST.find(r => r.id === pendingId))` — if not, fix it.
 
-- [ ] **booking/awaiting.vue — cancel button** — Add a "Cancel this request" button that calls `updateReservationStatus(pendingId, 'CANCELLED')` + `addReservationLog(...)` then redirects to `/client/dashboard`. Only visible when status is REQUESTED.
+- [x] **booking/awaiting.vue — cancel button** — Add a "Cancel this request" button that calls `updateReservationStatus(pendingId, 'CANCELLED')` + `addReservationLog(...)` then redirects to `/client/dashboard`. Only visible when status is REQUESTED.
 
-- [ ] **booking/awaiting.vue — hide demo controls** — Wrap the `simulateDecision` / demo buttons in `v-if="isDev"` where `const isDev = import.meta.env.DEV`.
+- [x] **booking/awaiting.vue — hide demo controls** — Wrap the `simulateDecision` / demo buttons in `v-if="isDev"` where `const isDev = import.meta.env.DEV`.
 
 ---
 
@@ -264,6 +264,6 @@ Accepts `(environmentId: Ref<string>, date: Ref<string>)`, returns a `computed` 
 
 ## Session Notes
 
-**Last session:** Phase 6 complete — Auth & Session fully implemented and tested (16/16 Playwright tests pass).
-**Next session starts at:** Phase 7 — Venue Discovery & Booking Flow.
-**Blockers / decisions pending:** None. Implement phases strictly in order (7 → 8 → 9 → 10 → 11).
+**Last session:** Phase 7 complete — Venue Discovery & Booking Flow fully implemented and tested (15/15 Playwright tests pass).
+**Next session starts at:** Phase 8 — Staff Page Full Redesign + Menu Page Fix.
+**Blockers / decisions pending:** None. Implement phases strictly in order (8 → 9 → 10 → 11).

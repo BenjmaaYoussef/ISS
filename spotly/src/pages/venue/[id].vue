@@ -1,7 +1,7 @@
 <template>
   <!-- NAVBAR -->
   <AppNavbarVenue
-    venue-name="Sunset Beach Club"
+    :venue-name="venue?.name ?? 'Venue'"
     :show-powered-by="true"
     :show-default-actions="true"
     @logout="$router.push('/auth')"
@@ -40,7 +40,7 @@
                   animation: fadeUp 0.5s ease both;
                 "
               >
-                Sunset Beach Club
+                {{ venue?.name ?? 'Venue' }}
               </h1>
 
               <!-- Quote -->
@@ -60,7 +60,7 @@
                     line-height: 1.7;
                   "
                 >
-                  "Premium lounge with sunset view"
+                  "{{ venue?.description ?? '' }}"
                 </p>
               </div>
 
@@ -106,44 +106,66 @@
                     padding: 0 32px;
                     height: 50px;
                   "
+                  @click="goToMenu"
                 >
                   <v-icon start icon="mdi-silverware-fork-knife" size="18" />
                   Explore Menu
                 </v-btn>
-                <v-btn
-                  variant="outlined"
-                  color="primary"
-                  size="large"
-                  style="
-                    font-size: 0.82rem;
-                    letter-spacing: 2px;
-                    text-transform: uppercase;
-                    padding: 0 32px;
-                    height: 50px;
-                  "
+                <v-tooltip
+                  :text="hasEnvironments ? '' : 'No environments configured for this venue yet'"
+                  :disabled="hasEnvironments"
                 >
-                  <v-icon start icon="mdi-calendar-check" size="18" />
-                  Make Reservation
-                </v-btn>
+                  <template #activator="{ props: tooltipProps }">
+                    <span v-bind="tooltipProps">
+                      <v-btn
+                        variant="outlined"
+                        color="primary"
+                        size="large"
+                        style="
+                          font-size: 0.82rem;
+                          letter-spacing: 2px;
+                          text-transform: uppercase;
+                          padding: 0 32px;
+                          height: 50px;
+                        "
+                        :disabled="!hasEnvironments"
+                        @click="goToBooking"
+                      >
+                        <v-icon start icon="mdi-calendar-check" size="18" />
+                        Make Reservation
+                      </v-btn>
+                    </span>
+                  </template>
+                </v-tooltip>
               </div>
 
-              <!-- NOUVEAU BOUTON ENVIRONMENT -->
+              <!-- ENVIRONMENT BUTTON -->
               <div class="mt-6" style="animation: fadeUp 0.5s 0.4s ease both">
-                <v-btn
-                  color="primary"
-                  to="/environment"
-                  variant="outlined"
-                  size="large"
-                  style="
-                    font-size: 0.82rem;
-                    letter-spacing: 2px;
-                    text-transform: uppercase;
-                    width: 100%;
-                  "
+                <v-tooltip
+                  :text="hasEnvironments ? '' : 'No environments configured for this venue yet'"
+                  :disabled="hasEnvironments"
                 >
-                  <v-icon start icon="mdi-beach" size="18" />
-                  Choose Your Environment
-                </v-btn>
+                  <template #activator="{ props: tooltipProps }">
+                    <span v-bind="tooltipProps" style="display: block">
+                      <v-btn
+                        color="primary"
+                        variant="outlined"
+                        size="large"
+                        style="
+                          font-size: 0.82rem;
+                          letter-spacing: 2px;
+                          text-transform: uppercase;
+                          width: 100%;
+                        "
+                        :disabled="!hasEnvironments"
+                        @click="goToBooking"
+                      >
+                        <v-icon start icon="mdi-beach" size="18" />
+                        Choose Your Environment
+                      </v-btn>
+                    </span>
+                  </template>
+                </v-tooltip>
               </div>
             </v-col>
 
@@ -356,30 +378,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
+import { getVenueById } from "@/datamodel/Venue.js";
+import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
 
+const route = useRoute();
 const router = useRouter();
-const activeNav = ref("Home");
-const navLinks = [{ label: "Home" }, { label: "Menu" }, { label: "Gallery" }];
 
-const tags = ["Beach", "Luxury", "Sunset"];
+const venueId = computed(() => Number(route.params.id));
+const venue = computed(() => getVenueById(venueId.value));
+
+const tags = computed(() => venue.value?.ambienceTags ?? []);
 
 const slides = [
   {
-    title: "Beachfront Terrace",
-    sub: "Open-air seating with panoramic ocean views",
+    title: "Main Hall",
+    sub: "Elegant setting for unforgettable evenings",
     bg: "linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)",
   },
   {
-    title: "Sunset Lounge",
-    sub: "Premium indoor seating for exclusive events",
+    title: "Terrace",
+    sub: "Open-air seating with panoramic views",
     bg: "linear-gradient(135deg, #2a1a0a 0%, #1a1005 40%, #0f0a02 100%)",
   },
   {
-    title: "Private Cabanas",
-    sub: "Intimate reserved spaces along the shoreline",
+    title: "Private Area",
+    sub: "Intimate reserved spaces for exclusive events",
     bg: "linear-gradient(135deg, #0a1a2a 0%, #051015 40%, #020a0f 100%)",
   },
 ];
@@ -399,22 +425,38 @@ onMounted(() => {
 });
 onUnmounted(() => clearInterval(timer));
 
-const importantInfo = [
-  { icon: "mdi-hanger", label: "Dress Code", value: "Smart Casual" },
+const importantInfo = computed(() => [
+  {
+    icon: "mdi-hanger",
+    label: "Dress Code",
+    value: venue.value?.dressCode || "Smart Casual",
+  },
   {
     icon: "mdi-translate",
     label: "Languages Spoken",
-    value: "English, Arabic, French",
+    value: venue.value?.supportedLanguages?.join(", ") || "English",
   },
   {
     icon: "mdi-clock-outline",
     label: "Opening Hours",
-    value: "12:00 PM - 2:00 AM",
+    value: "12:00 PM – 2:00 AM",
   },
   {
     icon: "mdi-map-marker-outline",
     label: "Location",
-    value: "Beachfront, North Shore",
+    value: "Contact venue for address",
   },
-];
+]);
+
+const hasEnvironments = computed(() =>
+  ENVIRONMENT_LIST.some((e) => e.venueId === venueId.value),
+);
+
+function goToBooking() {
+  router.push(`/booking/environment?venueId=${venueId.value}`);
+}
+
+function goToMenu() {
+  router.push(`/menu/${venueId.value}`);
+}
 </script>

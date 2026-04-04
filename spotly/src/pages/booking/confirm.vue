@@ -370,74 +370,10 @@
     </div>
   </v-main>
 
-  <!-- SUCCESS DIALOG -->
-  <v-dialog
-    v-model="showSuccess"
-    max-width="520"
-    persistent
-    content-class="success-dialog"
-  >
-    <v-card
-      flat
-      style="
-        background: var(--color-surface-elevated);
-        border: 1px solid rgba(212, 175, 55, 0.18);
-        border-radius: 16px;
-      "
-    >
-      <v-card-text class="pa-8 text-center">
-        <!-- Success Icon -->
-        <div class="success-icon mb-4">
-          <div class="success-circle">
-            <v-icon size="52" style="color: #2ebb57"
-              >mdi-check-circle-outline</v-icon
-            >
-          </div>
-        </div>
-
-        <h2 class="success-title mb-3">Reservation Requested!</h2>
-        <p class="success-message mb-6">
-          Your booking request has been submitted to
-          <strong style="color: #d4af37">Sunset Beach Club</strong>. You'll
-          receive a confirmation email at
-          <strong style="color: #d4af37">{{ form.email }}</strong> within 24
-          hours.
-        </p>
-
-        <!-- Status Badge -->
-        <div class="status-badge mb-6">
-          <v-icon size="16" class="mr-1">mdi-clock-outline</v-icon>
-          REQUESTED
-        </div>
-
-        <v-btn
-          block
-          flat
-          size="large"
-          :ripple="false"
-          class="mb-2 gold-btn"
-          @click="goToReservations"
-        >
-          View My Reservations
-        </v-btn>
-
-        <v-btn
-          block
-          variant="outlined"
-          size="large"
-          :ripple="false"
-          class="secondary-btn"
-          @click="closeSuccess"
-        >
-          Close
-        </v-btn>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
@@ -446,12 +382,18 @@ import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog.js
 
 const router = useRouter();
 
-// Read cart passed from P5 via sessionStorage
+// Read cart passed from seats page via sessionStorage
 const cart = ref([]);
 try {
   const raw = sessionStorage.getItem("spotly_cart");
   if (raw) cart.value = JSON.parse(raw);
 } catch (_) {}
+
+onMounted(() => {
+  if (cart.value.length === 0) {
+    router.replace("/booking/seats");
+  }
+});
 
 const firstItem = computed(() => cart.value[0] ?? null);
 const totalGuests = computed(() =>
@@ -464,8 +406,6 @@ const form = ref({
   phone: "",
   notes: "",
 });
-
-const showSuccess = ref(false);
 
 const emailRules = [
   (v) => !!v || "Email is required",
@@ -527,7 +467,6 @@ const focusNotes = () => {
   const textarea = document.querySelector("textarea");
   if (textarea) textarea.focus();
 };
-const closeSuccess = () => (showSuccess.value = false);
 const goToReservations = () => router.push("/client/dashboard");
 </script>
 

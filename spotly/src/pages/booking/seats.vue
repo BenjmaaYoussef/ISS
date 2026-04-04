@@ -236,10 +236,10 @@
               <div class="date-pills">
                 <button
                   v-for="d in dateOptions"
-                  :key="d.value"
+                  :key="d.iso"
                   class="date-pill"
-                  :class="{ 'date-pill--on': bookingDate === d.value }"
-                  @click="bookingDate = d.value"
+                  :class="{ 'date-pill--on': bookingDate === d.iso }"
+                  @click="bookingDate = d.iso"
                 >
                   <div class="date-pill-day">{{ d.day }}</div>
                   <div class="date-pill-num">{{ d.num }}</div>
@@ -792,7 +792,7 @@ const dateOptions = (() => {
     const d = new Date(base);
     d.setDate(base.getDate() + i + 1);
     return {
-      value: `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`,
+      iso: d.toISOString().split('T')[0],
       day: days[d.getDay()],
       num: d.getDate(),
     };

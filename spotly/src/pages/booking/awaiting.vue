@@ -215,8 +215,19 @@
               </div>
             </div>
 
-            <!-- Demo controls -->
-            <div class="demo-controls">
+            <!-- Cancel button (only while pending) -->
+            <v-btn
+              variant="outlined"
+              size="small"
+              class="secondary-btn mb-4"
+              @click="cancelReservation"
+            >
+              <v-icon start size="14">mdi-close</v-icon>
+              Cancel this request
+            </v-btn>
+
+            <!-- Demo controls (dev only) -->
+            <div v-if="isDev" class="demo-controls">
               <div class="demo-label mb-3">— Demo Controls —</div>
               <div class="d-flex gap-3">
                 <v-btn
@@ -473,6 +484,26 @@ const reservationTable = computed(() => {
   const env = ENVIRONMENT_LIST.find((e) => e.id === r.environmentId);
   return env?.elements.find((el) => el.id === r.elementId)?.label ?? r.elementId;
 });
+
+const isDev = import.meta.env.DEV;
+
+// ─── Cancel reservation ───────────────────────────────────────────────────────
+const cancelReservation = () => {
+  if (!pendingId.value) return;
+  const prev = currentReservation.value?.status ?? "REQUESTED";
+  updateReservationStatus(pendingId.value, "CANCELLED");
+  addReservationLog(
+    new ReservationLog({
+      id: Date.now(),
+      reservationId: pendingId.value,
+      previousStatus: prev,
+      newStatus: "CANCELLED",
+      timestamp: new Date().toISOString(),
+      actorRole: "client",
+    }),
+  );
+  router.push("/client/dashboard");
+};
 
 // ─── Demo: simulate admin decision ───────────────────────────────────────────
 const simulateDecision = (decision) => {

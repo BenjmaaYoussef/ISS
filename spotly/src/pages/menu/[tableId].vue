@@ -1,24 +1,15 @@
 <template>
   <!-- top bar -->
   <AppNavbarVenue
-    venue-name="Sunset Beach Club"
-    venue-sub-label="Table #12 — Terrace"
+    :venue-name="venueName"
+    :venue-sub-label="subLabel"
     :compact="true"
     :show-powered-by="true"
     :show-default-actions="false"
   >
     <template #actions>
-      <v-btn icon variant="text" class="icon-btn" title="Go back" size="small">
+      <v-btn icon variant="text" class="icon-btn" title="Go back" size="small" @click="$router.back()">
         <v-icon color="#6b7a8d" size="20">mdi-arrow-left</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        variant="text"
-        class="icon-btn"
-        title="Save menu"
-        size="small"
-      >
-        <v-icon color="#6b7a8d" size="20">mdi-bookmark-outline</v-icon>
       </v-btn>
       <!-- Icon-only on mobile -->
       <v-btn
@@ -41,37 +32,50 @@
   <!-- ── Main ── -->
   <v-main class="spotly-main">
     <div class="menu-container pa-4 pa-sm-6 pa-md-8">
-      <!-- Welcome -->
-      <div class="welcome-section mb-6 mb-sm-8">
-        <div class="welcome-heading">Welcome to Sunset Beach Club</div>
-        <div class="welcome-sub">
-          <v-icon size="14" color="#D4AF37" class="mr-1">mdi-map-marker</v-icon>
-          Terrace Exclusive Menu
-          <span class="filtered-note ml-2 d-none d-sm-inline"
-            >— Items filtered for your location</span
-          >
+
+      <!-- Not found state -->
+      <div v-if="!venueId" class="not-found">
+        <v-icon size="48" color="rgba(212,175,55,0.3)">mdi-silverware</v-icon>
+        <p>Menu not found</p>
+        <v-btn variant="outlined" color="#D4AF37" @click="$router.back()">Go Back</v-btn>
+      </div>
+
+      <template v-else>
+        <!-- Welcome -->
+        <div class="welcome-section mb-6 mb-sm-8">
+          <div class="welcome-heading">{{ venueName }}</div>
+          <div class="welcome-sub">
+            <v-icon size="14" color="#D4AF37" class="mr-1">mdi-silverware-fork-knife</v-icon>
+            {{ subLabel }}
+            <span class="filtered-note ml-2 d-none d-sm-inline">— Items filtered for your location</span>
+          </div>
         </div>
-      </div>
 
-      <!-- Category Hero Images -->
-      <MenuCategoryHero
-        :categories="categories"
-        v-model="activeCategory"
-        class="mb-6 mb-sm-10"
-      />
-
-      <!-- Decorative divider -->
-      <SpotlyDivider :label="currentCategory.label" class="mb-8" />
-
-      <!-- Menu Items -->
-      <div class="menu-list">
-        <MenuItemRow
-          v-for="(item, i) in filteredItems"
-          :key="item.id"
-          :item="item"
-          :anim-delay="`${i * 60}ms`"
+        <!-- Category Hero Images -->
+        <MenuCategoryHero
+          :categories="availableCategories"
+          v-model="activeCategory"
+          class="mb-6 mb-sm-10"
         />
-      </div>
+
+        <!-- Decorative divider -->
+        <SpotlyDivider :label="currentCategory?.label || ''" class="mb-8" />
+
+        <!-- Menu Items -->
+        <div v-if="filteredItems.length" class="menu-list">
+          <MenuItemRow
+            v-for="(item, i) in filteredItems"
+            :key="item.id"
+            :item="item"
+            :anim-delay="`${i * 60}ms`"
+          />
+        </div>
+
+        <div v-else class="menu-empty">
+          <v-icon size="36" color="rgba(212,175,55,0.2)">mdi-silverware</v-icon>
+          <p>No items in this category yet</p>
+        </div>
+      </template>
     </div>
   </v-main>
 
@@ -80,258 +84,113 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useSnackbar } from "@/composables/useSnackbar";
-import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
-import MenuCategoryHero from "@/components/menu/MenuCategoryHero.vue";
-import MenuItemRow from "@/components/menu/MenuItemRow.vue";
-import SpotlyDivider from "@/components/ui/SpotlyDivider.vue";
-import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useSnackbar } from '@/composables/useSnackbar'
+import { MENU_ITEM_LIST } from '@/datamodel/MenuItem.js'
+import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+import { VENUE_LIST } from '@/datamodel/Venue.js'
 
-const { snackbar, notify } = useSnackbar();
+const route = useRoute()
+const { snackbar, notify } = useSnackbar()
 
-// ── Categories ────────────────────────────────────────────────────────────────
-const categories = [
+// ── Resolve venueId from tableId param ────────────────────────────────────────
+// The param may be:
+//   a) An element id (e.g. "e1", "et1") — look up environment
+//   b) A venueId directly (e.g. "1") — used by venue/[id].vue "Explore Menu" button
+const tableId = route.params.tableId
+
+const resolved = computed(() => {
+  // Try element id lookup first
+  for (const env of ENVIRONMENT_LIST) {
+    const el = env.elements.find(e => e.id === tableId)
+    if (el) {
+      return { venueId: env.venueId, elementLabel: el.label, envName: env.name }
+    }
+  }
+  // Fall back: treat as venueId
+  const numId = parseInt(tableId)
+  if (!isNaN(numId) && VENUE_LIST.find(v => v.id === numId)) {
+    return { venueId: numId, elementLabel: null, envName: null }
+  }
+  return null
+})
+
+const venueId = computed(() => resolved.value?.venueId ?? null)
+
+const venueName = computed(() => {
+  if (!venueId.value) return 'Menu'
+  return VENUE_LIST.find(v => v.id === venueId.value)?.name || 'Venue Menu'
+})
+
+const subLabel = computed(() => {
+  const r = resolved.value
+  if (!r) return ''
+  if (r.elementLabel && r.envName) return `${r.elementLabel} — ${r.envName}`
+  return 'Full Menu'
+})
+
+// ── Categories (canonical) ────────────────────────────────────────────────────
+const ALL_CATEGORIES = [
   {
-    key: "cocktail",
-    label: "Cocktails",
-    icon: "mdi-glass-cocktail",
-    gradient: "linear-gradient(135deg,#1a0a2e,#3d1a5e)",
-    count: 6,
+    key: 'starters',
+    label: 'Starters',
+    icon: 'mdi-food-fork-drink',
+    gradient: 'linear-gradient(135deg,#0d1f0a,#1e4a14)',
   },
   {
-    key: "food",
-    label: "Food",
-    icon: "mdi-silverware-variant",
-    gradient: "linear-gradient(135deg,#0d1f0a,#1e4a14)",
-    count: 8,
+    key: 'mains',
+    label: 'Mains',
+    icon: 'mdi-silverware-variant',
+    gradient: 'linear-gradient(135deg,#1a1208,#3d2a10)',
   },
   {
-    key: "dessert",
-    label: "Desserts",
-    icon: "mdi-ice-cream",
-    gradient: "linear-gradient(135deg,#1f0a0a,#4a1414)",
-    count: 5,
+    key: 'desserts',
+    label: 'Desserts',
+    icon: 'mdi-ice-cream',
+    gradient: 'linear-gradient(135deg,#1f0a0a,#4a1414)',
   },
-];
-const activeCategory = ref("food");
+  {
+    key: 'drinks',
+    label: 'Drinks',
+    icon: 'mdi-glass-cocktail',
+    gradient: 'linear-gradient(135deg,#1a0a2e,#3d1a5e)',
+  },
+]
+
+// ── Items for this venue ───────────────────────────────────────────────────────
+const venueItems = computed(() =>
+  venueId.value != null
+    ? MENU_ITEM_LIST.filter(m => m.venueId === venueId.value && m.available !== false)
+    : [],
+)
+
+// Only show categories that have at least one item
+const availableCategories = computed(() => {
+  const keys = new Set(venueItems.value.map(i => i.category))
+  return ALL_CATEGORIES
+    .filter(c => keys.has(c.key))
+    .map(c => ({ ...c, count: venueItems.value.filter(i => i.category === c.key).length }))
+})
+
+const activeCategory = ref(availableCategories.value[0]?.key || 'starters')
+
 const currentCategory = computed(() =>
-  categories.find((c) => c.key === activeCategory.value),
-);
-
-// ── Menu Items ────────────────────────────────────────────────────────────────
-const menuItems = ref([
-  // Food
-  {
-    id: 1,
-    category: "food",
-    name: "Bruschetta",
-    price: 12,
-    desc: "Grilled bread, tomatoes, fresh basil, olive oil",
-    tags: ["Vegetarian"],
-  },
-  {
-    id: 2,
-    category: "food",
-    name: "Calamari Fritti",
-    price: 18,
-    desc: "Crispy fried squid, lemon aioli, herbs",
-    tags: ["Seafood"],
-  },
-  {
-    id: 3,
-    category: "food",
-    name: "Terrace Mezze Platter",
-    price: 28,
-    desc: "Hummus, tapenade, pita, seasonal crudités",
-    tags: ["Vegetarian", "Shareable"],
-  },
-  {
-    id: 4,
-    category: "food",
-    name: "Sea Bass Fillet",
-    price: 42,
-    desc: "Pan-seared, citrus butter sauce, steamed vegetables",
-    tags: ["Seafood", "Chef's Pick"],
-  },
-  {
-    id: 5,
-    category: "food",
-    name: "Wagyu Beef Burger",
-    price: 38,
-    desc: "Wagyu patty, truffle mayo, aged cheddar, brioche",
-    tags: ["Bestseller"],
-  },
-  // Cocktails
-  {
-    id: 6,
-    category: "cocktail",
-    name: "Terrace Spritz",
-    price: 16,
-    desc: "Aperol, prosecco, fresh orange, soda",
-    tags: ["Signature"],
-  },
-  {
-    id: 7,
-    category: "cocktail",
-    name: "Gold Rush",
-    price: 18,
-    desc: "Bourbon, honey syrup, lemon juice",
-    tags: ["Signature"],
-  },
-  {
-    id: 8,
-    category: "cocktail",
-    name: "Mojito Classique",
-    price: 14,
-    desc: "White rum, lime, mint, soda",
-    tags: [],
-  },
-  {
-    id: 9,
-    category: "cocktail",
-    name: "Negroni",
-    price: 17,
-    desc: "Gin, Campari, sweet vermouth",
-    tags: ["Classic"],
-  },
-  {
-    id: 10,
-    category: "cocktail",
-    name: "Virgin Sunrise",
-    price: 12,
-    desc: "Orange juice, grenadine, soda",
-    tags: ["Non-alcoholic"],
-  },
-  // Desserts
-  {
-    id: 11,
-    category: "dessert",
-    name: "Crème Brûlée",
-    price: 14,
-    desc: "Vanilla custard, caramelized sugar crust",
-    tags: ["Classic"],
-  },
-  {
-    id: 12,
-    category: "dessert",
-    name: "Chocolate Fondant",
-    price: 16,
-    desc: "Dark chocolate, molten center, vanilla ice cream",
-    tags: ["Chef's Pick"],
-  },
-  {
-    id: 13,
-    category: "dessert",
-    name: "Baklava Selection",
-    price: 12,
-    desc: "Honey, pistachio, filo pastry — 4 pieces",
-    tags: ["Local"],
-  },
-]);
+  ALL_CATEGORIES.find(c => c.key === activeCategory.value),
+)
 
 const filteredItems = computed(() =>
-  menuItems.value.filter((i) => i.category === activeCategory.value),
-);
+  venueItems.value.filter(i => i.category === activeCategory.value),
+)
 
 // ── Call Waiter ───────────────────────────────────────────────────────────────
 const callWaiter = () =>
-  notify(
-    "Waiter has been notified — they'll be right with you!",
-    "#D4AF37",
-    "mdi-room-service",
-  );
-
-// ── Snackbar ──────────────────────────────────────────────────────────────────
-// snackbar managed by useSnackbar composable
+  notify("Waiter has been notified — they'll be right with you!", '#D4AF37', 'mdi-room-service')
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap");
-
-.spotly-app {
-  --gold: #d4af37;
-  --midnight: #0a0e14;
-  --surface: var(--color-surface);
-  --surface2: var(--color-surface-elevated);
-  --green: #2ebb57;
-  --rose: #c71585;
-  --muted: #6b7a8d;
-  background: var(--midnight) !important;
-  font-family: var(--font-body);
-}
-
-/* ── Navbar ── */
-.spotly-navbar {
-  background: rgba(10, 14, 20, 0.97) !important;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.18) !important;
-  backdrop-filter: blur(14px);
-}
-.navbar-inner {
-  height: 100%;
-}
-.venue-name {
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  font-weight: 700;
-  color: #d4af37;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-.table-label {
-  font-size: 0.62rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 1px;
-  white-space: nowrap;
-}
-.powered-by {
-  border-left: 1px solid rgba(212,175,55,0.18);
-  padding-left: 10px;
-}
-.powered-text {
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(212, 175, 55, 0.55);
-}
-
-.icon-btn {
-  opacity: 0.6;
-  transition: opacity 0.2s !important;
-}
-.icon-btn:hover {
-  opacity: 1;
-}
-
-.call-waiter-btn {
-  background: transparent !important;
-  border: 1.5px solid var(--gold) !important;
-  color: var(--gold) !important;
-  font-weight: 600;
-  font-size: 0.8rem;
-  border-radius: 24px !important;
-  letter-spacing: 0.06em;
-  transition:
-    background 0.2s,
-    box-shadow 0.2s !important;
-}
-.call-waiter-icon {
-  border-radius: 50% !important;
-  width: 36px !important;
-  height: 36px !important;
-  min-width: unset !important;
-}
-.call-waiter-btn:hover {
-  background: rgba(212, 175, 55, 0.1) !important;
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.25);
-}
-
-/* ── Main ── */
 .spotly-main {
-  background: var(--midnight) !important;
+  background: #0a0e14 !important;
 }
 .menu-container {
   max-width: 960px;
@@ -351,238 +210,66 @@ const callWaiter = () =>
   align-items: center;
   flex-wrap: wrap;
   font-size: 0.84rem;
-  color: var(--gold);
+  color: #d4af37;
   margin-top: 8px;
   font-weight: 500;
   letter-spacing: 0.02em;
 }
 .filtered-note {
-  color: var(--muted);
+  color: #6b7a8d;
   font-style: italic;
   font-size: 0.78rem;
 }
 
-/* ── Hero Grid ── */
-.hero-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-@media (max-width: 480px) {
-  .hero-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  .hero-card {
-    min-height: unset !important;
-    padding: 16px 18px !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 14px;
-    border-radius: 12px !important;
-  }
-  .hero-icon {
-    margin-bottom: 0 !important;
-    flex-shrink: 0;
-  }
-  .hero-label {
-    font-size: 0.95rem !important;
-  }
-  .hero-count {
-    margin-top: 2px !important;
-  }
-}
-@media (min-width: 481px) and (max-width: 680px) {
-  .hero-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-  .hero-card {
-    padding: 18px 14px 14px !important;
-    min-height: 110px !important;
-  }
-  .hero-label {
-    font-size: 0.9rem !important;
-  }
-}
-.hero-card {
-  position: relative;
-  border-radius: 16px;
-  padding: 28px 24px 22px;
-  cursor: pointer;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  transition:
-    transform 0.25s,
-    border-color 0.25s,
-    box-shadow 0.25s;
-  min-height: 140px;
-}
-.hero-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(212, 175, 55, 0.3);
-}
-.hero-card--active {
-  border-color: rgba(212, 175, 55, 0.5) !important;
-  box-shadow: 0 0 24px rgba(212, 175, 55, 0.12);
-}
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  opacity: 0.85;
-  transition: opacity 0.25s;
-}
-.hero-card:hover .hero-bg {
-  opacity: 1;
-}
-.hero-icon {
-  position: relative;
-  z-index: 1;
-  margin-bottom: 12px;
-}
-.hero-label {
-  position: relative;
-  z-index: 1;
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-  letter-spacing: 0.01em;
-}
-.hero-count {
-  position: relative;
-  z-index: 1;
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.hero-active-line {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--gold), transparent);
-}
-
-/* ── Section Divider ── */
-.section-divider {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.divider-line {
-  flex: 1;
-  height: 1px;
-  background: rgba(212,175,55,0.18);
-}
-.divider-text {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 0.8rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--gold);
-  white-space: nowrap;
-}
-
-/* ── Menu List ── */
+/* ── Menu list ── */
 .menu-list {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
-.menu-item {
+
+/* ── Empty / not found ── */
+.menu-empty,
+.not-found {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 16px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  animation: slideIn 0.35s ease both;
-  transition: background 0.15s;
-  border-radius: 8px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 16px;
   gap: 12px;
-}
-.menu-item:hover {
-  background: rgba(212, 175, 55, 0.03);
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.85rem;
+  text-align: center;
 }
 
-.item-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  flex: 1;
-  min-width: 0;
-}
-.item-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--gold);
-  margin-top: 8px;
-  flex-shrink: 0;
+/* ── Navbar icon button ── */
+.icon-btn {
   opacity: 0.6;
+  transition: opacity 0.2s !important;
 }
-.item-info {
-  min-width: 0;
-  flex: 1;
+.icon-btn:hover {
+  opacity: 1;
 }
-.item-name {
-  font-family: var(--font-heading);
-  font-size: 0.95rem;
+
+/* ── Call waiter button ── */
+.call-waiter-btn {
+  background: transparent !important;
+  border: 1.5px solid #d4af37 !important;
+  color: #d4af37 !important;
   font-weight: 600;
-  color: #fff;
-  line-height: 1.3;
+  font-size: 0.8rem;
+  border-radius: 24px !important;
+  letter-spacing: 0.06em;
+  transition: background 0.2s, box-shadow 0.2s !important;
 }
-.item-desc {
-  font-size: 0.76rem;
-  color: var(--muted);
-  margin-top: 3px;
-  line-height: 1.5;
-  /* Allow wrapping on mobile */
-  word-break: break-word;
+.call-waiter-icon {
+  border-radius: 50% !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: unset !important;
 }
-
-.item-tags {
-  flex-wrap: wrap;
-}
-.item-tag {
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 2px 7px;
-  border-radius: 10px;
-  background: rgba(212, 175, 55, 0.1);
-  color: var(--gold);
-  border: 1px solid rgba(212,175,55,0.18);
-  white-space: nowrap;
-}
-
-.item-right {
-  display: flex;
-  align-items: flex-start;
-  flex-shrink: 0;
-  padding-left: 8px;
-  padding-top: 2px;
-}
-.item-price {
-  font-family: var(--font-heading);
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--gold);
-  white-space: nowrap;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.call-waiter-btn:hover {
+  background: rgba(212, 175, 55, 0.1) !important;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.25);
 }
 </style>

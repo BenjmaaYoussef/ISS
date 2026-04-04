@@ -142,11 +142,11 @@ Accepts `(environmentId: Ref<string>, date: Ref<string>)`, returns a `computed` 
 
 ### Tasks
 
-- [ ] **Create `useFloorTables.js`** — Accepts `(environmentId, date)` as refs, returns computed UI table array by joining `ENVIRONMENT_LIST` elements with `RESERVATION_LIST`. Centralizes the shape transformation logic.
+- [x] **Create `useFloorTables.js`** — Accepts `(environmentId, date)` as refs, returns computed UI table array by joining `ENVIRONMENT_LIST` elements with `RESERVATION_LIST`. Centralizes the shape transformation logic.
 
-- [ ] **Create `VenueFloorMap.vue`** — Per spec above. Uses `TableCard` for each element. Scales canvas with `transform: scale()`. Emits `table-click`.
+- [x] **Create `VenueFloorMap.vue`** — Per spec above. Uses `TableCard` for each element. Scales canvas with `transform: scale()`. Emits `table-click`.
 
-- [ ] **Rewrite `staff/dashboard.vue`** — Full page rewrite:
+- [x] **Rewrite `staff/dashboard.vue`** — Full page rewrite:
   - Read `session` from `useAuth` composable — use `session.name` in navbar (remove hardcoded "Admin")
   - Top bar: date selector (defaults to today), environment tab switcher from `ENVIRONMENT_LIST`
   - Main area: `<VenueFloorMap :environment="selectedEnv" :tables="floorTables" mode="staff" @table-click="onTableClick" />`
@@ -160,13 +160,13 @@ Accepts `(environmentId: Ref<string>, date: Ref<string>)`, returns a `computed` 
 
 ### Menu page tasks
 
-- [ ] **menu/[tableId].vue — use MENU_ITEM_LIST** — Import `MENU_ITEM_LIST`. Read `route.params.tableId`, look up the element's `venueId` via `ENVIRONMENT_LIST`, filter `MENU_ITEM_LIST` by `venueId`, group by `category`.
+- [x] **menu/[tableId].vue — use MENU_ITEM_LIST** — Import `MENU_ITEM_LIST`. Read `route.params.tableId`, look up the element's `venueId` via `ENVIRONMENT_LIST`, filter `MENU_ITEM_LIST` by `venueId`, group by `category`.
 
-- [ ] **menu/[tableId].vue — fix category keys** — Current: `"cocktail"`, `"food"`, `"dessert"`. Canonical: `starters | mains | desserts | drinks`. Align filter chips and grouping.
+- [x] **menu/[tableId].vue — fix category keys** — Current: `"cocktail"`, `"food"`, `"dessert"`. Canonical: `starters | mains | desserts | drinks`. Align filter chips and grouping.
 
-- [ ] **menu/[tableId].vue — fix dead buttons** — "Go back": wire to `router.back()`. "Save menu": remove (leftover from non-existent edit mode).
+- [x] **menu/[tableId].vue — fix dead buttons** — "Go back": wire to `router.back()`. "Save menu": remove (leftover from non-existent edit mode).
 
-- [ ] **menu/[tableId].vue — fix venue label** — Navbar hardcodes `"Table #12 — Terrace"`. Compute from looked-up element label + environment name.
+- [x] **menu/[tableId].vue — fix venue label** — Navbar hardcodes `"Table #12 — Terrace"`. Compute from looked-up element label + environment name.
 
 ---
 
@@ -262,8 +262,30 @@ Accepts `(environmentId: Ref<string>, date: Ref<string>)`, returns a `computed` 
 
 ---
 
+## Phase 12 — Per-Environment Menus (LOW)
+
+**Scope:** `src/datamodel/MenuItem.js`, `src/pages/menu/[tableId].vue`, `src/pages/admin/menu.vue`
+**Goal:** Menu items can optionally be scoped to a specific environment. Items with no `environmentId` appear in all environments (venue-wide). Items with an `environmentId` only appear when visiting from a matching table/element.
+
+### How it works
+- `MenuItem.environmentId = null` → venue-wide (default, backwards-compatible)
+- `MenuItem.environmentId = 'env_terrace'` → Terrace only
+- Filter in `menu/[tableId].vue`: `m.venueId === venueId && (m.environmentId == null || m.environmentId === envId)`
+- When the menu is accessed via the venue page (no element context, only venueId known), `envId` is null → all items with `environmentId == null` are shown (venue-wide only)
+- When accessed from a specific table QR code (`/menu/et1`), the element → environment lookup provides `envId` → both venue-wide and environment-specific items are shown
+
+### Tasks
+
+- [ ] **MenuItem.js — add `environmentId` field** — Extend the `MenuItem` class with `environmentId = null`. No migration needed — existing items default to `null` (venue-wide). Update `addMenuItem` and `updateMenuItem` to pass through the field.
+
+- [ ] **menu/[tableId].vue — filter by environmentId** — Update `venueItems` computed: `m.venueId === venueId && (m.environmentId == null || m.environmentId === envId)`. `envId` is already available from the element → environment lookup; when only venueId is known (accessed from venue page), `envId` stays `null` and only venue-wide items show.
+
+- [ ] **admin/menu.vue — environment scope selector** — Add an optional "Environment" dropdown to the add/edit dialog. Options: "All environments" (null) + each environment name from `ENVIRONMENT_LIST` filtered by the venue. Persist as `environmentId` on the item. Show the environment name as a small tag on each menu item row when set.
+
+---
+
 ## Session Notes
 
-**Last session:** Phase 7 complete — Venue Discovery & Booking Flow fully implemented and tested (15/15 Playwright tests pass).
-**Next session starts at:** Phase 8 — Staff Page Full Redesign + Menu Page Fix.
-**Blockers / decisions pending:** None. Implement phases strictly in order (8 → 9 → 10 → 11).
+**Last session:** Phase 8 complete — Staff Dashboard rebuilt (VenueFloorMap, useFloorTables, date selector, reservation panel) + menu page fixed. 20/20 Playwright tests pass. Today's seed reservations added to Reservation.js; drinks/desserts seeds added to MenuItem.js.
+**Next session starts at:** Phase 9 — Venue Settings Persistence + 404 + Datamodel Gaps.
+**Blockers / decisions pending:** None. Implement phases strictly in order (9 → 10 → 11).

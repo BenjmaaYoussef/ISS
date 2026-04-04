@@ -1093,7 +1093,9 @@ const deleteSelected = () => {
   );
 
   if (blockingRes.length > 0) {
-    const el = currentEnvElements.value.find((el) => el.id === selectedId.value);
+    const el = currentEnvElements.value.find(
+      (el) => el.id === selectedId.value,
+    );
     deleteConstraintTableName.value = el?.label ?? selectedId.value;
     deleteConstraintReservations.value = blockingRes.map((r) => ({
       id: r.id,
@@ -1217,12 +1219,14 @@ const showSaveDialog = ref(false);
 const jsonPreview = ref("");
 const saveLayout = () => {
   // Persist local working copy back to ENVIRONMENT_LIST (triggers localStorage watch)
+  //TODO
   ENVIRONMENT_LIST.splice(
     0,
     ENVIRONMENT_LIST.length,
     ...environments.value.map((e) => new Environment(e)),
   );
-  jsonPreview.value = JSON.stringify(environments.value, null, 2).slice(0, 280) + "\n  …";
+  jsonPreview.value =
+    JSON.stringify(environments.value, null, 2).slice(0, 280) + "\n  …";
   showSaveDialog.value = true;
 };
 </script>

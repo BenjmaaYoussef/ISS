@@ -495,7 +495,7 @@ const requestReservation = () => {
         venueId: 1,
         environmentId: item.envId,
         elementId: item.id,
-        userId: "",
+        userId: (() => { try { return JSON.parse(localStorage.getItem('spotly_session') || '{}').userId || '' } catch { return '' } })(),
         name: form.value.name,
         email: form.value.email,
         phone: form.value.phone,

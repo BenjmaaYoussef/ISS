@@ -78,7 +78,7 @@
         </v-btn>
       </template>
 
-      <!-- ── Default: admin avatar ── -->
+      <!-- ── Default: admin avatar + logout ── -->
       <div v-if="adminLabel" class="d-flex align-center ga-2 ml-4">
         <v-avatar size="32" class="admin-avatar">
           <span class="text-caption font-weight-bold">
@@ -86,6 +86,17 @@
           </span>
         </v-avatar>
         <span class="admin-name d-none d-sm-inline">{{ adminLabel }}</span>
+        <v-btn
+          v-if="showLogout"
+          icon
+          variant="text"
+          size="small"
+          style="color: rgba(255,255,255,0.4)"
+          title="Logout"
+          @click="$emit('logout')"
+        >
+          <v-icon size="18">mdi-logout</v-icon>
+        </v-btn>
       </div>
     </div>
   </v-app-bar>
@@ -131,9 +142,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  /** Show logout icon next to admin avatar */
+  showLogout: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-defineEmits(["nav"]);
+defineEmits(["nav", "logout"]);
 
 const adminInitials = computed(() => {
   if (!props.adminLabel) return "";

@@ -22,13 +22,13 @@
       <div class="welcome-banner mb-8">
         <div class="welcome-glow" />
         <div class="welcome-content">
-          <div class="welcome-greeting">Welcome back, John!</div>
+          <div class="welcome-greeting">Welcome back, {{ sessionName }}!</div>
           <div class="welcome-sub">
             Here's a glance at your reservations at Sunset Beach Club.
           </div>
         </div>
         <div class="welcome-avatar">
-          <div class="avatar-ring">JD</div>
+          <div class="avatar-ring">{{ sessionName.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase() }}</div>
         </div>
       </div>
 
@@ -62,7 +62,7 @@
             <!-- Status indicator strip -->
             <div
               class="card-strip"
-              :class="`strip--${res.status.toLowerCase()}`"
+              :class="`strip--${res.status === 'REQUESTED' ? 'pending' : res.status.toLowerCase()}`"
             />
 
             <div class="card-body">
@@ -119,7 +119,7 @@
                   variant="outlined"
                   size="small"
                   class="cancel-btn"
-                  :disabled="res.status === 'Cancelled'"
+                  :disabled="['CANCELLED', 'REJECTED', 'NO_SHOW', 'COMPLETED', 'CHECKED_IN'].includes(res.status)"
                   @click="
                     cancelDialog = true;
                     selectedRes = res;
@@ -310,60 +310,110 @@
 <script setup>
 import { ref, reactive, computed } from "vue";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { useAuth } from "@/composables/useAuth";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import SectionHeader from "@/components/ui/SectionHeader.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
+import { RESERVATION_LIST, Reservation, addReservation, updateReservationStatus } from "@/datamodel/Reservation.js";
+import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
+import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog.js";
 
-const { snackbar, notify, notifyError } = useSnackbar();
+const { snackbar, notify } = useSnackbar();
+
+// ── Session ────────────────────────────────────────────────────────────────────
+const session = (() => {
+  try { return JSON.parse(localStorage.getItem("spotly_session") || "{}"); } catch { return {}; }
+})();
+const sessionUserId = session.userId || "";
+const sessionName = session.name || "Guest";
 
 // ── Dialogs & state ────────────────────────────────────────────────────────────
 const cancelDialog = ref(false);
 const bookDialog = ref(false);
 const selectedRes = ref(null);
-const areas = ["Beach", "Terrace", "VIP Lounge", "Garden", "Indoor"];
 
 const newRes = reactive({ date: "", time: "", area: "", guests: 2, notes: "" });
 
-// ── Snackbar ───────────────────────────────────────────────────────────────────
-// snackbar managed by useSnackbar composable
-
-// ── Data ───────────────────────────────────────────────────────────────────────
-const upcoming = ref([
-  {
-    id: 1,
-    date: "Feb 16, 2026",
-    time: "19:00",
-    area: "Beach",
-    table: "Sun-4",
-    guests: 2,
-    notes: "Window seat preferred",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    date: "Feb 22, 2026",
-    time: "20:30",
-    area: "VIP Lounge",
-    table: "VIP-01",
-    guests: 4,
-    notes: "Birthday celebration",
-    status: "Approved",
-  },
-]);
-
-const pastVisits = ref([
-  { day: "10", month: "Jan", area: "Terrace", table: "T-08", guests: 2 },
-  { day: "28", month: "Dec", area: "Garden", table: "G-03", guests: 3 },
-  { day: "14", month: "Dec", area: "Indoor", table: "I-11", guests: 5 },
-  { day: "02", month: "Nov", area: "Beach", table: "B-06", guests: 2 },
-]);
+// ── Derived areas from ENVIRONMENT_LIST ────────────────────────────────────────
+const areas = computed(() => ENVIRONMENT_LIST.map((e) => e.name));
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
-// statusIcon handled internally by ReservationStatusChip
+function formatDate(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
 
+function enrichReservation(r) {
+  const env = ENVIRONMENT_LIST.find((e) => e.id === r.environmentId);
+  const el = env?.elements.find((el) => el.id === r.elementId);
+  return {
+    id: r.id,
+    rawDate: r.date,
+    date: formatDate(r.date),
+    time: r.time,
+    area: env?.name || r.environmentId || "Unknown",
+    table: el?.label || r.elementId || "TBD",
+    guests: r.guests,
+    notes: r.notes,
+    status: r.status,
+  };
+}
+
+// ── Computed lists ─────────────────────────────────────────────────────────────
+const ACTIVE_STATUSES = ["REQUESTED", "APPROVED", "CHECKED_IN"];
+const PAST_STATUSES = ["COMPLETED", "NO_SHOW"];
+
+const baseList = computed(() =>
+  sessionUserId
+    ? RESERVATION_LIST.filter((r) => r.userId === sessionUserId)
+    : RESERVATION_LIST,
+);
+
+const upcoming = computed(() =>
+  baseList.value
+    .filter((r) => ACTIVE_STATUSES.includes(r.status))
+    .map(enrichReservation)
+    .sort((a, b) => a.rawDate.localeCompare(b.rawDate)),
+);
+
+const pastVisits = computed(() =>
+  baseList.value
+    .filter((r) => PAST_STATUSES.includes(r.status))
+    .map((r) => {
+      const d = new Date(r.date + "T00:00:00");
+      const env = ENVIRONMENT_LIST.find((e) => e.id === r.environmentId);
+      const el = env?.elements.find((el) => el.id === r.elementId);
+      return {
+        day: String(d.getDate()).padStart(2, "0"),
+        month: d.toLocaleString("en-US", { month: "short" }),
+        area: env?.name || r.environmentId || "Unknown",
+        table: el?.label || r.elementId || "TBD",
+        guests: r.guests,
+        rawDate: r.date,
+      };
+    })
+    .sort((a, b) => b.rawDate.localeCompare(a.rawDate)),
+);
+
+// ── Actions ────────────────────────────────────────────────────────────────────
 const confirmCancel = () => {
-  if (selectedRes.value) selectedRes.value.status = "Cancelled";
+  if (!selectedRes.value) return;
+  const res = RESERVATION_LIST.find((r) => r.id === selectedRes.value.id);
+  if (res) {
+    const prev = res.status;
+    updateReservationStatus(res.id, "CANCELLED");
+    addReservationLog(
+      new ReservationLog({
+        id: Date.now(),
+        reservationId: res.id,
+        previousStatus: prev,
+        newStatus: "CANCELLED",
+        timestamp: new Date().toISOString(),
+        actorRole: "client",
+      }),
+    );
+  }
   cancelDialog.value = false;
   notify("Reservation cancelled successfully", "#C71585", "mdi-close-circle");
 };
@@ -373,28 +423,43 @@ const submitBooking = () => {
     notify("Please fill in all required fields", "#C71585", "mdi-alert-circle");
     return;
   }
-  const d = new Date(newRes.date);
-  const formatted = d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  upcoming.value.push({
-    id: Date.now(),
-    date: formatted,
-    time: newRes.time,
-    area: newRes.area,
-    table: "TBD",
-    guests: newRes.guests,
-    notes: newRes.notes,
-    status: "Pending",
-  });
+  const matchedEnv = ENVIRONMENT_LIST.find(
+    (e) => e.name === newRes.area,
+  );
+  const id = Date.now();
+  addReservation(
+    new Reservation({
+      id,
+      venueId: 1,
+      environmentId: matchedEnv?.id || "",
+      elementId: "",
+      userId: sessionUserId,
+      name: sessionName,
+      email: session.email || "",
+      phone: "",
+      date: newRes.date,
+      time: newRes.time,
+      guests: Number(newRes.guests),
+      notes: newRes.notes,
+      status: "REQUESTED",
+    }),
+  );
+  addReservationLog(
+    new ReservationLog({
+      id: id + 1,
+      reservationId: id,
+      previousStatus: null,
+      newStatus: "REQUESTED",
+      timestamp: new Date().toISOString(),
+      actorRole: "client",
+    }),
+  );
   bookDialog.value = false;
   Object.assign(newRes, { date: "", time: "", area: "", guests: 2, notes: "" });
   notify("Booking request submitted!", "#2EBB57", "mdi-check-circle");
 };
 
-const logout = () => notify("Logging out...", "#D4AF37", "mdi-logout");
+const { logout } = useAuth();
 </script>
 
 <style scoped>

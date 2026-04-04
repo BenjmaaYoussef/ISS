@@ -3,8 +3,10 @@
   <AppNavbarApp
     :nav-links="adminNavLinks"
     active-link="dashboard"
-    admin-label="Admin"
+    :admin-label="sessionName"
+    :show-logout="true"
     @nav="handleNav"
+    @logout="logout"
   />
 
   <!-- ── Main Content ── -->
@@ -20,7 +22,7 @@
             >
             Admin Panel
           </div>
-          <h1 class="welcome-title">Good evening, Admin</h1>
+          <h1 class="welcome-title">{{ greeting }}, {{ sessionFirstName }}</h1>
           <p class="welcome-sub">
             {{ todayLabel }} · Here's your venue at a glance.
           </p>
@@ -232,16 +234,20 @@
 
 <script setup>
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import StatCard from "@/components/ui/StatCard.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
-
-const router = useRouter();
+import { useAuth } from "@/composables/useAuth";
+import { RESERVATION_LIST } from "@/datamodel/Reservation.js";
+import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 const { adminNavLinks, handleNav } = useAdminNav();
+const { getSession, logout } = useAuth();
+const session = getSession();
+const sessionName = session?.name || "Admin";
+const sessionFirstName = session?.name?.split(" ")[0] || "Admin";
 
 // ─── Date ─────────────────────────────────────────────────────────────────────
 const todayLabel = computed(() => {
@@ -253,72 +259,26 @@ const todayLabel = computed(() => {
   });
 });
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-const reservations = [
-  {
-    id: 102,
-    name: "John Doe",
-    date: "Feb 15",
-    time: "19:00",
-    size: 5,
-    table: "VIP-01",
-    status: "Pending",
-  },
-  {
-    id: 105,
-    name: "Sarah Smith",
-    date: "Feb 16",
-    time: "20:00",
-    size: 4,
-    table: "T-12",
-    status: "Pending",
-  },
-  {
-    id: 108,
-    name: "Marcus Lee",
-    date: "Feb 17",
-    time: "18:30",
-    size: 2,
-    table: "T-05",
-    status: "Approved",
-  },
-  {
-    id: 111,
-    name: "Layla Hassan",
-    date: "Feb 17",
-    time: "21:00",
-    size: 6,
-    table: "VIP-02",
-    status: "Pending",
-  },
-  {
-    id: 114,
-    name: "Tom Rivera",
-    date: "Feb 18",
-    time: "19:30",
-    size: 3,
-    table: "T-08",
-    status: "Rejected",
-  },
-  {
-    id: 117,
-    name: "Nina Farouk",
-    date: "Feb 18",
-    time: "20:30",
-    size: 2,
-    table: "T-03",
-    status: "Approved",
-  },
-];
+const greeting = computed(() => {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+});
 
-// ─── KPIs ─────────────────────────────────────────────────────────────────────
+const today = new Date().toISOString().split("T")[0];
+
+// ─── KPIs from live data ───────────────────────────────────────────────────────
 const kpis = computed(() => {
-  const total = reservations.length;
-  const pending = reservations.filter((r) => r.status === "Pending").length;
-  const approved = reservations.filter((r) => r.status === "Approved").length;
-  const totalTables = environments.reduce((s, e) => s + e.tables, 0);
+  const total = RESERVATION_LIST.length;
+  const pending = RESERVATION_LIST.filter((r) => r.status === "REQUESTED").length;
+  const approved = RESERVATION_LIST.filter((r) => r.status === "APPROVED").length;
+  const totalTables = ENVIRONMENT_LIST.reduce(
+    (s, e) => s + e.elements.filter((el) => el.capacity > 0).length,
+    0,
+  );
   return [
-    { label: "Today's Reservations", value: total, color: "#D4AF37" },
+    { label: "Total Reservations", value: total, color: "#D4AF37" },
     { label: "Pending Approvals", value: pending, color: "#C71585" },
     { label: "Approved", value: approved, color: "#2EBB57" },
     { label: "Total Tables", value: totalTables, color: "#6B9FD4" },
@@ -327,16 +287,16 @@ const kpis = computed(() => {
 
 // ─── Status Breakdown ─────────────────────────────────────────────────────────
 const statusBreakdown = computed(() => {
-  const total = reservations.length || 1;
+  const total = RESERVATION_LIST.length || 1;
   const map = [
-    { label: "Pending", color: "#C71585" },
-    { label: "Approved", color: "#2EBB57" },
-    { label: "Rejected", color: "#666666" },
-    { label: "Cancelled", color: "#444444" },
+    { label: "Pending", status: "REQUESTED", color: "#C71585" },
+    { label: "Approved", status: "APPROVED", color: "#2EBB57" },
+    { label: "Rejected", status: "REJECTED", color: "#666666" },
+    { label: "Cancelled", status: "CANCELLED", color: "#444444" },
   ];
   return map.map((m) => {
-    const count = reservations.filter((r) => r.status === m.label).length;
-    return { ...m, count, pct: Math.round((count / total) * 100) };
+    const count = RESERVATION_LIST.filter((r) => r.status === m.status).length;
+    return { label: m.label, color: m.color, count, pct: Math.round((count / total) * 100) };
   });
 });
 
@@ -365,37 +325,22 @@ const quickActions = [
   },
 ];
 
-// ─── Environments ─────────────────────────────────────────────────────────────
-const environments = [
-  {
-    name: "Indoor Dining",
-    icon: "mdi-silverware",
-    tables: 12,
-    capacity: 56,
-    occupancy: 75,
-  },
-  {
-    name: "Rooftop Terrace",
-    icon: "mdi-weather-sunny",
-    tables: 8,
-    capacity: 32,
-    occupancy: 50,
-  },
-  {
-    name: "Beach Club",
-    icon: "mdi-beach",
-    tables: 6,
-    capacity: 24,
-    occupancy: 33,
-  },
-  {
-    name: "Private Lounge",
-    icon: "mdi-sofa-single-outline",
-    tables: 4,
-    capacity: 20,
-    occupancy: 25,
-  },
-];
+// ─── Environments from datamodel ──────────────────────────────────────────────
+const environments = computed(() =>
+  ENVIRONMENT_LIST.map((env) => {
+    const seatElements = env.elements.filter((el) => el.capacity > 0);
+    const tableCount = seatElements.length;
+    const capacity = seatElements.reduce((s, el) => s + el.capacity, 0);
+    const activeToday = RESERVATION_LIST.filter(
+      (r) =>
+        r.environmentId === env.id &&
+        r.date === today &&
+        ["APPROVED", "CHECKED_IN"].includes(r.status),
+    ).length;
+    const occupancy = tableCount > 0 ? Math.round((activeToday / tableCount) * 100) : 0;
+    return { name: env.name, icon: env.icon, tables: tableCount, capacity, occupancy };
+  }),
+);
 
 const occupancyColor = (pct) => {
   if (pct >= 70) return "#C71585";
@@ -404,7 +349,23 @@ const occupancyColor = (pct) => {
 };
 
 // ─── Recent (last 5) ─────────────────────────────────────────────────────────
-const recentReservations = reservations.slice(0, 5);
+const recentReservations = computed(() => {
+  return [...RESERVATION_LIST]
+    .sort((a, b) => b.id - a.id)
+    .slice(0, 5)
+    .map((r) => {
+      const env = ENVIRONMENT_LIST.find((e) => e.id === r.environmentId);
+      const el = env?.elements.find((el) => el.id === r.elementId);
+      return {
+        id: r.id,
+        name: r.name,
+        date: new Date(r.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        time: r.time,
+        table: el?.label || r.elementId || "—",
+        status: r.status,
+      };
+    });
+});
 </script>
 
 <style scoped>

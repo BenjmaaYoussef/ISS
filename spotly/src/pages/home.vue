@@ -35,13 +35,13 @@
       <div class="welcome-banner mb-8">
         <div class="welcome-glow" />
         <div class="welcome-content">
-          <div class="welcome-greeting">Welcome back, John!</div>
+          <div class="welcome-greeting">Welcome back, {{ sessionName }}!</div>
           <div class="welcome-sub">
             Discover exquisite venues for your next unforgettable experience.
           </div>
         </div>
         <div class="welcome-avatar">
-          <div class="avatar-ring">JD</div>
+          <div class="avatar-ring">{{ sessionInitials }}</div>
         </div>
       </div>
 
@@ -181,6 +181,11 @@ import SectionHeader from "@/components/ui/SectionHeader.vue";
 
 const router = useRouter();
 
+let _session = null;
+try { _session = JSON.parse(localStorage.getItem("spotly_session") || "null"); } catch {}
+const sessionName = _session?.name || "Guest";
+const sessionInitials = sessionName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+
 const searchQuery = ref("");
 const selectedActivities = ref([]);
 const hoveredCard = ref(null);
@@ -260,6 +265,7 @@ function selectVenue(venue) {
 }
 
 function handleLogout() {
+  localStorage.removeItem("spotly_session");
   router.push("/auth");
 }
 </script>

@@ -76,7 +76,7 @@
         <!-- Eyebrow -->
         <div
           style="
-            font-family: &quot;Inter&quot;, sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 0.72rem;
             letter-spacing: 3px;
             text-transform: uppercase;
@@ -90,7 +90,7 @@
         <!-- Title -->
         <h1
           style="
-            font-family: &quot;Playfair Display&quot;, serif;
+            font-family: 'Playfair Display', serif;
             font-size: 1.9rem;
             font-weight: 700;
             color: #fff;
@@ -98,18 +98,19 @@
             margin-bottom: 8px;
           "
         >
-          Sign in to your<br />Dashboard
+          {{ isRegister ? 'Create an Account' : 'Sign in to your' }}<br />
+          {{ isRegister ? '' : 'Dashboard' }}
         </h1>
 
         <p
           style="
             color: rgba(255, 255, 255, 0.45);
             font-size: 0.87rem;
-            font-family: &quot;Inter&quot;, sans-serif;
+            font-family: 'Inter', sans-serif;
             margin-bottom: 36px;
           "
         >
-          Access your venue, bookings &amp; reservations.
+          {{ isRegister ? 'Fill in your details to request access.' : 'Access your venue, bookings &amp; reservations.' }}
         </p>
 
         <!-- Error Alert -->
@@ -119,50 +120,29 @@
           variant="tonal"
           density="compact"
           class="mb-5"
-          style="font-family: &quot;Inter&quot;, sans-serif; font-size: 0.83rem"
+          style="font-family: 'Inter', sans-serif; font-size: 0.83rem"
           :text="error"
         />
 
-        <v-form @submit.prevent="login">
+        <!-- ── LOGIN FORM ── -->
+        <v-form v-if="!isRegister" @submit.prevent="login">
           <!-- Email -->
-          <div
-            style="
-              font-size: 0.75rem;
-              font-weight: 500;
-              letter-spacing: 2px;
-              text-transform: uppercase;
-              color: rgba(255, 255, 255, 0.5);
-              margin-bottom: 8px;
-            "
-          >
-            Email Address
-          </div>
+          <div class="field-label">Email Address</div>
           <v-text-field
             v-model="email"
             type="email"
-            placeholder="admin@yourvenueplace.com"
+            placeholder="admin@spotly.com"
             variant="outlined"
             density="comfortable"
             prepend-inner-icon="mdi-email-outline"
             color="primary"
             class="mb-4"
             :rules="[rules.required, rules.email]"
-            style="font-family: &quot;Inter&quot;, sans-serif"
+            style="font-family: 'Inter', sans-serif"
           />
 
           <!-- Password -->
-          <div
-            style="
-              font-size: 0.75rem;
-              font-weight: 500;
-              letter-spacing: 2px;
-              text-transform: uppercase;
-              color: rgba(255, 255, 255, 0.5);
-              margin-bottom: 8px;
-            "
-          >
-            Password
-          </div>
+          <div class="field-label">Password</div>
           <v-text-field
             v-model="password"
             :type="showPass ? 'text' : 'password'"
@@ -170,13 +150,11 @@
             variant="outlined"
             density="comfortable"
             prepend-inner-icon="mdi-lock-outline"
-            :append-inner-icon="
-              showPass ? 'mdi-eye-off-outline' : 'mdi-eye-outline'
-            "
+            :append-inner-icon="showPass ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
             color="primary"
             class="mb-2"
             :rules="[rules.required]"
-            style="font-family: &quot;Inter&quot;, sans-serif"
+            style="font-family: 'Inter', sans-serif"
             @click:append-inner="showPass = !showPass"
           />
 
@@ -188,23 +166,8 @@
               color="primary"
               density="compact"
               hide-details
-              style="
-                font-family: &quot;Inter&quot;, sans-serif;
-                font-size: 0.83rem;
-              "
+              style="font-family: 'Inter', sans-serif; font-size: 0.83rem"
             />
-            <a
-              href="#"
-              style="
-                color: #d4af37;
-                font-size: 0.83rem;
-                font-family: &quot;Inter&quot;, sans-serif;
-                text-decoration: none;
-              "
-              @click.prevent="forgotPassword"
-            >
-              Forgot password?
-            </a>
           </div>
 
           <!-- Login Button -->
@@ -227,21 +190,119 @@
           </v-btn>
         </v-form>
 
+        <!-- ── REGISTER FORM ── -->
+        <v-form v-else @submit.prevent="register">
+          <!-- First Name -->
+          <div class="field-label">First Name</div>
+          <v-text-field
+            v-model="regFirstName"
+            placeholder="John"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="mdi-account-outline"
+            color="primary"
+            class="mb-4"
+            :rules="[rules.required]"
+            style="font-family: 'Inter', sans-serif"
+          />
+
+          <!-- Last Name -->
+          <div class="field-label">Last Name</div>
+          <v-text-field
+            v-model="regLastName"
+            placeholder="Doe"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="mdi-account-outline"
+            color="primary"
+            class="mb-4"
+            :rules="[rules.required]"
+            style="font-family: 'Inter', sans-serif"
+          />
+
+          <!-- Email -->
+          <div class="field-label">Email Address</div>
+          <v-text-field
+            v-model="regEmail"
+            type="email"
+            placeholder="you@example.com"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="mdi-email-outline"
+            color="primary"
+            class="mb-4"
+            :rules="[rules.required, rules.email]"
+            style="font-family: 'Inter', sans-serif"
+          />
+
+          <!-- Password -->
+          <div class="field-label">Password</div>
+          <v-text-field
+            v-model="regPassword"
+            :type="showPass ? 'text' : 'password'"
+            placeholder="Choose a password"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="mdi-lock-outline"
+            :append-inner-icon="showPass ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+            color="primary"
+            class="mb-4"
+            :rules="[rules.required]"
+            style="font-family: 'Inter', sans-serif"
+            @click:append-inner="showPass = !showPass"
+          />
+
+          <!-- Role -->
+          <div class="field-label">Account Type</div>
+          <v-select
+            v-model="regRole"
+            :items="roleOptions"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="mdi-shield-account-outline"
+            color="primary"
+            class="mb-6"
+            style="font-family: 'Inter', sans-serif"
+          />
+
+          <!-- Register Button -->
+          <v-btn
+            type="submit"
+            color="primary"
+            block
+            size="large"
+            :loading="loading"
+            style="
+              font-size: 0.85rem;
+              letter-spacing: 2.5px;
+              text-transform: uppercase;
+              color: #0a0e14;
+              font-weight: 600;
+              height: 52px;
+            "
+          >
+            Create Account
+          </v-btn>
+        </v-form>
+
+        <!-- Toggle login / register -->
         <div
           style="
             text-align: center;
             margin-top: 28px;
             font-size: 0.82rem;
             color: rgba(255, 255, 255, 0.35);
-            font-family: &quot;Inter&quot;, sans-serif;
+            font-family: 'Inter', sans-serif;
           "
         >
-          Don't have an account?
+          {{ isRegister ? 'Already have an account?' : "Don't have an account?" }}
           <a
             href="#"
             style="color: #d4af37; text-decoration: none; margin-left: 4px"
-            >Request Access</a
+            @click.prevent="toggleMode"
           >
+            {{ isRegister ? 'Sign In' : 'Request Access' }}
+          </a>
         </div>
       </v-card>
     </v-sheet>
@@ -252,9 +313,12 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
+import { getUserByEmailAndPassword, addUser, userExists } from "@/datamodel/User.js";
+import { User } from "@/datamodel/User.js";
 
 const router = useRouter();
 
+// ── Login state ────────────────────────────────────────────────────────────────
 const email = ref("");
 const password = ref("");
 const remember = ref(false);
@@ -262,10 +326,38 @@ const showPass = ref(false);
 const loading = ref(false);
 const error = ref("");
 
+// ── Register state ─────────────────────────────────────────────────────────────
+const isRegister = ref(false);
+const regFirstName = ref("");
+const regLastName = ref("");
+const regEmail = ref("");
+const regPassword = ref("");
+const regRole = ref("client");
+const roleOptions = [
+  { title: "Client", value: "client" },
+  { title: "Staff", value: "staff" },
+  { title: "Admin", value: "admin" },
+];
+
 const rules = {
   required: (v) => !!v || "This field is required.",
   email: (v) => /.+@.+\..+/.test(v) || "Enter a valid email.",
 };
+
+function writeSessionAndRedirect(user) {
+  localStorage.setItem(
+    "spotly_session",
+    JSON.stringify({
+      userId: user.email,
+      name: user.first_name + " " + user.last_name,
+      email: user.email,
+      role: user.role,
+    })
+  );
+  if (user.role === "admin") router.push("/admin/dashboard");
+  else if (user.role === "staff") router.push("/staff/dashboard");
+  else router.push("/home");
+}
 
 async function login() {
   error.value = "";
@@ -275,16 +367,57 @@ async function login() {
   }
   loading.value = true;
   try {
-    await new Promise((r) => setTimeout(r, 1200));
-    router.push("/venue/demo"); // redirect after login
-  } catch (e) {
-    error.value = "Invalid credentials. Please try again.";
+    const user = getUserByEmailAndPassword(email.value, password.value);
+    if (!user) {
+      error.value = "Invalid credentials. Please try again.";
+      return;
+    }
+    writeSessionAndRedirect(user);
   } finally {
     loading.value = false;
   }
 }
 
-function forgotPassword() {
-  router.push("/auth");
+async function register() {
+  error.value = "";
+  if (!regFirstName.value || !regLastName.value || !regEmail.value || !regPassword.value) {
+    error.value = "Please fill in all fields.";
+    return;
+  }
+  if (userExists(regEmail.value)) {
+    error.value = "An account with that email already exists.";
+    return;
+  }
+  loading.value = true;
+  try {
+    const newUser = new User({
+      first_name: regFirstName.value,
+      last_name: regLastName.value,
+      email: regEmail.value,
+      password: regPassword.value,
+      role: regRole.value,
+    });
+    addUser(newUser);
+    writeSessionAndRedirect(newUser);
+  } finally {
+    loading.value = false;
+  }
+}
+
+function toggleMode() {
+  isRegister.value = !isRegister.value;
+  error.value = "";
 }
 </script>
+
+<style scoped>
+.field-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 8px;
+  font-family: "Inter", sans-serif;
+}
+</style>

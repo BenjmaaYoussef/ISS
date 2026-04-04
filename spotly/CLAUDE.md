@@ -13,6 +13,36 @@ npm run lint       # Lint and auto-fix (eslint . --fix)
 
 Playwright tests live in `e2e/` (gitignored — local only). Run them with `npx playwright test`.
 
+## Phase Testing Protocol (REQUIRED)
+
+Every phase implementation must be verified before being marked complete. Follow this sequence without exception:
+
+### 1. Automated — Playwright
+After implementing a phase, write and run a Playwright spec at `e2e/phaseN.spec.js` covering every task in that phase. Tests must:
+- Cover the happy path for each feature added
+- Cover at least one error/edge-case path per major feature (e.g. wrong password, empty cart, missing session)
+- Verify localStorage state directly (`page.evaluate(() => localStorage.getItem(...))`) where relevant
+
+Run with: `npx playwright test e2e/phaseN.spec.js`
+
+All tests must pass before the phase is considered done.
+
+### 2. Manual — prompt the user
+For anything Playwright cannot reliably cover (visual layout, cross-tab sync, drag-and-drop on the floor plan, mobile viewport), stop and ask the user to test manually. Provide exact steps:
+```
+Manual test required:
+1. Open http://localhost:3000 in two browser tabs
+2. In tab 1: log in as admin, approve reservation RES-001
+3. In tab 2: the awaiting page should update without refresh
+✅ Confirm before I mark Phase N done
+```
+Do NOT mark a phase complete until the user explicitly confirms manual tests pass.
+
+### 3. Mark complete
+Only after both automated and manual tests pass:
+- Check off all `[ ]` tasks in PLAN.md
+- Update the Session Notes section
+
 ## Architecture
 
 **Spotly** is a venue discovery and booking platform built with Vue 3 + Vuetify 3 + Vite. Academic project — frontend-only, localStorage as persistence layer, no backend.

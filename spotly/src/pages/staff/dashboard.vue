@@ -3,8 +3,10 @@
   <AppNavbarApp
     :nav-tabs="tabs"
     :active-link="activeTab"
-    admin-label="Admin"
+    :admin-label="sessionName"
+    :show-logout="true"
     @nav="activeTab = $event"
+    @logout="logout"
   >
     <template #actions>
       <!-- Alerts Badge -->
@@ -125,6 +127,14 @@
     @resolve-call="resolveCall(selectedTable)"
   />
 
+  <!-- ── Guest Check-In Dialog ── -->
+  <GuestCheckInDialog
+    v-model="checkInDialog"
+    :reservation="checkInPayload || {}"
+    @mark-arrived="handleMarkArrived"
+    @mark-no-show="handleMarkNoShow"
+  />
+
   <!-- Snackbar -->
   <SpotlySnackbar :snackbar="snackbar" />
 </template>
@@ -132,14 +142,21 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useSnackbar } from "@/composables/useSnackbar";
-import { statusLabel } from "@/composables/useTableStatus";
+import { useAuth } from "@/composables/useAuth";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import FloorPlanGrid from "@/components/floor/FloorPlanGrid.vue";
 import TableDetailDialog from "@/components/floor/TableDetailDialog.vue";
+import GuestCheckInDialog from "@/components/dialogs/GuestCheckInDialog.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
+import { RESERVATION_LIST, updateReservationStatus, getReservationById } from "@/datamodel/Reservation.js";
+import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
+import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog.js";
 
 const { snackbar, notify } = useSnackbar();
+const { getSession, logout } = useAuth();
+const session = getSession();
+const sessionName = session?.name || "Staff";
 
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 const tabs = [
@@ -151,159 +168,60 @@ const activeTab = ref("floor");
 // ── Alerts ────────────────────────────────────────────────────────────────────
 const alertsPanel = ref(true);
 const alerts = ref([
-  {
-    id: 2,
-    table: "Table T-12",
-    message: "Requesting waiter",
-    type: "waiter",
-    time: "19:55",
-    acked: false,
-  },
+  { id: 2, table: "Table T-12", message: "Requesting waiter", type: "waiter", time: "19:55", acked: false },
 ]);
-const unacknowledgedAlerts = computed(
-  () => alerts.value.filter((a) => !a.acked).length,
-);
+const unacknowledgedAlerts = computed(() => alerts.value.filter((a) => !a.acked).length);
 const acknowledge = (alert) => {
   alert.acked = true;
-  notify(
-    `Alert for ${alert.table} acknowledged`,
-    "#D4AF37",
-    "mdi-check-circle",
-  );
+  notify(`Alert for ${alert.table} acknowledged`, "#D4AF37", "mdi-check-circle");
 };
 
-// ── Environments ──────────────────────────────────────────────────────────────
-const environments = ["Indoor Lounge", "Beach", "Terrace", "VIP"];
-const activeEnv = ref("Indoor Lounge");
+// ── Today ─────────────────────────────────────────────────────────────────────
+const today = new Date().toISOString().split("T")[0];
 
-// ── Tables ────────────────────────────────────────────────────────────────────
-const tables = ref([
-  {
-    id: "T-A1",
-    env: "Indoor Lounge",
-    seats: 4,
-    status: "free",
-    guest: "",
-    time: "",
-    note: "",
-  },
-  {
-    id: "T-2",
-    env: "Indoor Lounge",
-    seats: 4,
-    status: "occupied",
-    guest: "Sarah Miller",
-    time: "14:00",
-    note: "",
-  },
-  {
-    id: "T-3",
-    env: "Indoor Lounge",
-    seats: 2,
-    status: "reserved",
-    guest: "James",
-    time: "19:00",
-    note: "Birthday",
-  },
-  {
-    id: "VIP-01",
-    env: "Indoor Lounge",
-    seats: 6,
-    status: "call",
-    guest: "Mark",
-    time: "18:30",
-    note: '"Birthday"',
-  },
-  {
-    id: "T-5",
-    env: "Indoor Lounge",
-    seats: 2,
-    status: "free",
-    guest: "",
-    time: "",
-    note: "",
-  },
-  {
-    id: "T-6",
-    env: "Indoor Lounge",
-    seats: 6,
-    status: "occupied",
-    guest: "Chen Family",
-    time: "18:00",
-    note: "Allergy: nuts",
-  },
-  {
-    id: "B-1",
-    env: "Beach",
-    seats: 4,
-    status: "free",
-    guest: "",
-    time: "",
-    note: "",
-  },
-  {
-    id: "B-2",
-    env: "Beach",
-    seats: 2,
-    status: "reserved",
-    guest: "Anna López",
-    time: "20:00",
-    note: "",
-  },
-  {
-    id: "B-3",
-    env: "Beach",
-    seats: 6,
-    status: "occupied",
-    guest: "Rivera Group",
-    time: "17:30",
-    note: "",
-  },
-  {
-    id: "TR-1",
-    env: "Terrace",
-    seats: 4,
-    status: "free",
-    guest: "",
-    time: "",
-    note: "",
-  },
-  {
-    id: "TR-2",
-    env: "Terrace",
-    seats: 4,
-    status: "occupied",
-    guest: "Yuki Tanaka",
-    time: "19:30",
-    note: "",
-  },
-  {
-    id: "V-1",
-    env: "VIP",
-    seats: 8,
-    status: "reserved",
-    guest: "Al-Rashid",
-    time: "21:00",
-    note: "Corporate",
-  },
-  {
-    id: "V-2",
-    env: "VIP",
-    seats: 10,
-    status: "free",
-    guest: "",
-    time: "",
-    note: "",
-  },
-]);
+// ── Environments from datamodel ───────────────────────────────────────────────
+const environments = computed(() => ENVIRONMENT_LIST.map((e) => e.name));
+const activeEnv = ref(ENVIRONMENT_LIST[0]?.name || "");
 
-const filteredTables = computed(() =>
-  tables.value.filter((t) => t.env === activeEnv.value),
-);
-const allOccupied = computed(() =>
-  tables.value.filter((t) =>
-    ["occupied", "reserved", "call"].includes(t.status),
+// ── Helper: find today's active reservation for an element ───────────────────
+function getTodayRes(envId, elementId) {
+  return RESERVATION_LIST.find(
+    (r) =>
+      r.environmentId === envId &&
+      r.elementId === elementId &&
+      r.date === today &&
+      ["REQUESTED", "APPROVED", "CHECKED_IN"].includes(r.status),
+  ) || null;
+}
+
+// ── Tables computed from ENVIRONMENT_LIST + RESERVATION_LIST ─────────────────
+const tables = computed(() =>
+  ENVIRONMENT_LIST.flatMap((env) =>
+    env.elements
+      .filter((el) => el.capacity > 0)
+      .map((el) => {
+        const res = getTodayRes(env.id, el.id);
+        let status = "free";
+        if (res?.status === "CHECKED_IN") status = "occupied";
+        else if (res?.status === "APPROVED" || res?.status === "REQUESTED") status = "reserved";
+        return {
+          id: el.label,
+          env: env.name,
+          envId: env.id,
+          elementId: el.id,
+          seats: el.capacity,
+          status,
+          guest: res?.name || "",
+          time: res?.time || "",
+          note: res?.notes || "",
+          reservationId: res?.id ?? null,
+        };
+      }),
   ),
+);
+
+const allOccupied = computed(() =>
+  tables.value.filter((t) => ["occupied", "reserved", "call"].includes(t.status)),
 );
 
 // ── Detail Dialog ─────────────────────────────────────────────────────────────
@@ -314,25 +232,102 @@ const openTableDetail = (t) => {
   detailDialog.value = true;
 };
 
+// ── Check-In Dialog ───────────────────────────────────────────────────────────
+const checkInDialog = ref(false);
+const checkInPayload = ref(null);
+
+function buildCheckInPayload(t) {
+  const res = t.reservationId ? getReservationById(t.reservationId) : null;
+  return {
+    id: res?.id ?? null,
+    guest: res?.name || t.guest || "—",
+    partySize: res?.guests || t.seats,
+    tableId: t.id,
+    environment: t.env,
+    clientNote: res?.notes || "",
+    staffNote: "",
+  };
+}
+
 // ── Actions ───────────────────────────────────────────────────────────────────
+const checkIn = (t) => {
+  const res = t.reservationId ? getReservationById(t.reservationId) : null;
+  if (res && ["REQUESTED", "APPROVED"].includes(res.status)) {
+    checkInPayload.value = buildCheckInPayload(t);
+    checkInDialog.value = true;
+    detailDialog.value = false;
+  } else {
+    notify(`${t.id} checked in`, "#D4AF37", "mdi-login");
+  }
+};
+
+const handleMarkArrived = (payload) => {
+  if (payload.id) {
+    const res = getReservationById(payload.id);
+    if (res) {
+      const prev = res.status;
+      updateReservationStatus(payload.id, "CHECKED_IN");
+      addReservationLog(
+        new ReservationLog({
+          id: Date.now(),
+          reservationId: payload.id,
+          previousStatus: prev,
+          newStatus: "CHECKED_IN",
+          timestamp: new Date().toISOString(),
+          actorRole: "staff",
+        }),
+      );
+    }
+  }
+  checkInDialog.value = false;
+  notify(`${payload.tableId} checked in — ${payload.guest}`, "#2EBB57", "mdi-login");
+};
+
+const handleMarkNoShow = (payload) => {
+  if (payload.id) {
+    const res = getReservationById(payload.id);
+    if (res) {
+      const prev = res.status;
+      updateReservationStatus(payload.id, "NO_SHOW");
+      addReservationLog(
+        new ReservationLog({
+          id: Date.now() + 1,
+          reservationId: payload.id,
+          previousStatus: prev,
+          newStatus: "NO_SHOW",
+          timestamp: new Date().toISOString(),
+          actorRole: "staff",
+        }),
+      );
+    }
+  }
+  checkInDialog.value = false;
+  notify(`${payload.tableId} marked no-show`, "#C71585", "mdi-account-off");
+};
+
 const checkOut = (t) => {
-  t.status = "free";
-  t.guest = "";
-  t.time = "";
+  const res = t.reservationId ? getReservationById(t.reservationId) : null;
+  if (res?.status === "CHECKED_IN") {
+    const prev = res.status;
+    updateReservationStatus(res.id, "COMPLETED");
+    addReservationLog(
+      new ReservationLog({
+        id: Date.now(),
+        reservationId: res.id,
+        previousStatus: prev,
+        newStatus: "COMPLETED",
+        timestamp: new Date().toISOString(),
+        actorRole: "staff",
+      }),
+    );
+  }
   notify(`${t.id} checked out`, "#2EBB57", "mdi-logout");
 };
-const checkIn = (t) => {
-  t.status = "occupied";
-  notify(`${t.id} checked in`, "#D4AF37", "mdi-login");
-};
+
 const resolveCall = (t) => {
-  t.status = "occupied";
   detailDialog.value = false;
   notify(`Alert for ${t.id} resolved`, "#2EBB57", "mdi-check-circle");
 };
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-// statusLabel imported from useTableStatus composable
 </script>
 
 <style scoped>

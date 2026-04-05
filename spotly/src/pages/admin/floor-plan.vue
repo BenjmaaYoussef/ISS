@@ -885,7 +885,7 @@ const paletteCategories = [
 const environments = ref(JSON.parse(JSON.stringify(ENVIRONMENT_LIST)));
 
 // ── Environment state ─────────────────────────────────────────────────────────
-const currentEnvId = ref("env_indoor");
+const currentEnvId = ref(environments.value[0]?.id ?? '');
 const currentEnv = computed(() =>
   environments.value.find((e) => e.id === currentEnvId.value),
 );
@@ -1219,7 +1219,6 @@ const showSaveDialog = ref(false);
 const jsonPreview = ref("");
 const saveLayout = () => {
   // Persist local working copy back to ENVIRONMENT_LIST (triggers localStorage watch)
-  //TODO
   ENVIRONMENT_LIST.splice(
     0,
     ENVIRONMENT_LIST.length,

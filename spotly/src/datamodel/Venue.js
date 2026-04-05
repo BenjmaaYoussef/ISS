@@ -1,7 +1,7 @@
 import { reactive, watch } from 'vue'
 
 export class Venue {
-  constructor({ id, name, description, ambienceTags = [], activities = [], images = [], dressCode = '', supportedLanguages = [] }) {
+  constructor({ id, name, description, ambienceTags = [], activities = [], images = [], dressCode = '', supportedLanguages = [], tagline = '', location = '', venueType = '', hours = [], slides = [] }) {
     this.id = id
     this.name = name
     this.description = description
@@ -10,6 +10,16 @@ export class Venue {
     this.images = images
     this.dressCode = dressCode
     this.supportedLanguages = supportedLanguages
+    this.tagline = tagline
+    this.location = location
+    this.venueType = venueType
+    this.hours = hours
+    this.slides = slides.map(s => ({
+      title: s.title ?? '',
+      subtitle: s.subtitle ?? '',
+      bgColor: s.bgColor ?? '',
+      imageUrl: s.imageUrl ?? '',
+    }))
   }
 }
 
@@ -24,6 +34,7 @@ const _seed = [
 ]
 const _saved = localStorage.getItem(STORAGE_KEY)
 export const VENUE_LIST = reactive(_saved ? JSON.parse(_saved).map(v => new Venue(v)) : _seed)
+if (!_saved) localStorage.setItem(STORAGE_KEY, JSON.stringify(_seed))
 
 watch(VENUE_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {

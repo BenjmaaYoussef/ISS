@@ -13,6 +13,17 @@ npm run lint       # Lint and auto-fix (eslint . --fix)
 
 Playwright tests live in `e2e/` (gitignored — local only). Run them with `npx playwright test`.
 
+## Image Upload (Phase 9.5+)
+
+Phase 9.5 adds Cloudinary image uploads for venue slideshow slides. Before running the dev server, ensure `.env.local` exists at the project root with:
+
+```
+VITE_CLOUDINARY_CLOUD_NAME=dwgzoyuyq
+VITE_CLOUDINARY_UPLOAD_PRESET=spotly_uploads
+```
+
+This file is gitignored and must not be committed. Without it, the "Upload Photo" button in Venue Settings will throw a "credentials missing" error.
+
 ## Phase Testing Protocol (REQUIRED)
 
 Every phase implementation must be verified before being marked complete. Follow this sequence without exception:

@@ -33,6 +33,7 @@ const _seed = [
 ]
 const _saved = localStorage.getItem(STORAGE_KEY)
 export const RESERVATION_LIST = reactive(_saved ? JSON.parse(_saved).map(r => new Reservation(r)) : _seed)
+if (!_saved) localStorage.setItem(STORAGE_KEY, JSON.stringify(_seed))
 
 watch(RESERVATION_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {

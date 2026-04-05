@@ -115,6 +115,7 @@
             letter-spacing: 0.5px;
             border-radius: 0;
           "
+          @click="scrollTo(link)"
         >
           {{ link }}
         </v-btn>
@@ -149,4 +150,12 @@ defineProps({
     default: "/auth",
   },
 });
+
+function scrollTo(label) {
+  const anchor = '#' + label.toLowerCase().replace(/\s+/g, '-')
+  const el = document.querySelector(anchor)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' })
+  }
+}
 </script>

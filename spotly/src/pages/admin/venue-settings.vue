@@ -293,64 +293,121 @@
               <div>
                 <div class="section-title">Gallery & Slideshow</div>
                 <div class="section-sub">
-                  Scenes shown in your public hero slideshow
+                  Hero slides shown on your public venue page — in order
                 </div>
               </div>
             </div>
 
             <div class="fields-wrap">
-              <div class="gallery-grid">
+              <div class="slide-list">
                 <div
                   v-for="(slide, i) in form.slides"
                   :key="i"
-                  class="gallery-item"
-                  :class="{ 'gallery-item--active': i === 0 }"
+                  class="slide-row"
+                  :class="{ 'slide-row--incomplete': !slide.imageUrl || !slide.title.trim() || !slide.sub.trim() }"
                 >
+                  <!-- Thumbnail / upload area -->
                   <div
-                    class="gallery-item-inner"
-                    :style="{ background: slide.bg }"
+                    class="slide-thumb"
+                    :style="slide.imageUrl
+                      ? { backgroundImage: `url(${slide.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                      : { background: slide.bg }"
+                    @click="triggerUpload(i)"
                   >
-                    <div class="gallery-order-badge">{{ i + 1 }}</div>
-                    <div class="gallery-arrows" v-if="form.slides.length > 1">
-                      <v-icon
-                        size="14"
-                        color="rgba(255,255,255,0.5)"
-                        class="gallery-arrow"
-                        :style="{ opacity: i === 0 ? 0.2 : 1 }"
-                        @click="moveSlide(i, -1)"
-                        >mdi-chevron-left</v-icon
-                      >
-                      <v-icon
-                        size="14"
-                        color="rgba(255,255,255,0.5)"
-                        class="gallery-arrow"
-                        :style="{
-                          opacity: i === form.slides.length - 1 ? 0.2 : 1,
-                        }"
-                        @click="moveSlide(i, 1)"
-                        >mdi-chevron-right</v-icon
-                      >
+                    <!-- Loading overlay -->
+                    <div v-if="slide.uploading" class="slide-thumb-loading">
+                      <v-progress-circular indeterminate color="#D4AF37" size="22" width="2" />
                     </div>
+                    <!-- Hover overlay -->
+                    <div v-if="!slide.uploading" class="slide-thumb-hover">
+                      <v-icon size="18" color="#D4AF37">mdi-camera-plus</v-icon>
+                      <span>{{ slide.imageUrl ? 'Change' : 'Add photo' }}</span>
+                    </div>
+                    <!-- Slide number -->
+                    <div class="slide-num">{{ i + 1 }}</div>
+                    <!-- Remove button -->
+                    <button
+                      v-if="slide.imageUrl && !slide.uploading"
+                      class="slide-remove-btn"
+                      @click.stop="slide.imageUrl = ''"
+                    >
+                      <v-icon size="12" color="white">mdi-close</v-icon>
+                    </button>
+                    <!-- Hidden file input -->
+                    <input
+                      :ref="el => fileInputs[i] = el"
+                      type="file"
+                      accept="image/*"
+                      style="display: none"
+                      @change="onFileChange(i, $event)"
+                    />
                   </div>
-                  <div class="gallery-item-info">
+
+                  <!-- Text fields -->
+                  <div class="slide-fields">
+                    <label class="slide-field-label">Scene name</label>
                     <v-text-field
                       v-model="slide.title"
-                      placeholder="Scene name"
-                      variant="plain"
+                      placeholder="e.g. Beachfront Terrace"
+                      variant="outlined"
                       density="compact"
                       hide-details
-                      class="gallery-title-input"
+                      class="spotly-input mb-2"
                     />
+                    <label class="slide-field-label">Caption</label>
                     <v-text-field
                       v-model="slide.sub"
-                      placeholder="Short description"
-                      variant="plain"
+                      placeholder="Short description shown on the slide"
+                      variant="outlined"
                       density="compact"
                       hide-details
-                      class="gallery-sub-input"
+                      class="spotly-input"
                     />
                   </div>
+
+                  <!-- Reorder + delete -->
+                  <div class="slide-order">
+                    <v-btn
+                      icon size="x-small" variant="text"
+                      :disabled="i === 0"
+                      @click="moveSlide(i, -1)"
+                    >
+                      <v-icon size="16">mdi-chevron-up</v-icon>
+                    </v-btn>
+                    <v-btn
+                      icon size="x-small" variant="text"
+                      :disabled="i === form.slides.length - 1"
+                      @click="moveSlide(i, 1)"
+                    >
+                      <v-icon size="16">mdi-chevron-down</v-icon>
+                    </v-btn>
+                    <v-btn
+                      icon size="x-small" variant="text"
+                      :disabled="form.slides.length <= 1"
+                      class="slide-delete-btn"
+                      @click="removeSlide(i)"
+                    >
+                      <v-icon size="15">mdi-trash-can-outline</v-icon>
+                    </v-btn>
+                  </div>
                 </div>
+              </div>
+
+              <!-- Add slide -->
+              <v-btn
+                variant="outlined"
+                size="small"
+                class="add-slide-btn mt-3"
+                :ripple="false"
+                @click="addSlide"
+              >
+                <v-icon start size="14">mdi-plus</v-icon>
+                Add slide
+              </v-btn>
+
+              <div class="field-hint mt-3">
+                <v-icon size="12" color="#4a5568" class="mr-1">mdi-information-outline</v-icon>
+                Click a thumbnail to upload a photo. Slides play in order on your venue page.
               </div>
             </div>
           </div>
@@ -370,9 +427,9 @@
               <!-- Hero area -->
               <div
                 class="vp-hero"
-                :style="{
-                  background: form.slides[previewSlide]?.bg ?? '#13181f',
-                }"
+                :style="form.slides[previewSlide]?.imageUrl
+                  ? { backgroundImage: `url(${form.slides[previewSlide].imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                  : { background: form.slides[previewSlide]?.bg ?? '#13181f' }"
               >
                 <!-- Slide dots -->
                 <div class="vp-slide-dots">
@@ -508,9 +565,33 @@ import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useAdminNav } from "@/composables/useAdminNav";
 import { VENUE_LIST, updateVenue } from "@/datamodel/Venue.js";
+import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
+import { uploadImage } from "@/utils/uploadImage.js";
 
 const router = useRouter();
-const { snackbar, notifySuccess } = useSnackbar();
+const { snackbar, notifySuccess, notifyError } = useSnackbar();
+
+// ─── Image Upload ──────────────────────────────────────────────────────────────
+const fileInputs = ref([]);
+
+function triggerUpload(i) {
+  fileInputs.value[i]?.click();
+}
+
+async function onFileChange(i, event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  event.target.value = "";
+  form.slides[i].uploading = true;
+  try {
+    const url = await uploadImage(file);
+    form.slides[i].imageUrl = url;
+  } catch (e) {
+    notifyError("Upload failed — " + e.message);
+  } finally {
+    form.slides[i].uploading = false;
+  }
+}
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 const { adminNavLinks, handleNav } = useAdminNav();
@@ -563,65 +644,63 @@ const availableLangs = [
 
 // ─── Defaults (pre-populated from datamodel) ──────────────────────────────────
 const defaultForm = () => {
-  const v = VENUE_LIST[0] ?? {};
+  const v = VENUE_LIST[0] ?? null;
+  if (!v) return { name: '', tagline: '', description: '', location: '', venueType: '', tags: [], dressCode: '', languages: [], environments: [], slides: [] };
   return {
     name: v.name ?? "Sunset Beach Club",
-    tagline: "Where every sunset tells a story",
+    tagline: v.tagline || "Where every sunset tells a story",
     description:
       v.description ??
       "A premier beachfront destination offering an unparalleled dining and lounge experience. Nestled along the azure coast of Sidi Bou Said, our venue blends Mediterranean elegance with modern luxury.",
-    location: "Sidi Bou Said, Tunisia",
-    venueType: "Beach Club",
+    location: v.location || "Sidi Bou Said, Tunisia",
+    venueType: v.venueType || "Beach Club",
     tags: v.ambienceTags?.length ? [...v.ambienceTags] : ["Beach", "Luxury", "Sunset", "Sea View"],
     dressCode: v.dressCode ?? "Smart Casual",
     languages: v.supportedLanguages?.length ? [...v.supportedLanguages] : ["en", "fr", "ar"],
-    environments: [
-    {
-      name: "Indoor Dining",
-      icon: "mdi-silverware",
-      open: "12:00",
-      close: "23:30",
-      active: true,
-    },
-    {
-      name: "Beachfront Terrace",
-      icon: "mdi-beach",
-      open: "10:00",
-      close: "00:00",
-      active: true,
-    },
-    {
-      name: "Sunset Lounge",
-      icon: "mdi-weather-sunset",
-      open: "16:00",
-      close: "02:00",
-      active: true,
-    },
-    {
-      name: "Private Cabana",
-      icon: "mdi-umbrella-beach",
-      open: "09:00",
-      close: "20:00",
-      active: false,
-    },
-    ],
-    slides: [
-      {
-        title: "Beachfront Terrace",
-        sub: "Open-air seating with panoramic ocean views",
-        bg: "linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)",
-      },
-      {
-        title: "Sunset Lounge",
-        sub: "Premium indoor seating for exclusive events",
-        bg: "linear-gradient(135deg, #2a1a0a 0%, #1f0d00 50%, #0a0a0a 100%)",
-      },
-      {
-        title: "Beach Club",
-        sub: "Sunbeds, cocktails and the Mediterranean",
-        bg: "linear-gradient(135deg, #0a1a2a 0%, #0d2030 50%, #0a1420 100%)",
-      },
-    ],
+    environments: ENVIRONMENT_LIST
+      .filter(e => e.venueId === v.id)
+      .map(e => {
+        const saved = (v.hours || []).find(h => h.envId === e.id)
+        return {
+          id: e.id,
+          name: e.name,
+          icon: e.icon,
+          open: saved?.open ?? '12:00',
+          close: saved?.close ?? '23:00',
+          active: saved?.active ?? true,
+        }
+      }),
+    slides: v.slides?.length
+      ? v.slides.map(s => ({
+          title: s.title ?? '',
+          sub: s.subtitle ?? '',
+          bg: s.bgColor || 'linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)',
+          imageUrl: s.imageUrl ?? '',
+          uploading: false,
+        }))
+      : [
+          {
+            title: "Beachfront Terrace",
+            sub: "Open-air seating with panoramic ocean views",
+            bg: "linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)",
+            imageUrl: '',
+            uploading: false,
+          },
+          {
+            title: "Sunset Lounge",
+            sub: "Premium indoor seating for exclusive events",
+            bg: "linear-gradient(135deg, #2a1a0a 0%, #1f0d00 50%, #0a0a0a 100%)",
+            imageUrl: '',
+            uploading: false,
+          },
+          {
+            title: "Beach Club",
+            sub: "Sunbeds, cocktails and the Mediterranean",
+            bg: "linear-gradient(135deg, #0a1a2a 0%, #0d2030 50%, #0a1420 100%)",
+            imageUrl: '',
+            uploading: false,
+          },
+        ],
   };
 };
 
@@ -645,6 +724,25 @@ const moveSlide = (i, dir) => {
   else if (previewSlide.value === j) previewSlide.value = i;
 };
 
+const gradients = [
+  'linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)',
+  'linear-gradient(135deg, #2a1a0a 0%, #1f0d00 50%, #0a0a0a 100%)',
+  'linear-gradient(135deg, #0a1a2a 0%, #0d2030 50%, #0a1420 100%)',
+  'linear-gradient(135deg, #1a0a2a 0%, #110020 50%, #0a0010 100%)',
+  'linear-gradient(135deg, #0a2a1a 0%, #002010 50%, #001408 100%)',
+];
+
+const addSlide = () => {
+  const bg = gradients[form.slides.length % gradients.length];
+  form.slides.push({ title: '', sub: '', bg, imageUrl: '', uploading: false });
+};
+
+const removeSlide = (i) => {
+  if (form.slides.length <= 1) return;
+  form.slides.splice(i, 1);
+  if (previewSlide.value >= form.slides.length) previewSlide.value = form.slides.length - 1;
+};
+
 const activeEnvs = computed(() => form.environments.filter((e) => e.active));
 
 // ─── Preview ──────────────────────────────────────────────────────────────────
@@ -654,6 +752,13 @@ const previewSlide = ref(0);
 const saving = ref(false);
 
 const saveChanges = () => {
+  if (!VENUE_LIST[0]) return;
+  const invalidSlide = form.slides.findIndex(s => !s.imageUrl || !s.title.trim() || !s.sub.trim());
+  if (invalidSlide !== -1) {
+    previewSlide.value = invalidSlide;
+    notifyError(`Slide ${invalidSlide + 1} is missing ${!form.slides[invalidSlide].imageUrl ? 'a photo' : !form.slides[invalidSlide].title.trim() ? 'a scene name' : 'a caption'}`);
+    return;
+  }
   saving.value = true;
   updateVenue(VENUE_LIST[0].id, {
     name: form.name,
@@ -661,6 +766,11 @@ const saveChanges = () => {
     ambienceTags: [...form.tags],
     dressCode: form.dressCode,
     supportedLanguages: [...form.languages],
+    tagline: form.tagline,
+    location: form.location,
+    venueType: form.venueType,
+    hours: form.environments.map(e => ({ envId: e.id ?? null, open: e.open, close: e.close, active: e.active })),
+    slides: form.slides.map(s => ({ title: s.title, subtitle: s.sub, bgColor: s.bg, imageUrl: s.imageUrl || '' })),
   });
   setTimeout(() => {
     saving.value = false;
@@ -764,6 +874,7 @@ const resetForm = () => {
 }
 .preview-col {
   min-width: 0;
+  height: 100%;
 }
 
 /* ═══ FORM SECTIONS ═══ */
@@ -1017,73 +1128,157 @@ const resetForm = () => {
   color: #2ebb57;
 }
 
-/* ═══ GALLERY ═══ */
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+/* ═══ GALLERY / SLIDES ═══ */
+.slide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slide-row {
+  display: flex;
+  align-items: center;
   gap: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 12px;
+  transition: border-color 0.15s;
 }
 
-.gallery-item-inner {
+.slide-row:hover {
+  border-color: rgba(212, 175, 55, 0.18);
+}
+
+.slide-row--incomplete {
+  border-color: rgba(199, 21, 133, 0.25);
+}
+
+.slide-row--incomplete:hover {
+  border-color: rgba(199, 21, 133, 0.45);
+}
+
+.slide-thumb {
   position: relative;
+  width: 128px;
+  min-width: 128px;
   height: 80px;
-  border-radius: 8px;
+  border-radius: 7px;
   overflow: hidden;
-  border: 1px solid rgba(212, 175, 55, 0.1);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.gallery-item--active .gallery-item-inner {
-  border-color: rgba(212, 175, 55, 0.45);
-  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.18);
-}
-
-.gallery-order-badge {
+.slide-thumb-loading {
   position: absolute;
-  top: 6px;
-  left: 8px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(212, 175, 55, 0.9);
-  color: #0a0e14;
-  font-family: var(--font-body);
-  font-size: 0.7rem;
-  font-weight: 700;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 3;
 }
 
-.gallery-arrows {
+.slide-thumb-hover {
   position: absolute;
-  bottom: 5px;
-  right: 6px;
+  inset: 0;
   display: flex;
-  gap: 2px;
-}
-
-.gallery-arrow {
-  cursor: pointer;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 3px;
-  padding: 2px;
-}
-
-.gallery-title-input :deep(.v-field__input) {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.52);
+  opacity: 0;
+  transition: opacity 0.18s;
+  z-index: 2;
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.65rem;
+  color: #d4af37;
   font-weight: 600;
-  color: #f0ead6;
-  padding: 4px 0;
-  min-height: unset;
+  letter-spacing: 0.03em;
 }
 
-.gallery-sub-input :deep(.v-field__input) {
+.slide-thumb:hover .slide-thumb-hover {
+  opacity: 1;
+}
+
+.slide-num {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: rgba(255, 255, 255, 0.55);
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  z-index: 1;
+}
+
+.slide-remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  transition: background 0.15s;
+}
+
+.slide-remove-btn:hover {
+  background: rgba(199, 21, 133, 0.7);
+}
+
+.slide-fields {
+  flex: 1;
+  min-width: 0;
+}
+
+.slide-field-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.67rem;
   color: #6a7080;
-  padding: 2px 0;
-  min-height: unset;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.slide-order {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.slide-delete-btn {
+  color: rgba(199, 21, 133, 0.5) !important;
+  margin-top: 4px;
+}
+
+.slide-delete-btn:not([disabled]):hover {
+  color: #c71585 !important;
+}
+
+.add-slide-btn {
+  border-color: rgba(212, 175, 55, 0.3) !important;
+  color: #d4af37 !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.03em !important;
+  width: 100%;
+}
+
+.add-slide-btn:hover {
+  background: rgba(212, 175, 55, 0.06) !important;
 }
 
 /* ═══ PREVIEW PANEL ═══ */

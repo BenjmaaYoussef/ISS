@@ -42,6 +42,9 @@ function isPublic(path) {
 }
 
 router.beforeEach((to) => {
+  // Allow the catch-all 404 page through regardless of auth state
+  if (to.matched.some(r => r.path === '/:all(.*)')) return true
+
   let session = null
   try {
     session = JSON.parse(localStorage.getItem('spotly_session') || 'null')

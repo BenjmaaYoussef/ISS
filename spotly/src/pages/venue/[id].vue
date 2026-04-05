@@ -190,7 +190,9 @@
                   :style="{
                     position: 'absolute',
                     inset: 0,
-                    background: slide.bg,
+                    ...(slide.imageUrl
+                      ? { backgroundImage: `url(${slide.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                      : { background: slide.bg }),
                     display: 'flex',
                     alignItems: 'flex-end',
                     padding: '24px',
@@ -392,32 +394,48 @@ const venue = computed(() => getVenueById(venueId.value));
 
 const tags = computed(() => venue.value?.ambienceTags ?? []);
 
-const slides = [
+const _fallbackSlides = [
   {
     title: "Main Hall",
     sub: "Elegant setting for unforgettable evenings",
     bg: "linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)",
+    imageUrl: "",
   },
   {
     title: "Terrace",
     sub: "Open-air seating with panoramic views",
     bg: "linear-gradient(135deg, #2a1a0a 0%, #1a1005 40%, #0f0a02 100%)",
+    imageUrl: "",
   },
   {
     title: "Private Area",
     sub: "Intimate reserved spaces for exclusive events",
     bg: "linear-gradient(135deg, #0a1a2a 0%, #051015 40%, #020a0f 100%)",
+    imageUrl: "",
   },
 ];
+
+const slides = computed(() => {
+  const venueSlides = venue.value?.slides;
+  if (venueSlides?.length) {
+    return venueSlides.map(s => ({
+      title: s.title ?? "",
+      sub: s.subtitle ?? "",
+      bg: s.bgColor || "linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)",
+      imageUrl: s.imageUrl ?? "",
+    }));
+  }
+  return _fallbackSlides;
+});
 
 const currentSlide = ref(0);
 let timer = null;
 
 function nextSlide() {
-  currentSlide.value = (currentSlide.value + 1) % slides.length;
+  currentSlide.value = (currentSlide.value + 1) % slides.value.length;
 }
 function prevSlide() {
-  currentSlide.value = (currentSlide.value - 1 + slides.length) % slides.length;
+  currentSlide.value = (currentSlide.value - 1 + slides.value.length) % slides.value.length;
 }
 
 onMounted(() => {

@@ -176,23 +176,63 @@ Accepts `(environmentId: Ref<string>, date: Ref<string>)`, returns a `computed` 
 
 ### Tasks
 
-- [ ] **Venue.js — add missing fields** — Extend the `Venue` class with: `tagline`, `location`, `venueType`, `hours` (array of `{ envId, open, close, active }`), `slides` (array of `{ title, subtitle, bgColor }`). Update `updateVenue()` to accept and persist these.
+- [x] **Venue.js — add missing fields** — Extend the `Venue` class with: `tagline`, `location`, `venueType`, `hours` (array of `{ envId, open, close, active }`), `slides` (array of `{ title, subtitle, bgColor }`). Update `updateVenue()` to accept and persist these.
 
-- [ ] **venue-settings.vue — persist all fields** — Add `tagline`, `location`, `venueType`, `hours`, `slides` to the `updateVenue()` call in `saveChanges()`.
+- [x] **venue-settings.vue — persist all fields** — Add `tagline`, `location`, `venueType`, `hours`, `slides` to the `updateVenue()` call in `saveChanges()`.
 
-- [ ] **venue-settings.vue — crash fix** — Line 658: `updateVenue(VENUE_LIST[0].id, ...)` throws `TypeError` when `VENUE_LIST` is empty. Guard: `if (!VENUE_LIST[0]) return`. Also guard the `defaultForm()` initializer.
+- [x] **venue-settings.vue — crash fix** — Line 658: `updateVenue(VENUE_LIST[0].id, ...)` throws `TypeError` when `VENUE_LIST` is empty. Guard: `if (!VENUE_LIST[0]) return`. Also guard the `defaultForm()` initializer.
 
-- [ ] **floor-plan.vue — fix hardcoded currentEnvId** — Line 888: `const currentEnvId = ref("env_indoor")`. Replace with `ref(environments.value[0]?.id ?? '')` so it defaults to the first real environment rather than a hardcoded string that may not exist.
+- [x] **floor-plan.vue — fix hardcoded currentEnvId** — Line 888: `const currentEnvId = ref("env_indoor")`. Replace with `ref(environments.value[0]?.id ?? '')` so it defaults to the first real environment rather than a hardcoded string that may not exist.
 
-- [ ] **floor-plan.vue — remove orphaned TODO comment** — Line 1222: Remove the `//TODO` comment (the code beneath it is complete and functional).
+- [x] **floor-plan.vue — remove orphaned TODO comment** — Line 1222: Remove the `//TODO` comment (the code beneath it is complete and functional).
 
-- [ ] **ReservationLog.js — complete CRUD** — Add `updateReservationLog(id, changes)` and `deleteReservationLog(id)` to satisfy the required data layer pattern (even if not called today).
+- [x] **ReservationLog.js — complete CRUD** — Add `updateReservationLog(id, changes)` and `deleteReservationLog(id)` to satisfy the required data layer pattern (even if not called today).
 
-- [ ] **404 page** — Create `src/pages/[...all].vue`: branded not-found page with "Page not found" message and a "Go Home" button linking to `/`. `unplugin-vue-router` treats this file as the catch-all automatically.
+- [x] **404 page** — Create `src/pages/[...all].vue`: branded not-found page with "Page not found" message and a "Go Home" button linking to `/`. `unplugin-vue-router` treats this file as the catch-all automatically.
 
-- [ ] **AppNavbarPublic.vue — wire nav links** — The `<v-btn>` nav links have no `to` prop or `@click`. Wire them to their routes or scroll targets.
+- [x] **AppNavbarPublic.vue — wire nav links** — The `<v-btn>` nav links have no `to` prop or `@click`. Wire them to their routes or scroll targets.
 
-- [ ] **Seed reservation dates** — All 5 seed reservations in `Reservation.js` are dated `2026-02-15`–`2026-02-18`. This means the staff dashboard shows a completely empty floor plan on first run. Add at least 2–3 seed reservations dated dynamically (using `new Date().toISOString().split('T')[0]` for "today") so the app demonstrates its full feature set on first load.
+- [x] **Seed reservation dates** — All 5 seed reservations in `Reservation.js` are dated `2026-02-15`–`2026-02-18`. This means the staff dashboard shows a completely empty floor plan on first run. Add at least 2–3 seed reservations dated dynamically (using `new Date().toISOString().split('T')[0]` for "today") so the app demonstrates its full feature set on first load.
+
+---
+
+## Phase 9.5 — Gallery & Image Upload (MEDIUM)
+
+**Scope:** `src/utils/uploadImage.js` (new), `admin/venue-settings.vue` (Section 5 Gallery), `src/pages/venue/[id].vue` (hero slideshow), `src/datamodel/Venue.js`
+**Goal:** Admin can upload real photos for each slideshow slide. Images are hosted via an external image API and stored as URLs in `Venue.slides[].imageUrl`. The venue public page hero displays the uploaded images.
+
+### Image hosting
+
+Uses **Cloudinary** with an unsigned upload preset. Credentials are stored in `.env.local` (gitignored — never committed). The utility wrapper is at `src/utils/uploadImage.js`.
+
+**`.env.local` (already created):**
+```
+VITE_CLOUDINARY_CLOUD_NAME=dwgzoyuyq
+VITE_CLOUDINARY_UPLOAD_PRESET=spotly_uploads
+```
+
+### Venue.slides shape update
+
+Current `slides[]` item: `{ title, subtitle, bgColor }`
+Extended: `{ title, subtitle, bgColor, imageUrl }` — `imageUrl` is optional; gradient fallback used when absent.
+
+### Tasks
+
+- [x] **`src/utils/uploadImage.js` — image upload utility** — Create a thin wrapper that reads `VITE_CLOUDINARY_CLOUD_NAME` and `VITE_CLOUDINARY_UPLOAD_PRESET` and POSTs a `File` to `https://api.cloudinary.com/v1_1/{cloud}/image/upload` via `FormData`. Returns `data.secure_url`. Throws a descriptive error on failure.
+
+- [x] **Venue.js — add `imageUrl` to slides items** — Extend the `Venue` constructor to pass through `imageUrl` inside each `slides[]` item (already optional — no migration needed for existing seed).
+
+- [x] **venue-settings.vue — Gallery section: image upload UI** — Replace the gradient-only slide display in Section 5 with:
+  - Each slide card shows the image (if `slide.imageUrl`) or the gradient preview (fallback)
+  - A "Upload Photo" button per slide opens a hidden `<input type="file" accept="image/*">` picker
+  - On file select: call `uploadImage(file)`, show a loading spinner on that card, then set `slide.imageUrl` on success
+  - Show an error toast on upload failure (network error, size limit, etc.)
+  - An "×" / remove button clears `slide.imageUrl` (reverts to gradient)
+  - Saving the form (existing `saveChanges`) already persists `slides` to `Venue.js` — no additional wiring needed
+
+- [x] **venue/[id].vue — hero slideshow uses imageUrl** — In the hero slideshow, if `slide.imageUrl` is present use `background-image: url(slide.imageUrl)` with `background-size: cover`; otherwise fall back to `slide.bgColor` gradient. No change to transition/timing logic.
+
+- [x] **`.env.local` — document in CLAUDE.md** — Add a note to CLAUDE.md that `.env.local` must contain the image API credentials before running phase 9.5 (so future sessions don't miss the setup step).
 
 ---
 
@@ -286,6 +326,6 @@ Accepts `(environmentId: Ref<string>, date: Ref<string>)`, returns a `computed` 
 
 ## Session Notes
 
-**Last session:** Phase 8 complete — Staff Dashboard rebuilt (VenueFloorMap, useFloorTables, date selector, reservation panel) + menu page fixed. 20/20 Playwright tests pass. Today's seed reservations added to Reservation.js; drinks/desserts seeds added to MenuItem.js.
-**Next session starts at:** Phase 9 — Venue Settings Persistence + 404 + Datamodel Gaps.
-**Blockers / decisions pending:** None. Implement phases strictly in order (9 → 10 → 11).
+**Last session:** Phase 9.5 complete — Cloudinary image upload utility, Venue.js slides imageUrl pass-through, venue-settings Gallery section upload UI (per-slide upload/remove/preview), venue/[id].vue hero slideshow uses real imageUrl, .env.local documented in CLAUDE.md.
+**Next session starts at:** Phase 10 — Admin & Client Polish.
+**Blockers / decisions pending:** None.

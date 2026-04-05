@@ -36,3 +36,21 @@ export function getAllReservationLogs() {
 export function getLogsByReservation(reservationId) {
   return RESERVATION_LOG_LIST.filter(l => l.reservationId === reservationId)
 }
+
+/* ================= UPDATE ================= */
+
+export function updateReservationLog(id, changes) {
+  const log = RESERVATION_LOG_LIST.find(l => l.id === id)
+  if (!log) return null
+  Object.assign(log, changes)
+  return log
+}
+
+/* ================= DELETE ================= */
+
+export function deleteReservationLog(id) {
+  const index = RESERVATION_LOG_LIST.findIndex(l => l.id === id)
+  if (index === -1) return false
+  RESERVATION_LOG_LIST.splice(index, 1)
+  return true
+}

@@ -48,7 +48,7 @@
               >mdi-calendar-blank</v-icon
             >
             <div>No upcoming reservations</div>
-            <v-btn class="book-btn mt-4" size="small" @click="bookDialog = true"
+            <v-btn class="book-btn mt-4" size="small" @click="router.push('/home')"
               >Book a Table</v-btn
             >
           </div>
@@ -180,12 +180,12 @@
                 >
                 Guest Status
               </div>
-              <div class="loyalty-tier">Gold Member</div>
+              <div class="loyalty-tier">{{ loyaltyTier.label }}</div>
               <div class="loyalty-visits">
-                {{ pastVisits.length }} visits completed
+                {{ completedCount }} visits completed
               </div>
               <v-progress-linear
-                :model-value="(pastVisits.length / 10) * 100"
+                :model-value="loyaltyTier.progress"
                 color="#D4AF37"
                 bg-color="rgba(212,175,55,0.18)"
                 rounded
@@ -193,7 +193,7 @@
                 class="mt-3"
               />
               <div class="loyalty-next mt-1">
-                {{ 10 - pastVisits.length }} more visits to Platinum
+                {{ loyaltyTier.next }}
               </div>
             </div>
           </div>
@@ -231,93 +231,24 @@
     </v-card>
   </v-dialog>
 
-  <!-- ── Book Table Dialog ── -->
-  <v-dialog v-model="bookDialog" max-width="460" class="spotly-dialog">
-    <v-card class="dialog-card">
-      <div class="dialog-strip" />
-      <v-card-title class="dialog-title pt-6 px-6"
-        >New Reservation</v-card-title
-      >
-      <v-card-text class="px-6">
-        <v-row dense class="mt-2">
-          <v-col cols="6">
-            <v-text-field
-              v-model="newRes.date"
-              label="Date"
-              type="date"
-              variant="outlined"
-              density="compact"
-              class="spotly-input"
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-model="newRes.time"
-              label="Time"
-              type="time"
-              variant="outlined"
-              density="compact"
-              class="spotly-input"
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-select
-              v-model="newRes.area"
-              :items="areas"
-              label="Area"
-              variant="outlined"
-              density="compact"
-              class="spotly-input"
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-model="newRes.guests"
-              label="Guests"
-              type="number"
-              min="1"
-              max="20"
-              variant="outlined"
-              density="compact"
-              class="spotly-input"
-            />
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
-              v-model="newRes.notes"
-              label="Special Notes (optional)"
-              variant="outlined"
-              density="compact"
-              class="spotly-input"
-            />
-          </v-col>
-        </v-row>
-      </v-card-text>
-      <v-card-actions class="px-6 pb-6 ga-3">
-        <v-btn variant="text" class="keep-btn" @click="bookDialog = false"
-          >Cancel</v-btn
-        >
-        <v-spacer />
-        <v-btn class="book-btn" @click="submitBooking">Request Booking</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-
   <!-- Snackbar -->
   <SpotlySnackbar :snackbar="snackbar" />
 </template>
 
 <script setup>
-import { ref, reactive, computed } from "vue";
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useAuth } from "@/composables/useAuth";
 import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import SectionHeader from "@/components/ui/SectionHeader.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
-import { RESERVATION_LIST, Reservation, addReservation, updateReservationStatus } from "@/datamodel/Reservation.js";
+import { RESERVATION_LIST, updateReservationStatus } from "@/datamodel/Reservation.js";
 import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
 import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog.js";
+
+const router = useRouter();
 
 const { snackbar, notify } = useSnackbar();
 
@@ -330,13 +261,7 @@ const sessionName = session.name || "Guest";
 
 // ── Dialogs & state ────────────────────────────────────────────────────────────
 const cancelDialog = ref(false);
-const bookDialog = ref(false);
 const selectedRes = ref(null);
-
-const newRes = reactive({ date: "", time: "", area: "", guests: 2, notes: "" });
-
-// ── Derived areas from ENVIRONMENT_LIST ────────────────────────────────────────
-const areas = computed(() => ENVIRONMENT_LIST.map((e) => e.name));
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function formatDate(dateStr) {
@@ -367,7 +292,7 @@ const PAST_STATUSES = ["COMPLETED", "NO_SHOW"];
 const baseList = computed(() =>
   sessionUserId
     ? RESERVATION_LIST.filter((r) => r.userId === sessionUserId)
-    : RESERVATION_LIST,
+    : [],
 );
 
 const upcoming = computed(() =>
@@ -396,6 +321,17 @@ const pastVisits = computed(() =>
     .sort((a, b) => b.rawDate.localeCompare(a.rawDate)),
 );
 
+// ── Loyalty tier ───────────────────────────────────────────────────────────────
+const completedCount = computed(() =>
+  baseList.value.filter((r) => r.status === "COMPLETED").length,
+);
+const loyaltyTier = computed(() => {
+  const n = completedCount.value;
+  if (n >= 10) return { label: "Gold Member", progress: 100, next: "You've reached Gold!" };
+  if (n >= 3)  return { label: "Silver Member", progress: (n / 10) * 100, next: `${10 - n} more visits to Gold` };
+  return { label: "Bronze Member", progress: (n / 3) * 100, next: `${3 - n} more visits to Silver` };
+});
+
 // ── Actions ────────────────────────────────────────────────────────────────────
 const confirmCancel = () => {
   if (!selectedRes.value) return;
@@ -416,47 +352,6 @@ const confirmCancel = () => {
   }
   cancelDialog.value = false;
   notify("Reservation cancelled successfully", "#C71585", "mdi-close-circle");
-};
-
-const submitBooking = () => {
-  if (!newRes.date || !newRes.time || !newRes.area) {
-    notify("Please fill in all required fields", "#C71585", "mdi-alert-circle");
-    return;
-  }
-  const matchedEnv = ENVIRONMENT_LIST.find(
-    (e) => e.name === newRes.area,
-  );
-  const id = Date.now();
-  addReservation(
-    new Reservation({
-      id,
-      venueId: 1,
-      environmentId: matchedEnv?.id || "",
-      elementId: "",
-      userId: sessionUserId,
-      name: sessionName,
-      email: session.email || "",
-      phone: "",
-      date: newRes.date,
-      time: newRes.time,
-      guests: Number(newRes.guests),
-      notes: newRes.notes,
-      status: "REQUESTED",
-    }),
-  );
-  addReservationLog(
-    new ReservationLog({
-      id: id + 1,
-      reservationId: id,
-      previousStatus: null,
-      newStatus: "REQUESTED",
-      timestamp: new Date().toISOString(),
-      actorRole: "client",
-    }),
-  );
-  bookDialog.value = false;
-  Object.assign(newRes, { date: "", time: "", area: "", guests: 2, notes: "" });
-  notify("Booking request submitted!", "#2EBB57", "mdi-check-circle");
 };
 
 const { logout } = useAuth();

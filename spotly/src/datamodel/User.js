@@ -20,7 +20,8 @@ const _seed = [
 ]
 const _saved = localStorage.getItem(STORAGE_KEY)
 // Migrate existing saved users: ensure all have a role field
-const _parsed = _saved ? JSON.parse(_saved).map(u => new User({ role: 'client', ...u })) : _seed
+let _parsed = _seed
+try { if (_saved) _parsed = JSON.parse(_saved).map(u => new User({ role: 'client', ...u })) } catch { _parsed = _seed }
 // Ensure seed admin/staff accounts always exist (add if missing)
 const _emails = _parsed.map(u => u.email)
 for (const seedUser of _seed.slice(0, 2)) {
@@ -31,7 +32,7 @@ export const USER_LIST = reactive(_parsed)
 watch(USER_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {
   if (e.key !== STORAGE_KEY || !e.newValue) return
-  USER_LIST.splice(0, USER_LIST.length, ...JSON.parse(e.newValue).map(u => new User(u)))
+  try { USER_LIST.splice(0, USER_LIST.length, ...JSON.parse(e.newValue).map(u => new User(u))) } catch { /* ignore corrupted cross-tab data */ }
 })
 
 /* ================= CREATE ================= */

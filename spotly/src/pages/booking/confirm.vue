@@ -346,7 +346,8 @@
                 size="large"
                 :ripple="false"
                 class="mb-3 gold-btn"
-                :disabled="!isFormValid"
+                :disabled="!isFormValid || submitting"
+                :loading="submitting"
                 @click="requestReservation"
               >
                 Request Reservation
@@ -400,6 +401,8 @@ const totalGuests = computed(() =>
   cart.value.reduce((s, c) => s + c.guests, 0),
 );
 
+const submitting = ref(false);
+
 const form = ref({
   name: "",
   email: "",
@@ -422,7 +425,8 @@ const isFormValid = computed(() => {
 
 const goBack = () => router.push("/booking/seats");
 const requestReservation = () => {
-  if (!isFormValid.value) return;
+  if (!isFormValid.value || submitting.value) return;
+  submitting.value = true;
   const baseId =
     RESERVATION_LIST.length > 0
       ? Math.max(...RESERVATION_LIST.map((r) => r.id)) + 1

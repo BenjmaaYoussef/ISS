@@ -137,6 +137,19 @@
             </div>
           </template>
 
+          <!-- Available Column -->
+          <template v-slot:item.available="{ item }">
+            <v-chip
+              :style="item.available !== false
+                ? 'background: rgba(46,187,87,0.15); color: #2ebb57; border: 1px solid rgba(46,187,87,0.3);'
+                : 'background: rgba(150,150,150,0.1); color: #888; border: 1px solid rgba(150,150,150,0.2);'"
+              size="x-small"
+            >
+              <v-icon start size="10">{{ item.available !== false ? 'mdi-check-circle' : 'mdi-minus-circle' }}</v-icon>
+              {{ item.available !== false ? 'Available' : 'Unavailable' }}
+            </v-chip>
+          </template>
+
           <!-- Actions Column -->
           <template v-slot:item.actions="{ item }">
             <div class="actions-cell">
@@ -194,6 +207,14 @@
       </v-card-title>
 
       <v-card-text class="pa-6">
+        <v-alert
+          v-if="formError"
+          type="error"
+          variant="tonal"
+          density="compact"
+          class="mb-4"
+          style="font-size: 0.85rem;"
+        >{{ formError }}</v-alert>
         <v-row>
           <!-- Image Upload -->
           <v-col cols="12">
@@ -301,6 +322,22 @@
               class="spotly-input"
             ></v-textarea>
           </v-col>
+
+          <!-- Available toggle -->
+          <v-col cols="12">
+            <v-switch
+              v-model="formData.available"
+              color="#D4AF37"
+              hide-details
+              density="compact"
+            >
+              <template #label>
+                <span class="field-label" style="text-transform: none; font-size: 0.85rem; color: #b8bcc8;">
+                  Available on menu
+                </span>
+              </template>
+            </v-switch>
+          </v-col>
         </v-row>
       </v-card-text>
 
@@ -377,6 +414,7 @@ const showItemDialog = ref(false);
 const showDeleteDialog = ref(false);
 const isEditing = ref(false);
 const itemToDelete = ref(null);
+const formError = ref("");
 
 const tabs = [
   { label: "Dashboard", value: "dashboard", route: "/admin/dashboard" },
@@ -428,6 +466,7 @@ const headers = [
   { title: "Price", key: "price", sortable: true },
   { title: "Allergens", key: "allergens", sortable: false },
   { title: "Tags", key: "tags", sortable: false },
+  { title: "Status", key: "available", sortable: true, width: "110px" },
   { title: "Actions", key: "actions", sortable: false, align: "end" },
 ];
 
@@ -441,6 +480,7 @@ const formData = ref({
   allergens: [],
   tags: [],
   description: "",
+  available: true,
 });
 
 const filteredItems = computed(() =>
@@ -451,6 +491,7 @@ const filteredItems = computed(() =>
 
 const openAddDialog = () => {
   isEditing.value = false;
+  formError.value = "";
   formData.value = {
     name: "",
     price: "",
@@ -458,13 +499,15 @@ const openAddDialog = () => {
     allergens: [],
     tags: [],
     description: "",
+    available: true,
   };
   showItemDialog.value = true;
 };
 
 const editItem = (item) => {
   isEditing.value = true;
-  formData.value = { ...item, description: item.desc };
+  formError.value = "";
+  formData.value = { ...item, description: item.desc, available: item.available ?? true };
   showItemDialog.value = true;
 };
 
@@ -480,9 +523,14 @@ const confirmDelete = () => {
 };
 
 const saveItem = () => {
-  const { name, price, category, allergens, tags, description } = formData.value;
+  const { name, price, category, allergens, tags, description, available } = formData.value;
+  if (!name || !price) {
+    formError.value = !name ? "Item name is required." : "Price is required.";
+    return;
+  }
+  formError.value = "";
   if (isEditing.value) {
-    updateMenuItem(formData.value.id, { name, price: Number(price), category, allergens, tags, desc: description });
+    updateMenuItem(formData.value.id, { name, price: Number(price), category, allergens, tags, desc: description, available });
   } else {
     addMenuItem(new MenuItem({
       id: Date.now(),
@@ -493,6 +541,7 @@ const saveItem = () => {
       allergens,
       tags,
       desc: description,
+      available,
     }));
   }
   closeDialog();
@@ -507,6 +556,7 @@ const closeDialog = () => {
     allergens: [],
     tags: [],
     description: "",
+    available: true,
   };
 };
 </script>

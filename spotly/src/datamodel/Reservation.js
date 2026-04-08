@@ -20,8 +20,10 @@ export class Reservation {
 
 const STORAGE_KEY = 'spotly_reservations'
 const _today = new Date().toISOString().split('T')[0]
+// Tomorrow's date for upcoming seed reservations
+const _tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
 const _seed = [
-  new Reservation({ id: 102, venueId: 1, environmentId: 'env_indoor', elementId: 'e6', name: 'John Doe', date: '2026-02-15', time: '19:00', guests: 5, notes: 'Allergy: nuts', status: 'REQUESTED' }),
+  // ── Other guests (no userId — staff-floor demos) ──
   new Reservation({ id: 105, venueId: 1, environmentId: 'env_indoor', elementId: 'e1', name: 'Sarah Smith', date: '2026-02-16', time: '20:00', guests: 4, notes: '', status: 'REQUESTED' }),
   new Reservation({ id: 108, venueId: 1, environmentId: 'env_indoor', elementId: 'e3', name: 'Marcus Lee', date: '2026-02-17', time: '18:30', guests: 2, notes: 'Anniversary', status: 'APPROVED' }),
   new Reservation({ id: 111, venueId: 1, environmentId: 'env_indoor', elementId: 'e8', name: 'Layla Hassan', date: '2026-02-17', time: '21:00', guests: 6, notes: 'Corporate event', status: 'REQUESTED' }),
@@ -30,15 +32,23 @@ const _seed = [
   new Reservation({ id: 201, venueId: 1, environmentId: 'env_indoor', elementId: 'e1', name: 'Alex Morgan', date: _today, time: '19:00', guests: 3, notes: 'Birthday dinner', status: 'REQUESTED' }),
   new Reservation({ id: 202, venueId: 1, environmentId: 'env_indoor', elementId: 'e6', name: 'Priya Patel', date: _today, time: '20:00', guests: 7, notes: '', status: 'APPROVED' }),
   new Reservation({ id: 203, venueId: 1, environmentId: 'env_terrace', elementId: 'et2', name: 'James Wilson', date: _today, time: '18:30', guests: 4, notes: 'Window seat please', status: 'CHECKED_IN' }),
+  // ── John Doe (client@spotly.com) — past visits + upcoming ──
+  new Reservation({ id: 301, venueId: 1, environmentId: 'env_indoor', elementId: 'e6', userId: 'client@spotly.com', name: 'John Doe', email: 'client@spotly.com', date: '2026-01-10', time: '20:00', guests: 2, notes: '', status: 'COMPLETED' }),
+  new Reservation({ id: 302, venueId: 1, environmentId: 'env_terrace', elementId: 'et3', userId: 'client@spotly.com', name: 'John Doe', email: 'client@spotly.com', date: '2026-02-14', time: '19:30', guests: 4, notes: 'Valentine dinner', status: 'COMPLETED' }),
+  new Reservation({ id: 303, venueId: 1, environmentId: 'env_indoor', elementId: 'e3', userId: 'client@spotly.com', name: 'John Doe', email: 'client@spotly.com', date: '2026-03-01', time: '21:00', guests: 3, notes: '', status: 'COMPLETED' }),
+  new Reservation({ id: 304, venueId: 1, environmentId: 'env_indoor', elementId: 'e5', userId: 'client@spotly.com', name: 'John Doe', email: 'client@spotly.com', date: _tomorrow, time: '19:00', guests: 2, notes: 'Window seat', status: 'APPROVED' }),
+  new Reservation({ id: 305, venueId: 1, environmentId: 'env_terrace', elementId: 'et2', userId: 'client@spotly.com', name: 'John Doe', email: 'client@spotly.com', date: '2026-04-20', time: '20:30', guests: 5, notes: 'Birthday celebration', status: 'REQUESTED' }),
 ]
 const _saved = localStorage.getItem(STORAGE_KEY)
-export const RESERVATION_LIST = reactive(_saved ? JSON.parse(_saved).map(r => new Reservation(r)) : _seed)
+let _initial = _seed
+try { if (_saved) _initial = JSON.parse(_saved).map(r => new Reservation(r)) } catch { _initial = _seed }
+export const RESERVATION_LIST = reactive(_initial)
 if (!_saved) localStorage.setItem(STORAGE_KEY, JSON.stringify(_seed))
 
 watch(RESERVATION_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {
   if (e.key !== STORAGE_KEY || !e.newValue) return
-  RESERVATION_LIST.splice(0, RESERVATION_LIST.length, ...JSON.parse(e.newValue).map(r => new Reservation(r)))
+  try { RESERVATION_LIST.splice(0, RESERVATION_LIST.length, ...JSON.parse(e.newValue).map(r => new Reservation(r))) } catch { /* ignore corrupted cross-tab data */ }
 })
 
 /* ================= CREATE ================= */

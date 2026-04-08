@@ -122,7 +122,7 @@
                     icon
                     size="small"
                     class="action-btn action-btn--reject"
-                    @click="reject(res)"
+                    @click="confirmReject(res)"
                     :disabled="res.status === 'REJECTED'"
                     title="Reject"
                   >
@@ -167,6 +167,23 @@
     </div>
   </v-main>
 
+  <!-- Reject Confirmation Dialog -->
+  <v-dialog v-model="rejectDialog" max-width="400">
+    <v-card flat style="background: var(--color-surface-elevated); border: 1px solid rgba(212,175,55,0.18); border-radius: 16px;">
+      <v-card-text class="pa-6 text-center">
+        <v-icon size="56" style="color: #c71585; margin-bottom: 12px">mdi-close-circle-outline</v-icon>
+        <h2 style="font-family: var(--font-heading); color: #f0ead6; font-size: 1.3rem; margin-bottom: 8px;">Reject Reservation?</h2>
+        <p style="color: #b8bcc8; font-size: 0.9rem; margin-bottom: 20px;">
+          Reject reservation <strong style="color: #d4af37">#{{ pendingRejectRes?.id }}</strong> for <strong style="color: #fff">{{ pendingRejectRes?.name }}</strong>?
+        </p>
+        <div class="d-flex gap-3 justify-center">
+          <v-btn variant="outlined" class="secondary-btn" @click="rejectDialog = false">Cancel</v-btn>
+          <v-btn flat class="danger-btn" @click="doReject">Reject</v-btn>
+        </div>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+
   <!-- Snackbar feedback -->
   <SpotlySnackbar :snackbar="snackbar" />
 </template>
@@ -191,9 +208,35 @@ const { adminNavLinks, handleNav } = useAdminNav();
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const statusFilter = ref("All");
-const filterOptions = ["All", "Pending", "Approved", "Rejected"];
+const filterOptions = ["All", "Pending", "Approved", "Rejected", "Cancelled"];
 // Map display labels → canonical statuses
-const displayToStatus = { Pending: "REQUESTED", Approved: "APPROVED", Rejected: "REJECTED" };
+const displayToStatus = { Pending: "REQUESTED", Approved: "APPROVED", Rejected: "REJECTED", Cancelled: "CANCELLED" };
+
+// ─── Reject confirmation dialog ────────────────────────────────────────────────
+const rejectDialog = ref(false);
+const pendingRejectRes = ref(null);
+
+const confirmReject = (res) => {
+  pendingRejectRes.value = res;
+  rejectDialog.value = true;
+};
+const doReject = () => {
+  const res = pendingRejectRes.value;
+  if (!res) return;
+  const prev = res.status;
+  updateReservationStatus(res.id, "REJECTED");
+  addReservationLog(new ReservationLog({
+    id: Date.now(),
+    reservationId: res.id,
+    previousStatus: prev,
+    newStatus: "REJECTED",
+    timestamp: new Date().toISOString(),
+    actorRole: "admin",
+  }));
+  notifyError(`Reservation #${res.id} rejected`);
+  rejectDialog.value = false;
+  pendingRejectRes.value = null;
+};
 
 const stats = computed(() => [
   { label: "Total", value: RESERVATION_LIST.length, color: "#D4AF37" },
@@ -225,20 +268,6 @@ const approve = (res) => {
   }));
   notifySuccess(`Reservation #${res.id} approved`);
 };
-const reject = (res) => {
-  const prev = res.status;
-  updateReservationStatus(res.id, "REJECTED");
-  addReservationLog(new ReservationLog({
-    id: Date.now(),
-    reservationId: res.id,
-    previousStatus: prev,
-    newStatus: "REJECTED",
-    timestamp: new Date().toISOString(),
-    actorRole: "admin",
-  }));
-  notifyError(`Reservation #${res.id} rejected`);
-};
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 // statusIcon + statusColor now provided by ReservationStatusChip via useTableStatus
 </script>

@@ -52,14 +52,14 @@ const _seed = [
   }),
 ]
 const _saved = localStorage.getItem(STORAGE_KEY)
-export const ENVIRONMENT_LIST = reactive(
-  _saved ? JSON.parse(_saved).map(e => new Environment(e)) : _seed
-)
+let _initial = _seed
+try { if (_saved) _initial = JSON.parse(_saved).map(e => new Environment(e)) } catch { _initial = _seed }
+export const ENVIRONMENT_LIST = reactive(_initial)
 
 watch(ENVIRONMENT_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {
   if (e.key !== STORAGE_KEY || !e.newValue) return
-  ENVIRONMENT_LIST.splice(0, ENVIRONMENT_LIST.length, ...JSON.parse(e.newValue).map(e => new Environment(e)))
+  try { ENVIRONMENT_LIST.splice(0, ENVIRONMENT_LIST.length, ...JSON.parse(e.newValue).map(e => new Environment(e))) } catch { /* ignore corrupted cross-tab data */ }
 })
 
 /* ================= CREATE ================= */

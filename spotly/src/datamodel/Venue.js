@@ -33,13 +33,15 @@ const _seed = [
   new Venue({ id: 6, name: 'Coastal Club', description: 'Beachfront venue with exclusive private access', ambienceTags: ['Luxury', 'Beach', 'Exclusive'], activities: ['Beach', 'Outdoors'] }),
 ]
 const _saved = localStorage.getItem(STORAGE_KEY)
-export const VENUE_LIST = reactive(_saved ? JSON.parse(_saved).map(v => new Venue(v)) : _seed)
+let _initial = _seed
+try { if (_saved) _initial = JSON.parse(_saved).map(v => new Venue(v)) } catch { _initial = _seed }
+export const VENUE_LIST = reactive(_initial)
 if (!_saved) localStorage.setItem(STORAGE_KEY, JSON.stringify(_seed))
 
 watch(VENUE_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {
   if (e.key !== STORAGE_KEY || !e.newValue) return
-  VENUE_LIST.splice(0, VENUE_LIST.length, ...JSON.parse(e.newValue).map(v => new Venue(v)))
+  try { VENUE_LIST.splice(0, VENUE_LIST.length, ...JSON.parse(e.newValue).map(v => new Venue(v))) } catch { /* ignore corrupted cross-tab data */ }
 })
 
 /* ================= CREATE ================= */

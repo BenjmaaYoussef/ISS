@@ -311,12 +311,13 @@
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import { getUserByEmailAndPassword, addUser, userExists } from "@/datamodel/User.js";
 import { User } from "@/datamodel/User.js";
 
 const router = useRouter();
+const route = useRoute();
 
 // ── Login state ────────────────────────────────────────────────────────────────
 const email = ref("");
@@ -327,7 +328,7 @@ const loading = ref(false);
 const error = ref("");
 
 // ── Register state ─────────────────────────────────────────────────────────────
-const isRegister = ref(false);
+const isRegister = ref(route.query.mode === 'register');
 const regFirstName = ref("");
 const regLastName = ref("");
 const regEmail = ref("");

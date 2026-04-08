@@ -242,27 +242,27 @@ Extended: `{ title, subtitle, bgColor, imageUrl }` — `imageUrl` is optional; g
 
 ### Tasks
 
-- [ ] **admin/reservations.vue — add "Cancelled" filter** — `filterOptions` at line 194 is missing `"Cancelled"`. Add it, and add a corresponding entry in `displayToStatus`.
+- [x] **admin/reservations.vue — add "Cancelled" filter** — `filterOptions` at line 194 is missing `"Cancelled"`. Add it, and add a corresponding entry in `displayToStatus`.
 
-- [ ] **admin/reservations.vue — reject confirmation** — Reject fires immediately with no confirmation dialog. Add a simple confirm dialog (or at minimum a `window.confirm` → better: a small inline dialog) before calling `reject(res)`. Also consider disabling reject for already-APPROVED reservations or at least warning.
+- [x] **admin/reservations.vue — reject confirmation** — Reject fires immediately with no confirmation dialog. Add a simple confirm dialog (or at minimum a `window.confirm` → better: a small inline dialog) before calling `reject(res)`. Also consider disabling reject for already-APPROVED reservations or at least warning.
 
-- [ ] **admin/menu.vue — `available` toggle** — The `MenuItem` class has an `available` field but the add/edit dialog has no toggle for it. Add a toggle switch in the dialog form.
+- [x] **admin/menu.vue — `available` toggle** — The `MenuItem` class has an `available` field but the add/edit dialog has no toggle for it. Add a toggle switch in the dialog form.
 
-- [ ] **admin/menu.vue — save validation** — `saveItem()` has no guards. Add `if (!formData.name || !formData.price) return` before writing to the datamodel.
+- [x] **admin/menu.vue — save validation** — `saveItem()` has no guards. Add `if (!formData.name || !formData.price) return` before writing to the datamodel.
 
-- [ ] **client/dashboard.vue — fix all-reservation leak** — Line 366–370: when `sessionUserId === ""` the code falls to the `else` branch which returns the entire `RESERVATION_LIST` unfiltered. Fix: if `sessionUserId` is empty, return `[]` instead.
+- [x] **client/dashboard.vue — fix all-reservation leak** — Line 366–370: when `sessionUserId === ""` the code falls to the `else` branch which returns the entire `RESERVATION_LIST` unfiltered. Fix: if `sessionUserId` is empty, return `[]` instead.
 
-- [ ] **client/dashboard.vue — inline booking expectations** — The "Book a Table" inline dialog creates reservations with `elementId: ""`. Add a visible note "A table will be assigned by our staff" to set expectations, or remove the inline form and route to the full booking flow (`/booking/environment`).
+- [x] **client/dashboard.vue — inline booking expectations** — The "Book a Table" inline dialog creates reservations with `elementId: ""`. Add a visible note "A table will be assigned by our staff" to set expectations, or remove the inline form and route to the full booking flow (`/booking/environment`).
 
-- [ ] **client/dashboard.vue — date validation** — Booking form allows past dates. Add `:min="today"` to the date picker.
+- [x] **client/dashboard.vue — date validation** — Booking form allows past dates. Add `:min="today"` to the date picker.
 
-- [ ] **client/dashboard.vue — loyalty tier** — Replace the hardcoded "Gold Member" + dummy progress with a computed tier based on `COMPLETED` reservations count for `sessionUserId` (0–2 → Bronze, 3–9 → Silver, 10+ → Gold).
+- [x] **client/dashboard.vue — loyalty tier** — Replace the hardcoded "Gold Member" + dummy progress with a computed tier based on `COMPLETED` reservations count for `sessionUserId` (0–2 → Bronze, 3–9 → Silver, 10+ → Gold).
 
-- [ ] **booking/confirm.vue — double-submit guard** — Disable the "Request Reservation" button after first click (set a `submitting` ref) to prevent duplicate reservations on double-click.
+- [x] **booking/confirm.vue — double-submit guard** — Disable the "Request Reservation" button after first click (set a `submitting` ref) to prevent duplicate reservations on double-click.
 
-- [ ] **Datamodel error handling** — Wrap every `JSON.parse(localStorage.getItem(...))` in the datamodel files with try/catch that falls back to seed data. One corrupted key should not crash the entire app.
+- [x] **Datamodel error handling** — Wrap every `JSON.parse(localStorage.getItem(...))` in the datamodel files with try/catch that falls back to seed data. One corrupted key should not crash the entire app.
 
-- [ ] **admin/dashboard.vue — dynamic greeting** — Replace hardcoded "Good evening" with a computed that returns morning/afternoon/evening based on `new Date().getHours()`.
+- [x] **admin/dashboard.vue — dynamic greeting** — Replace hardcoded "Good evening" with a computed that returns morning/afternoon/evening based on `new Date().getHours()`.
 
 ---
 
@@ -282,23 +282,23 @@ Extended: `{ title, subtitle, bgColor, imageUrl }` — `imageUrl` is optional; g
 
 ### Tasks
 
-- [ ] **Make `/` the real landing page** — Replace the content of `src/pages/index.vue` with a redirect: add a `<script setup>` that calls `router.replace('/landing')` on mount. Or simply move `landing.vue` content into `index.vue` and remove the separate `/landing` route. Either approach is fine — pick whichever keeps routing cleaner with `unplugin-vue-router`.
+- [x] **Make `/` the real landing page** — Replace the content of `src/pages/index.vue` with a redirect: add a `<script setup>` that calls `router.replace('/landing')` on mount. Or simply move `landing.vue` content into `index.vue` and remove the separate `/landing` route. Either approach is fine — pick whichever keeps routing cleaner with `unplugin-vue-router`.
 
-- [ ] **landing.vue — add "How It Works" section** — Insert a 3-step visual flow between the hero and "Why Choose Us": Step 1 "Discover a venue", Step 2 "Choose your table", Step 3 "Arrive & enjoy". Use the existing design system (gold accents, dark background, Playfair headings).
+- [x] **landing.vue — add "How It Works" section** — Insert a 3-step visual flow between the hero and "Why Choose Us": Step 1 "Discover a venue", Step 2 "Choose your table", Step 3 "Arrive & enjoy". Use the existing design system (gold accents, dark background, Playfair headings).
 
-- [ ] **landing.vue — add second hero CTA** — Alongside "Get Started For Free" add an "Explore Venues" button (secondary/outlined style) that routes to `/home`. This gives non-registered visitors a browse path.
+- [x] **landing.vue — add second hero CTA** — Alongside "Get Started For Free" add an "Explore Venues" button (secondary/outlined style) that routes to `/home`. This gives non-registered visitors a browse path.
 
-- [ ] **landing.vue — fix dead footer links** — Replace `href="#"` on Contact, Terms of Service, Privacy Policy with either real anchor targets (if those sections exist on the page) or remove the links entirely. Don't leave dead anchors.
+- [x] **landing.vue — fix dead footer links** — Replace `href="#"` on Contact, Terms of Service, Privacy Policy with either real anchor targets (if those sections exist on the page) or remove the links entirely. Don't leave dead anchors.
 
-- [ ] **AppNavbarPublic.vue — fix logo click** — Change `$router.push('/')` to `$router.push('/landing')` (or `/` once index.vue is the landing page).
+- [x] **AppNavbarPublic.vue — fix logo click** — Change `$router.push('/')` to `$router.push('/landing')` (or `/` once index.vue is the landing page).
 
-- [ ] **AppNavbarPublic.vue — wire nav links** — Wire "Features", "Pricing", "About Us" to scroll anchors on the landing page (using `#features`, `#pricing`, `#about` fragment IDs added to the relevant sections), or remove them if those sections don't exist.
+- [x] **AppNavbarPublic.vue — wire nav links** — Wire "Features", "Pricing", "About Us" to scroll anchors on the landing page (using `#features`, `#pricing`, `#about` fragment IDs added to the relevant sections), or remove them if those sections don't exist.
 
-- [ ] **AppNavbarPublic.vue — add Sign Up button** — Alongside the existing "Login" button, add a "Sign Up" button (gold filled) that routes to `/auth` with a `?mode=register` query param so auth.vue can open the registration panel by default.
+- [x] **AppNavbarPublic.vue — add Sign Up button** — Alongside the existing "Login" button, add a "Sign Up" button (gold filled) that routes to `/auth` with a `?mode=register` query param so auth.vue can open the registration panel by default.
 
-- [ ] **auth.vue — fix "Back to Home" link** — The back button in the navbar routes to `/` which is currently the dev nav. Change to `/landing` (or `/` once it redirects correctly).
+- [x] **auth.vue — fix "Back to Home" link** — The back button in the navbar routes to `/` which is currently the dev nav. Change to `/landing` (or `/` once it redirects correctly).
 
-- [ ] **Remove or hide `test.vue`** — `src/pages/test.vue` is a datamodel test page auto-registered at `/test`. Either delete it or guard it with `v-if="isDev"` so it doesn't appear in production navigation.
+- [x] **Remove or hide `test.vue`** — `src/pages/test.vue` is a datamodel test page auto-registered at `/test`. Either delete it or guard it with `v-if="isDev"` so it doesn't appear in production navigation.
 
 ---
 
@@ -326,6 +326,6 @@ Extended: `{ title, subtitle, bgColor, imageUrl }` — `imageUrl` is optional; g
 
 ## Session Notes
 
-**Last session:** Phase 9.5 complete — Cloudinary image upload utility, Venue.js slides imageUrl pass-through, venue-settings Gallery section upload UI (per-slide upload/remove/preview), venue/[id].vue hero slideshow uses real imageUrl, .env.local documented in CLAUDE.md.
-**Next session starts at:** Phase 10 — Admin & Client Polish.
+**Last session:** Phase 11 complete — `/` redirects to `/landing`, "How It Works" section added, "Explore Venues" CTA, footer dead links replaced with real anchors, AppNavbarPublic logo/Sign Up/nav links fixed, auth.vue "Back to Home" fixed, test.vue guarded with isDev.
+**Next session starts at:** Phase 12 — Per-Environment Menus.
 **Blockers / decisions pending:** None.

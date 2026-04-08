@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="isDev">
     <h1>Test Page</h1>
     <ol>
       <li v-for="user in getAllUsers()" :key="user.email">
@@ -14,6 +14,8 @@
 <script setup>
 import { getAllUsers, User, addUser } from "@/datamodel/User";
 import { ref } from "vue";
+
+const isDev = import.meta.env.DEV;
 
 let first_name = ref("");
 

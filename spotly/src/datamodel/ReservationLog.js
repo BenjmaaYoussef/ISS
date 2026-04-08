@@ -13,12 +13,14 @@ export class ReservationLog {
 
 const STORAGE_KEY = 'spotly_reservation_logs'
 const _saved = localStorage.getItem(STORAGE_KEY)
-export const RESERVATION_LOG_LIST = reactive(_saved ? JSON.parse(_saved).map(l => new ReservationLog(l)) : [])
+let _initial = []
+try { if (_saved) _initial = JSON.parse(_saved).map(l => new ReservationLog(l)) } catch { _initial = [] }
+export const RESERVATION_LOG_LIST = reactive(_initial)
 
 watch(RESERVATION_LOG_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {
   if (e.key !== STORAGE_KEY || !e.newValue) return
-  RESERVATION_LOG_LIST.splice(0, RESERVATION_LOG_LIST.length, ...JSON.parse(e.newValue).map(l => new ReservationLog(l)))
+  try { RESERVATION_LOG_LIST.splice(0, RESERVATION_LOG_LIST.length, ...JSON.parse(e.newValue).map(l => new ReservationLog(l))) } catch { /* ignore corrupted cross-tab data */ }
 })
 
 /* ================= CREATE ================= */

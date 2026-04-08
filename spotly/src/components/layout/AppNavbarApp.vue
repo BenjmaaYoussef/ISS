@@ -65,7 +65,7 @@
       <template v-if="showBackLink && !$slots.actions">
         <v-btn
           variant="text"
-          to="/"
+          to="/landing"
           style="
             color: rgba(255, 255, 255, 0.55);
             font-size: 0.82rem;

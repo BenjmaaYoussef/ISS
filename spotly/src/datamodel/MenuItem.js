@@ -27,12 +27,14 @@ const _seed = [
   new MenuItem({ id: 9, venueId: 1, category: 'desserts', name: 'Chocolate Fondant', price: 16.0, tags: ["Chef's Pick"], allergens: ['Dairy', 'Gluten'] }),
 ]
 const _saved = localStorage.getItem(STORAGE_KEY)
-export const MENU_ITEM_LIST = reactive(_saved ? JSON.parse(_saved).map(m => new MenuItem(m)) : _seed)
+let _initial = _seed
+try { if (_saved) _initial = JSON.parse(_saved).map(m => new MenuItem(m)) } catch { _initial = _seed }
+export const MENU_ITEM_LIST = reactive(_initial)
 
 watch(MENU_ITEM_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {
   if (e.key !== STORAGE_KEY || !e.newValue) return
-  MENU_ITEM_LIST.splice(0, MENU_ITEM_LIST.length, ...JSON.parse(e.newValue).map(m => new MenuItem(m)))
+  try { MENU_ITEM_LIST.splice(0, MENU_ITEM_LIST.length, ...JSON.parse(e.newValue).map(m => new MenuItem(m))) } catch { /* ignore corrupted cross-tab data */ }
 })
 
 /* ================= CREATE ================= */

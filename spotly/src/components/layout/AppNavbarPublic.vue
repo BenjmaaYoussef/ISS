@@ -13,7 +13,7 @@
       <div
         class="d-flex align-center"
         style="gap: 10px; cursor: pointer"
-        @click="$router.push('/')"
+        @click="$router.push('/landing')"
       >
         <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
           <circle cx="50" cy="50" r="46" stroke="#D4AF37" stroke-width="3" />
@@ -121,20 +121,36 @@
         </v-btn>
       </div>
 
-      <!-- Login button -->
-      <v-btn
-        variant="outlined"
-        color="primary"
-        :to="loginRoute"
-        style="
-          border-radius: 0;
-          font-size: 0.8rem;
-          letter-spacing: 1.5px;
-          text-transform: uppercase;
-        "
-      >
-        Login
-      </v-btn>
+      <!-- Sign Up + Login buttons -->
+      <div class="d-flex" style="gap: 8px">
+        <v-btn
+          variant="flat"
+          color="primary"
+          to="/auth?mode=register"
+          style="
+            border-radius: 0;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #0a0e14;
+          "
+        >
+          Sign Up
+        </v-btn>
+        <v-btn
+          variant="outlined"
+          color="primary"
+          :to="loginRoute"
+          style="
+            border-radius: 0;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+          "
+        >
+          Login
+        </v-btn>
+      </div>
     </v-container>
   </v-app-bar>
 </template>
@@ -143,7 +159,7 @@
 defineProps({
   navLinks: {
     type: Array,
-    default: () => ["Features", "Pricing", "About Us"],
+    default: () => ["Features", "How It Works"],
   },
   loginRoute: {
     type: String,

@@ -71,24 +71,129 @@
           The ultimate booking &amp; floor management system for high-end
           hospitality.
         </p>
-        <v-btn
-          to="/auth"
-          size="large"
-          color="primary"
-          style="
-            padding: 0 48px;
-            height: 52px;
-            font-size: 0.85rem;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            border-radius: 0;
-            color: #0a0e14;
-            font-weight: 600;
-            animation: fadeUp 0.5s 0.3s ease both;
-          "
-        >
-          Get Started For Free
-        </v-btn>
+        <div class="d-flex flex-wrap justify-center" style="gap: 16px; animation: fadeUp 0.5s 0.3s ease both">
+          <v-btn
+            to="/auth"
+            size="large"
+            color="primary"
+            style="
+              padding: 0 48px;
+              height: 52px;
+              font-size: 0.85rem;
+              letter-spacing: 2.5px;
+              text-transform: uppercase;
+              border-radius: 0;
+              color: #0a0e14;
+              font-weight: 600;
+            "
+          >
+            Get Started For Free
+          </v-btn>
+          <v-btn
+            to="/home"
+            size="large"
+            variant="outlined"
+            color="primary"
+            style="
+              padding: 0 48px;
+              height: 52px;
+              font-size: 0.85rem;
+              letter-spacing: 2.5px;
+              text-transform: uppercase;
+              border-radius: 0;
+              font-weight: 600;
+            "
+          >
+            Explore Venues
+          </v-btn>
+        </div>
+      </v-sheet>
+
+      <!-- HOW IT WORKS -->
+      <v-divider style="border-color: rgba(212, 175, 55, 0.12)" />
+      <v-sheet id="how-it-works" color="background" style="padding: 88px 24px">
+        <v-container style="max-width: 900px">
+          <h2
+            style="
+              font-family: 'Playfair Display', serif;
+              font-size: 2.2rem;
+              color: #d4af37;
+              text-align: center;
+              margin-bottom: 64px;
+            "
+          >
+            How It Works
+          </h2>
+          <v-row justify="center" align="center">
+            <v-col
+              v-for="(step, i) in howItWorks"
+              :key="step.title"
+              cols="12"
+              sm="4"
+              class="text-center"
+            >
+              <div style="position: relative; display: inline-block; margin-bottom: 24px">
+                <div
+                  style="
+                    width: 72px;
+                    height: 72px;
+                    border-radius: 50%;
+                    border: 2px solid rgba(212, 175, 55, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(212, 175, 55, 0.06);
+                    margin: 0 auto;
+                  "
+                >
+                  <v-icon :icon="step.icon" color="primary" size="30" />
+                </div>
+                <div
+                  style="
+                    position: absolute;
+                    top: -8px;
+                    right: -8px;
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 50%;
+                    background: #d4af37;
+                    color: #0a0e14;
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: 'Inter', sans-serif;
+                  "
+                >
+                  {{ i + 1 }}
+                </div>
+              </div>
+              <div
+                style="
+                  font-family: 'Playfair Display', serif;
+                  font-size: 1.05rem;
+                  color: #fff;
+                  margin-bottom: 10px;
+                "
+              >
+                {{ step.title }}
+              </div>
+              <div
+                style="
+                  color: rgba(255, 255, 255, 0.45);
+                  font-size: 0.87rem;
+                  line-height: 1.7;
+                  font-family: 'Inter', sans-serif;
+                  max-width: 220px;
+                  margin: 0 auto;
+                "
+              >
+                {{ step.desc }}
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-sheet>
 
       <!-- TRUSTED BY -->
@@ -127,7 +232,7 @@
       <v-divider style="border-color: rgba(212, 175, 55, 0.12)" />
 
       <!-- WHY CHOOSE US -->
-      <v-sheet color="#0d1219" style="padding: 88px 24px">
+      <v-sheet id="features" color="#0d1219" style="padding: 88px 24px">
         <v-container style="max-width: 1100px">
           <h2
             style="
@@ -222,9 +327,7 @@
         >
         <div class="d-flex" style="gap: 28px">
           <a
-            v-for="link in footerLinks"
-            :key="link"
-            href="#"
+            href="#features"
             style="
               color: rgba(255, 255, 255, 0.35);
               text-decoration: none;
@@ -232,7 +335,18 @@
               font-family: &quot;Inter&quot;, sans-serif;
             "
           >
-            {{ link }}
+            Features
+          </a>
+          <a
+            href="#how-it-works"
+            style="
+              color: rgba(255, 255, 255, 0.35);
+              text-decoration: none;
+              font-size: 0.82rem;
+              font-family: &quot;Inter&quot;, sans-serif;
+            "
+          >
+            How It Works
           </a>
         </div>
         <span
@@ -251,9 +365,24 @@
 
 <script setup>
 import AppNavbarPublic from "@/components/layout/AppNavbarPublic.vue";
-const navLinks = ["Features", "Pricing", "About Us"];
 const trustedBrands = ["Le Meridian", "Sunset Beach Club", "Rosewood"];
-const footerLinks = ["Contact", "Terms of Service", "Privacy Policy"];
+const howItWorks = [
+  {
+    icon: "mdi-store-search-outline",
+    title: "Discover a Venue",
+    desc: "Browse curated luxury venues filtered by ambience, activities, and style.",
+  },
+  {
+    icon: "mdi-seat-outline",
+    title: "Choose Your Table",
+    desc: "Pick your environment and reserve the perfect spot on a live floor map.",
+  },
+  {
+    icon: "mdi-glass-cocktail",
+    title: "Arrive & Enjoy",
+    desc: "Staff check you in seamlessly. Your experience begins the moment you arrive.",
+  },
+];
 const features = [
   {
     icon: "mdi-floor-plan",

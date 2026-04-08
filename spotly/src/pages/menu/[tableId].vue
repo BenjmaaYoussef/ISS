@@ -113,6 +113,7 @@ import { useSnackbar } from '@/composables/useSnackbar'
 import { MENU_ITEM_LIST } from '@/datamodel/MenuItem.js'
 import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
 import { VENUE_LIST } from '@/datamodel/Venue.js'
+import { WaiterCall, addWaiterCall } from '@/datamodel/WaiterCall.js'
 
 const route = useRoute()
 const { snackbar, notify } = useSnackbar()
@@ -216,8 +217,23 @@ const filteredItems = computed(() =>
 )
 
 // ── Call Waiter ───────────────────────────────────────────────────────────────
-const callWaiter = () =>
+const callWaiter = () => {
+  const r = resolved.value
+  if (r?.elementLabel && r?.venueId != null) {
+    // Element context — create a real waiter call
+    addWaiterCall(new WaiterCall({
+      id: Date.now(),
+      venueId: r.venueId,
+      environmentId: r.envId,
+      elementId: tableId,
+      tableLabel: r.elementLabel,
+      envName: r.envName,
+      timestamp: new Date().toISOString(),
+      status: 'pending',
+    }))
+  }
   notify("Waiter has been notified — they'll be right with you!", '#D4AF37', 'mdi-room-service')
+}
 </script>
 
 <style scoped>

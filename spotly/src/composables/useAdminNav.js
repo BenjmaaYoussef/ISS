@@ -5,6 +5,7 @@ export const adminNavLinks = [
   { key: "builder", label: "Builder" },
   { key: "menu", label: "Menu" },
   { key: "reservations", label: "Reservations" },
+  { key: "qr-codes", label: "QR Codes" },
   { key: "venue-settings", label: "Venue Settings" },
 ];
 
@@ -13,6 +14,7 @@ const adminRoutes = {
   builder: "/admin/floor-plan",
   menu: "/admin/menu",
   reservations: "/admin/reservations",
+  "qr-codes": "/admin/qr-codes",
   "venue-settings": "/admin/venue-settings",
 };
 

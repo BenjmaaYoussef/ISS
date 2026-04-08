@@ -13,6 +13,51 @@
   <v-main class="spotly-main">
     <div class="staff-wrap pa-3 pa-sm-4 pa-md-5">
 
+      <!-- ── Waiter Calls ── -->
+      <div v-if="pendingCalls.length || showEmptyCallsState" class="waiter-calls-section mb-4">
+        <div class="wc-header d-flex align-center ga-2 mb-2">
+          <div class="wc-indicator" :class="{ 'wc-indicator--active': pendingCalls.length > 0 }" />
+          <span class="wc-title">Waiter Calls</span>
+          <span v-if="pendingCalls.length" class="wc-badge">{{ pendingCalls.length }}</span>
+          <div class="flex-grow-1" />
+          <button class="wc-dismiss-btn" @click="showEmptyCallsState = false" v-if="!pendingCalls.length">
+            <v-icon size="14">mdi-close</v-icon>
+          </button>
+        </div>
+        <div v-if="pendingCalls.length" class="wc-list d-flex flex-wrap ga-2">
+          <div v-for="call in pendingCalls" :key="call.id" class="wc-card">
+            <div class="wc-card-inner d-flex align-center ga-3">
+              <div class="wc-ring-icon">
+                <v-icon size="18" color="#D4AF37">mdi-room-service</v-icon>
+              </div>
+              <div class="wc-info flex-grow-1">
+                <div class="wc-table-label">{{ call.tableLabel }}</div>
+                <div class="wc-env-row d-flex align-center ga-1">
+                  <span class="wc-env-name">{{ call.envName }}</span>
+                  <span class="wc-dot">·</span>
+                  <span class="wc-elapsed">{{ timeAgo(call.timestamp) }}</span>
+                </div>
+              </div>
+              <v-btn
+                size="x-small"
+                variant="tonal"
+                color="#D4AF37"
+                rounded="lg"
+                class="wc-ack-btn"
+                @click="ackCall(call.id)"
+              >
+                <v-icon start size="12">mdi-check</v-icon>
+                Ack
+              </v-btn>
+            </div>
+          </div>
+        </div>
+        <div v-else class="wc-empty">
+          <v-icon size="16" color="rgba(255,255,255,0.2)">mdi-bell-check-outline</v-icon>
+          <span>No active calls</span>
+        </div>
+      </div>
+
       <!-- ── Toolbar ── -->
       <div class="toolbar mb-4 d-flex flex-wrap align-center ga-2 ga-sm-3">
 
@@ -184,12 +229,35 @@ import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
 import { getVenueById } from '@/datamodel/Venue.js'
 import { RESERVATION_LIST, updateReservationStatus, getReservationById } from '@/datamodel/Reservation.js'
 import { ReservationLog, addReservationLog } from '@/datamodel/ReservationLog.js'
+import { WAITER_CALL_LIST, acknowledgeWaiterCall, getPendingCallsByVenue } from '@/datamodel/WaiterCall.js'
 
 const { snackbar, notify } = useSnackbar()
 const { getSession, logout } = useAuth()
 const session = getSession()
 const sessionName = session?.name || 'Staff'
 const venue = session?.venueId != null ? getVenueById(session.venueId) : null
+
+// ── Waiter Calls ──────────────────────────────────────────────────────────────
+const showEmptyCallsState = ref(true)
+
+const pendingCalls = computed(() => {
+  if (session?.venueId == null) return []
+  return getPendingCallsByVenue(session.venueId)
+    .slice()
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+})
+
+function timeAgo(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
+  if (diff < 60) return `${diff}s ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  return `${Math.floor(diff / 3600)}h ago`
+}
+
+function ackCall(id) {
+  acknowledgeWaiterCall(id)
+  notify('Call acknowledged', '#2EBB57', 'mdi-check-circle-outline')
+}
 
 // ── Scope environments to the venue this staff member is assigned to ──────────
 const venueEnvs = computed(() =>
@@ -397,6 +465,118 @@ const checkOut = (t) => {
 </script>
 
 <style scoped>
+/* ── Waiter Calls ─────────────────────────────────────────────────────── */
+.waiter-calls-section {
+  background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, rgba(212,175,55,0.02) 100%);
+  border: 1px solid rgba(212,175,55,0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.wc-header {
+  min-height: 24px;
+}
+.wc-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.wc-indicator--active {
+  background: #D4AF37;
+  box-shadow: 0 0 8px rgba(212,175,55,0.6);
+  animation: wcPulse 1.6s infinite;
+}
+@keyframes wcPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(212,175,55,0.5); }
+  50%       { box-shadow: 0 0 14px rgba(212,175,55,0.9); }
+}
+.wc-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+}
+.wc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #D4AF37;
+  color: #0a0e14;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+.wc-dismiss-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.3);
+  padding: 2px;
+  line-height: 1;
+}
+.wc-card {
+  background: rgba(212,175,55,0.06);
+  border: 1px solid rgba(212,175,55,0.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-width: 200px;
+  flex: 1;
+  max-width: 320px;
+  animation: wcSlideIn 0.25s ease;
+}
+@keyframes wcSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.wc-ring-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(212,175,55,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.wc-table-label {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #fff;
+  line-height: 1.2;
+}
+.wc-env-row {
+  font-size: 0.72rem;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+.wc-env-name {
+  color: rgba(255,255,255,0.5);
+}
+.wc-dot {
+  color: rgba(255,255,255,0.25);
+}
+.wc-elapsed {
+  color: #D4AF37;
+  font-weight: 600;
+}
+.wc-ack-btn {
+  flex-shrink: 0;
+  font-size: 0.72rem !important;
+}
+.wc-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.3);
+  padding: 4px 2px;
+}
+
 /* ── Main background ─────────────────────────────────────────────────── */
 .spotly-main {
   background: #0a0e14 !important;

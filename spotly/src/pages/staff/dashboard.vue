@@ -229,20 +229,29 @@ import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
 import { getVenueById } from '@/datamodel/Venue.js'
 import { RESERVATION_LIST, updateReservationStatus, getReservationById } from '@/datamodel/Reservation.js'
 import { ReservationLog, addReservationLog } from '@/datamodel/ReservationLog.js'
+import { VENUE_STAFF_LIST } from '@/datamodel/VenueStaff.js'
 import { WAITER_CALL_LIST, acknowledgeWaiterCall, getPendingCallsByVenue } from '@/datamodel/WaiterCall.js'
 
 const { snackbar, notify } = useSnackbar()
 const { getSession, logout } = useAuth()
 const session = getSession()
 const sessionName = session?.name || 'Staff'
-const venue = session?.venueId != null ? getVenueById(session.venueId) : null
+
+// Always derive venueId from VenueStaff — session.venueId is the owned venue
+// and must not be used here (a user can own venue A and staff venue B).
+const venueId = computed(() => {
+  const record = VENUE_STAFF_LIST.find(r => r.userEmail === session?.email)
+  return record?.venueId ?? null
+})
+
+const venue = computed(() => venueId.value != null ? getVenueById(venueId.value) : null)
 
 // ── Waiter Calls ──────────────────────────────────────────────────────────────
 const showEmptyCallsState = ref(true)
 
 const pendingCalls = computed(() => {
-  if (session?.venueId == null) return []
-  return getPendingCallsByVenue(session.venueId)
+  if (venueId.value == null) return []
+  return getPendingCallsByVenue(venueId.value)
     .slice()
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 })
@@ -261,8 +270,8 @@ function ackCall(id) {
 
 // ── Scope environments to the venue this staff member is assigned to ──────────
 const venueEnvs = computed(() =>
-  session?.venueId != null
-    ? ENVIRONMENT_LIST.filter(e => e.venueId === session.venueId)
+  venueId.value != null
+    ? ENVIRONMENT_LIST.filter(e => e.venueId === venueId.value)
     : []
 )
 
@@ -305,7 +314,7 @@ const envIds = computed(() => venueEnvs.value.map(e => e.id))
 const panelReservations = computed(() =>
   RESERVATION_LIST.filter(r =>
     r.date === selectedDate.value &&
-    envIds.value.includes(r.environmentId),
+    r.venueId === venueId.value,
   ),
 )
 

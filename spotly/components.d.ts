@@ -34,5 +34,6 @@ declare module 'vue' {
     TableCard: typeof import('./src/components/floor/TableCard.vue')['default']
     TableDetailDialog: typeof import('./src/components/floor/TableDetailDialog.vue')['default']
     VenueFloorMap: typeof import('./src/components/floor/VenueFloorMap.vue')['default']
+    WalkInDialog: typeof import('./src/components/dialogs/WalkInDialog.vue')['default']
   }
 }

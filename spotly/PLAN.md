@@ -446,8 +446,45 @@ Extended: `{ title, subtitle, bgColor, imageUrl }` — `imageUrl` is optional; g
 
 ---
 
+---
+
+## Phase 15 — Walk-in Seating with Conflict Detection
+
+**Scope:** `src/components/dialogs/WalkInDialog.vue` (new), `src/pages/staff/dashboard.vue`
+
+**Goal:** Staff can seat walk-in customers at free tables directly from the floor map. Before confirming, the dialog checks for upcoming reservations on that table and warns or blocks based on how soon the conflict is.
+
+### Design decisions
+
+- Walk-ins are stored as real `Reservation` records with `status: CHECKED_IN` and `userId: ''` (no account). This means the floor map automatically marks the table as occupied via the existing `useFloorTables` logic — no extra wiring needed.
+- The table's upcoming reservations (today, status `REQUESTED` or `APPROVED`, time > now) are fetched and displayed inside the dialog. Time comparison uses today's date + the reservation's time string.
+- Conflict urgency thresholds:
+  - **< 30 min** — block the action (disable confirm button, show red error banner). Staff must find another table.
+  - **30–90 min** — warn (yellow banner). Confirm is still allowed but staff must acknowledge the risk.
+  - **> 90 min or no upcoming reservation** — safe to seat (green info note showing the window).
+- Explicitly inform staff: "Seating this walk-in does not cancel upcoming reservations — you will need to handle them manually."
+- Party size is validated against table capacity (confirm disabled if exceeded).
+
+### Tasks
+
+- [ ] **`WalkInDialog.vue` — new component** — `src/components/dialogs/WalkInDialog.vue`. Props: `modelValue` (v-model open), `table` (floor table object with `id`, `envId`, `elementId`, `seats`, `env`). On open, compute `upcomingReservations`: filter `RESERVATION_LIST` by `elementId === table.elementId`, `environmentId === table.envId`, `date === today`, `status in ['REQUESTED', 'APPROVED']`, sorted by time ascending. Derive `nextReservation` (soonest). Compute `minutesUntilNext` from now to next reservation's time. Derive `conflictLevel`: `'block'` (< 30 min), `'warn'` (30–90 min), `'safe'` (> 90 min or none). UI:
+  - Header: table name + environment + capacity badge
+  - Conflict banner (conditional):
+    - Red (`conflictLevel === 'block'`): "Cannot seat — reservation arrives in X min ([Guest Name] at [time]). Please find another table."
+    - Yellow (`conflictLevel === 'warn'`): "Limited window — next reservation at [time] ([X] min). Confirm only if the party can be seated and served in time."
+    - Green (`conflictLevel === 'safe'` and next exists): "Next reservation at [time] — [X] min window."
+  - Full list of upcoming reservations (name, time, guests) shown as compact rows beneath the banner.
+  - Disclaimer line (when any upcoming reservation exists): "Seating this walk-in does not cancel upcoming reservations."
+  - Party size stepper (1 → table capacity). Validation error if exceeded.
+  - Optional notes field.
+  - Footer: Cancel + "Seat Walk-in" button. Disabled when `conflictLevel === 'block'` or party size invalid.
+
+- [ ] **`staff/dashboard.vue` — wire free-table click to WalkInDialog** — Replace the current `notify(...)` snackbar for free tables in `onTableClick` with: `walkInTable.value = table; walkInDialog.value = true`. Add `walkInDialog` and `walkInTable` refs. Add `handleWalkIn(payload)` function: creates `new Reservation({ id: Date.now(), venueId: venueId.value, environmentId: payload.table.envId, elementId: payload.table.elementId, userId: '', name: 'Walk-in', email: '', phone: '', date: today, time: currentTimeString(), guests: payload.partySize, notes: payload.notes, status: 'CHECKED_IN' })` and calls `addReservation(...)`. Show snackbar "Walk-in seated at [table]". Import `WalkInDialog` (auto-imported via unplugin). Add `<WalkInDialog v-model="walkInDialog" :table="walkInTable" @confirm="handleWalkIn" />` to the template.
+
+---
+
 ## Session Notes
 
-**Last session:** Phase 14 complete — qrcode installed, WaiterCall datamodel, QR codes admin page with print support, Call Waiter wired in menu page, waiter call notifications on staff dashboard.
-**Next session starts at:** Testing/polish or new phases.
+**Last session:** Phase 14 complete — qrcode installed, WaiterCall datamodel, QR codes admin page with print support, Call Waiter wired in menu page, waiter call notifications on staff dashboard. Also fixed staff dashboard venueId derivation to always use VENUE_STAFF_LIST instead of session.venueId (handles users who own one venue but staff another).
+**Next session starts at:** Phase 15 — Walk-in Seating with Conflict Detection.
 **Blockers / decisions pending:** None.

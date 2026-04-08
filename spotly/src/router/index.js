@@ -7,6 +7,8 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
+import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
+import { getEnvironmentsByVenue } from '@/datamodel/Environment.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -72,6 +74,13 @@ router.beforeEach((to) => {
   }
   if (to.path.startsWith('/client/') && role === 'admin') {
     return '/admin/dashboard'
+  }
+
+  // ── Admin onboarding gate ─────────────────────────────────────────────────
+  if (role === 'admin' && to.path.startsWith('/admin/') && to.path !== '/admin/onboarding') {
+    const venue = getVenueByAdminEmail(session.email)
+    if (!venue || !venue.name?.trim()) return '/admin/onboarding'
+    if (getEnvironmentsByVenue(venue.id).length === 0) return '/admin/onboarding'
   }
 
   return true

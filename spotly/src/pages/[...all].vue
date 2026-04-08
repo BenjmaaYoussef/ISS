@@ -23,6 +23,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
+import { isVenueStaff } from '@/datamodel/VenueStaff.js'
 
 const router = useRouter()
 
@@ -30,8 +32,8 @@ const homeRoute = computed(() => {
   try {
     const session = JSON.parse(localStorage.getItem('spotly_session') || 'null')
     if (!session) return '/landing'
-    if (session.role === 'admin') return '/admin/dashboard'
-    if (session.role === 'staff') return '/staff/dashboard'
+    if (getVenueByAdminEmail(session.email)) return '/admin/dashboard'
+    if (isVenueStaff(session.email)) return '/staff/dashboard'
     return '/home'
   } catch {
     return '/landing'

@@ -1,12 +1,9 @@
 <template>
   <!-- ── Top Navigation Bar ── -->
-  <AppNavbarApp
+  <AppNavbarSpotly
     :nav-links="adminNavLinks"
     active-link="dashboard"
-    :admin-label="sessionName"
-    :show-logout="true"
     @nav="handleNav"
-    @logout="logout"
   />
 
   <!-- ── Main Content ── -->
@@ -234,7 +231,7 @@
 
 <script setup>
 import { computed } from "vue";
-import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
+import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
 import StatCard from "@/components/ui/StatCard.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import { useAdminNav } from "@/composables/useAdminNav";

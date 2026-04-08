@@ -1,18 +1,13 @@
 <template>
   <!-- ── Navbar ── -->
-  <AppNavbarApp
-    :admin-label="sessionName"
-    :show-logout="true"
-    @logout="logout"
-  >
+  <AppNavbarSpotly>
     <template #actions>
-      <!-- Live indicator -->
       <div class="live-indicator mr-3">
         <span class="live-dot" />
         LIVE
       </div>
     </template>
-  </AppNavbarApp>
+  </AppNavbarSpotly>
 
   <!-- ── Main ── -->
   <v-main class="spotly-main">
@@ -21,18 +16,22 @@
       <!-- ── Toolbar ── -->
       <div class="toolbar mb-4 d-flex flex-wrap align-center ga-2 ga-sm-3">
 
-        <!-- Date picker -->
-        <input
-          v-model="selectedDate"
-          type="date"
-          class="date-input"
-          :max="maxDate"
-        />
+        <!-- Venue identity -->
+        <div v-if="venue" class="venue-identity">
+          <v-icon size="14" class="mr-1" style="color: #d4af37">mdi-storefront-outline</v-icon>
+          <span class="venue-identity-name">{{ venue.name }}</span>
+        </div>
+
+        <!-- Today's date (read-only — live view) -->
+        <div class="today-badge">
+          <v-icon size="13" class="mr-1">mdi-calendar-today</v-icon>
+          {{ formattedDate }}
+        </div>
 
         <!-- Environment tabs -->
         <div class="env-tabs d-flex align-center ga-2 flex-wrap">
           <button
-            v-for="env in ENVIRONMENT_LIST"
+            v-for="env in venueEnvs"
             :key="env.id"
             class="env-chip"
             :class="{ 'env-chip--active': selectedEnvId === env.id }"
@@ -41,6 +40,7 @@
             <v-icon size="12" class="mr-1">{{ env.icon }}</v-icon>
             {{ env.name }}
           </button>
+          <div v-if="venueEnvs.length === 0" style="color: rgba(255,255,255,0.3); font-size: 0.78rem;">No environments assigned</div>
         </div>
 
         <div class="flex-grow-1" />
@@ -181,6 +181,7 @@ import { useSnackbar } from '@/composables/useSnackbar'
 import { useAuth } from '@/composables/useAuth'
 import { useFloorTables } from '@/composables/useFloorTables'
 import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+import { getVenueById } from '@/datamodel/Venue.js'
 import { RESERVATION_LIST, updateReservationStatus, getReservationById } from '@/datamodel/Reservation.js'
 import { ReservationLog, addReservationLog } from '@/datamodel/ReservationLog.js'
 
@@ -188,22 +189,27 @@ const { snackbar, notify } = useSnackbar()
 const { getSession, logout } = useAuth()
 const session = getSession()
 const sessionName = session?.name || 'Staff'
+const venue = session?.venueId != null ? getVenueById(session.venueId) : null
 
-// ── Date ──────────────────────────────────────────────────────────────────────
-const today = new Date().toISOString().split('T')[0]
-const selectedDate = ref(today)
-const maxDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+// ── Scope environments to the venue this staff member is assigned to ──────────
+const venueEnvs = computed(() =>
+  session?.venueId != null
+    ? ENVIRONMENT_LIST.filter(e => e.venueId === session.venueId)
+    : []
+)
+
+// ── Date (live — always today) ─────────────────────────────────────────────────
+const selectedDate = ref(new Date().toISOString().split('T')[0])
 
 const formattedDate = computed(() => {
-  if (!selectedDate.value) return ''
   const d = new Date(selectedDate.value + 'T12:00:00')
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
 })
 
 // ── Environment ───────────────────────────────────────────────────────────────
-const selectedEnvId = ref(ENVIRONMENT_LIST[0]?.id || '')
-const selectedEnv = computed(() => ENVIRONMENT_LIST.find(e => e.id === selectedEnvId.value) || null)
-const envNameById = (id) => ENVIRONMENT_LIST.find(e => e.id === id)?.name || id
+const selectedEnvId = ref(venueEnvs.value[0]?.id || '')
+const selectedEnv = computed(() => venueEnvs.value.find(e => e.id === selectedEnvId.value) || null)
+const envNameById = (id) => venueEnvs.value.find(e => e.id === id)?.name || id
 
 // ── Floor tables (from composable) ───────────────────────────────────────────
 const floorTables = useFloorTables(selectedEnvId, selectedDate)
@@ -226,7 +232,7 @@ const statusFilters = [
   { key: 'NO_SHOW', label: 'No Show' },
 ]
 
-const envIds = computed(() => ENVIRONMENT_LIST.map(e => e.id))
+const envIds = computed(() => venueEnvs.value.map(e => e.id))
 
 const panelReservations = computed(() =>
   RESERVATION_LIST.filter(r =>
@@ -273,7 +279,7 @@ const onTableClick = (table) => {
 const onPanelResClick = (res) => {
   if (!['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(res.status)) return
 
-  const env = ENVIRONMENT_LIST.find(e => e.id === res.environmentId)
+  const env = venueEnvs.value.find(e => e.id === res.environmentId)
   const el = env?.elements.find(e => e.id === res.elementId)
 
   if (res.status === 'CHECKED_IN') {
@@ -428,7 +434,25 @@ const checkOut = (t) => {
   /* flex-wrap: wrap already via class */
 }
 
-.date-input {
+.venue-identity {
+  display: flex;
+  align-items: center;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 8px;
+  padding: 5px 12px;
+}
+.venue-identity-name {
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #d4af37;
+  letter-spacing: 0.02em;
+}
+
+.today-badge {
+  display: flex;
+  align-items: center;
   background: #13181f;
   border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: 8px;
@@ -436,14 +460,7 @@ const checkOut = (t) => {
   font-family: var(--font-body);
   font-size: 0.82rem;
   padding: 7px 12px;
-  outline: none;
-  cursor: pointer;
-  transition: border-color 0.2s;
-  color-scheme: dark;
-}
-.date-input:hover,
-.date-input:focus {
-  border-color: rgba(212, 175, 55, 0.5);
+  user-select: none;
 }
 
 .env-tabs {

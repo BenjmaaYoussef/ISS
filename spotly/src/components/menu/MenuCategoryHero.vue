@@ -23,17 +23,17 @@
       <!-- Gradient background -->
       <div class="hero-bg" :style="{ background: cat.gradient }" />
 
-      <!-- Icon -->
-      <div class="hero-icon">
-        <v-icon size="28" color="rgba(255,255,255,0.9)">{{ cat.icon }}</v-icon>
+      <!-- Icon badge -->
+      <div class="hero-icon-badge">
+        <v-icon size="32" color="rgba(255,255,255,0.95)">{{ cat.icon }}</v-icon>
       </div>
 
       <!-- Label and count -->
-      <div class="hero-label">// {{ cat.label }}</div>
-      <div class="hero-count">{{ cat.count }} items</div>
+      <div class="hero-label">{{ cat.label }}</div>
+      <div class="hero-count-badge">{{ cat.count }}</div>
 
-      <!-- Active indicator line -->
-      <div v-if="modelValue === cat.key" class="hero-active-line" />
+      <!-- Active indicator glow -->
+      <div v-if="modelValue === cat.key" class="hero-active-glow" />
     </div>
   </div>
 </template>
@@ -61,70 +61,119 @@ defineEmits(["update:modelValue"]);
 <style scoped>
 .hero-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
 }
 
 .hero-card {
   position: relative;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  padding: 22px 16px 18px;
+  padding: 28px 18px 20px;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.07);
   transition:
-    border-color 0.2s,
-    transform 0.2s;
-  min-height: 110px;
+    border-color 0.28s ease,
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 .hero-card:hover {
-  border-color: rgba(212, 175, 55, 0.3);
-  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
 }
 .hero-card--active {
-  border-color: rgba(212, 175, 55, 0.55) !important;
+  border-color: rgba(212, 175, 55, 0.6) !important;
+  box-shadow:
+    inset 0 0 20px rgba(212, 175, 55, 0.12),
+    0 0 24px rgba(212, 175, 55, 0.2);
 }
 
 .hero-bg {
   position: absolute;
   inset: 0;
-  opacity: 0.9;
-  transition: opacity 0.2s;
+  opacity: 0.85;
+  transition: opacity 0.28s ease;
 }
 .hero-card--active .hero-bg {
-  opacity: 1;
+  opacity: 0.95;
 }
 
-.hero-icon {
+.hero-icon-badge {
   position: relative;
-  margin-bottom: 10px;
+  z-index: 1;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1.5px solid rgba(212, 175, 55, 0.25);
+  border-radius: 14px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(8px);
+  transition:
+    background 0.28s ease,
+    border-color 0.28s ease,
+    transform 0.28s ease;
+}
+.hero-card:hover .hero-icon-badge {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.35);
+  transform: scale(1.05);
+}
+.hero-card--active .hero-icon-badge {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.4);
 }
 
 .hero-label {
   position: relative;
+  z-index: 1;
   font-family: var(--font-heading);
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.02em;
+  margin-bottom: 6px;
 }
 
-.hero-count {
+.hero-count-badge {
   position: relative;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 3px;
+  z-index: 1;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #d4af37;
+  padding: 4px 12px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  transition:
+    background 0.28s ease,
+    color 0.28s ease;
   font-family: var(--font-body);
-  letter-spacing: 0.06em;
+}
+.hero-card--active .hero-count-badge {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: rgba(212, 175, 55, 0.38);
+  color: #e5c158;
 }
 
-/* Gold underline when active */
-.hero-active-line {
+/* Soft glow when active */
+.hero-active-glow {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #d4af37, transparent);
+  inset: 0;
+  border-radius: 16px;
+  box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.12);
+  pointer-events: none;
+  z-index: 0;
 }
 </style>

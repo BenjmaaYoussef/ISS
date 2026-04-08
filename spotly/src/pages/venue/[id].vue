@@ -4,11 +4,27 @@
     :venue-name="venue?.name ?? 'Venue'"
     :show-powered-by="true"
     :show-default-actions="true"
-    @logout="$router.push('/auth')"
   />
 
   <v-main>
     <v-sheet color="background" style="min-height: 100vh; padding-bottom: 80px">
+
+      <!-- OWNER PREVIEW BANNER -->
+      <div v-if="isOwnVenue" style="background: rgba(212,175,55,0.1); border-bottom: 1px solid rgba(212,175,55,0.25); padding: 10px 48px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px; color: #d4af37; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em;">
+          <v-icon size="18" color="#d4af37">mdi-crown</v-icon>
+          You are previewing your own venue — reservations are disabled
+        </div>
+        <v-btn
+          size="small"
+          style="background: rgba(212,175,55,0.18); color: #d4af37; border: 1px solid rgba(212,175,55,0.35); font-size: 0.78rem; text-transform: none; font-weight: 600; box-shadow: none;"
+          @click="router.push('/admin/dashboard')"
+        >
+          <v-icon start size="14">mdi-cog-outline</v-icon>
+          Go to Admin Panel
+        </v-btn>
+      </div>
+
       <!-- HERO -->
       <v-sheet
         color="background"
@@ -112,8 +128,8 @@
                   Explore Menu
                 </v-btn>
                 <v-tooltip
-                  :text="hasEnvironments ? '' : 'No environments configured for this venue yet'"
-                  :disabled="hasEnvironments"
+                  :text="isOwnVenue ? 'You cannot book your own venue' : (!hasEnvironments ? 'No environments configured for this venue yet' : '')"
+                  :disabled="!isOwnVenue && hasEnvironments"
                 >
                   <template #activator="{ props: tooltipProps }">
                     <span v-bind="tooltipProps">
@@ -128,7 +144,7 @@
                           padding: 0 32px;
                           height: 50px;
                         "
-                        :disabled="!hasEnvironments"
+                        :disabled="isOwnVenue || !hasEnvironments"
                         @click="goToBooking"
                       >
                         <v-icon start icon="mdi-calendar-check" size="18" />
@@ -142,8 +158,8 @@
               <!-- ENVIRONMENT BUTTON -->
               <div class="mt-6" style="animation: fadeUp 0.5s 0.4s ease both">
                 <v-tooltip
-                  :text="hasEnvironments ? '' : 'No environments configured for this venue yet'"
-                  :disabled="hasEnvironments"
+                  :text="isOwnVenue ? 'You cannot book your own venue' : (!hasEnvironments ? 'No environments configured for this venue yet' : '')"
+                  :disabled="!isOwnVenue && hasEnvironments"
                 >
                   <template #activator="{ props: tooltipProps }">
                     <span v-bind="tooltipProps" style="display: block">
@@ -157,7 +173,7 @@
                           text-transform: uppercase;
                           width: 100%;
                         "
-                        :disabled="!hasEnvironments"
+                        :disabled="isOwnVenue || !hasEnvironments"
                         @click="goToBooking"
                       >
                         <v-icon start icon="mdi-beach" size="18" />
@@ -386,6 +402,9 @@ import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import { getVenueById } from "@/datamodel/Venue.js";
 import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
 
+let _session = null;
+try { _session = JSON.parse(localStorage.getItem("spotly_session") || "null"); } catch {}
+
 const route = useRoute();
 const router = useRouter();
 
@@ -468,6 +487,10 @@ const importantInfo = computed(() => [
 
 const hasEnvironments = computed(() =>
   ENVIRONMENT_LIST.some((e) => e.venueId === venueId.value),
+);
+
+const isOwnVenue = computed(() =>
+  !!_session && venue.value?.adminEmail === _session.email,
 );
 
 function goToBooking() {

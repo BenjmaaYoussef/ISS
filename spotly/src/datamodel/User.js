@@ -1,19 +1,18 @@
 import { reactive, watch } from 'vue'
 
 export class User {
-  constructor({ first_name, last_name, email, password, role = 'client' }) {
+  constructor({ first_name, last_name, email, password }) {
     this.first_name = first_name
     this.last_name = last_name
     this.email = email
     this.password = password
-    this.role = role
   }
 }
 
 const STORAGE_KEY = 'spotly_users'
 const _saved = localStorage.getItem(STORAGE_KEY)
 let _initial = []
-try { if (_saved) _initial = JSON.parse(_saved).map(u => new User({ role: 'client', ...u })) } catch { _initial = [] }
+try { if (_saved) _initial = JSON.parse(_saved).map(u => new User(u)) } catch { _initial = [] }
 export const USER_LIST = reactive(_initial)
 
 watch(USER_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
@@ -50,7 +49,6 @@ export function updateUserByEmail(email, newData) {
   if (newData.first_name !== undefined) user.first_name = newData.first_name
   if (newData.last_name !== undefined) user.last_name = newData.last_name
   if (newData.password !== undefined) user.password = newData.password
-  if (newData.role !== undefined) user.role = newData.role
   return user
 }
 

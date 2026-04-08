@@ -9,6 +9,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
 import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
 import { getEnvironmentsByVenue } from '@/datamodel/Environment.js'
+import { isVenueStaff } from '@/datamodel/VenueStaff.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,24 +61,19 @@ router.beforeEach((to) => {
     return true
   }
 
-  const role = session.role
+  const isOwner = !!getVenueByAdminEmail(session.email)
+  const isStaff = isVenueStaff(session.email)
 
-  // Role-based access control
-  if (to.path.startsWith('/admin/') && role !== 'admin') {
-    return role === 'staff' ? '/staff/dashboard' : '/home'
+  // Relationship-based access control
+  if (to.path.startsWith('/admin/') && !isOwner) {
+    return isStaff ? '/staff/dashboard' : '/home'
   }
-  if (to.path.startsWith('/staff/') && role !== 'staff' && role !== 'admin') {
+  if (to.path.startsWith('/staff/') && !isStaff && !isOwner) {
     return '/home'
-  }
-  if (to.path.startsWith('/client/') && role === 'staff') {
-    return '/staff/dashboard'
-  }
-  if (to.path.startsWith('/client/') && role === 'admin') {
-    return '/admin/dashboard'
   }
 
   // ── Admin onboarding gate ─────────────────────────────────────────────────
-  if (role === 'admin' && to.path.startsWith('/admin/') && to.path !== '/admin/onboarding') {
+  if (isOwner && to.path.startsWith('/admin/') && to.path !== '/admin/onboarding') {
     const venue = getVenueByAdminEmail(session.email)
     if (!venue || !venue.name?.trim()) return '/admin/onboarding'
     if (getEnvironmentsByVenue(venue.id).length === 0) return '/admin/onboarding'

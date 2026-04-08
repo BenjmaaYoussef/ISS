@@ -1,9 +1,8 @@
 <template>
   <!-- APP BAR -->
-  <AppNavbarApp
+  <AppNavbarSpotly
     :nav-links="adminNavLinks"
     active-link="builder"
-    admin-label="Admin"
     @nav="handleNav"
   >
     <template #actions>
@@ -55,7 +54,7 @@
         Layout
       </button>
     </template>
-  </AppNavbarApp>
+  </AppNavbarSpotly>
 
   <!-- MAIN 3-COLUMN BUILDER -->
   <v-main class="spotly-main">
@@ -797,7 +796,7 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
-import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
+import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
 import { useAuth } from "@/composables/useAuth";
 import { ENVIRONMENT_LIST, Environment } from "@/datamodel/Environment.js";

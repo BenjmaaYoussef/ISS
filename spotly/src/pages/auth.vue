@@ -252,19 +252,6 @@
             @click:append-inner="showPass = !showPass"
           />
 
-          <!-- Role -->
-          <div class="field-label">Account Type</div>
-          <v-select
-            v-model="regRole"
-            :items="roleOptions"
-            variant="outlined"
-            density="comfortable"
-            prepend-inner-icon="mdi-shield-account-outline"
-            color="primary"
-            class="mb-6"
-            style="font-family: 'Inter', sans-serif"
-          />
-
           <!-- Register Button -->
           <v-btn
             type="submit"
@@ -315,7 +302,8 @@ import { useRouter, useRoute } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import { getUserByEmailAndPassword, addUser, userExists } from "@/datamodel/User.js";
 import { User } from "@/datamodel/User.js";
-import { Venue, addVenue, getVenueByAdminEmail } from "@/datamodel/Venue.js";
+import { getVenueByAdminEmail } from "@/datamodel/Venue.js";
+import { getVenuesByStaff } from "@/datamodel/VenueStaff.js";
 
 const router = useRouter();
 const route = useRoute();
@@ -334,39 +322,26 @@ const regFirstName = ref("");
 const regLastName = ref("");
 const regEmail = ref("");
 const regPassword = ref("");
-const regRole = ref("client");
-const roleOptions = [
-  { title: "Client", value: "client" },
-  { title: "Staff", value: "staff" },
-  { title: "Admin", value: "admin" },
-];
 
 const rules = {
   required: (v) => !!v || "This field is required.",
   email: (v) => /.+@.+\..+/.test(v) || "Enter a valid email.",
 };
 
-function writeSessionAndRedirect(user, venueIdOverride) {
-  let venueId = venueIdOverride ?? null;
-  if (venueId === undefined || venueId === null) {
-    if (user.role === "admin") {
-      const venue = getVenueByAdminEmail(user.email);
-      venueId = venue?.id ?? null;
-    }
-  }
+function writeSessionAndRedirect(user) {
+  const ownerVenue = getVenueByAdminEmail(user.email);
+  const staffVenues = getVenuesByStaff(user.email);
+  const venueId = ownerVenue?.id ?? staffVenues[0]?.venueId ?? null;
   localStorage.setItem(
     "spotly_session",
     JSON.stringify({
       userId: user.email,
       name: user.first_name + " " + user.last_name,
       email: user.email,
-      role: user.role,
-      venueId: user.role === "admin" ? venueId : null,
+      venueId,
     })
   );
-  if (user.role === "admin") router.push("/admin/dashboard");
-  else if (user.role === "staff") router.push("/staff/dashboard");
-  else router.push("/home");
+  router.push("/home");
 }
 
 async function login() {
@@ -388,6 +363,7 @@ async function login() {
   }
 }
 
+
 async function register() {
   error.value = "";
   if (!regFirstName.value || !regLastName.value || !regEmail.value || !regPassword.value) {
@@ -405,21 +381,9 @@ async function register() {
       last_name: regLastName.value,
       email: regEmail.value,
       password: regPassword.value,
-      role: regRole.value,
     });
     addUser(newUser);
-    let venueIdForSession = null;
-    if (regRole.value === "admin") {
-      const newVenue = new Venue({
-        id: Date.now(),
-        name: "",
-        description: "",
-        adminEmail: newUser.email,
-      });
-      addVenue(newVenue);
-      venueIdForSession = newVenue.id;
-    }
-    writeSessionAndRedirect(newUser, venueIdForSession);
+    writeSessionAndRedirect(newUser);
   } finally {
     loading.value = false;
   }

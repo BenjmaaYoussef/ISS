@@ -2,10 +2,9 @@
   <!-- P16 — Venue Identity Studio -->
 
   <!-- ── Top Navigation Bar ── -->
-  <AppNavbarApp
+  <AppNavbarSpotly
     :nav-links="adminNavLinks"
     active-link="venue-settings"
-    admin-label="Admin"
     @nav="handleNav"
   />
 
@@ -411,6 +410,85 @@
               </div>
             </div>
           </div>
+
+          <!-- SECTION 6: Staff Members -->
+          <div class="form-section mb-6">
+            <div class="section-head">
+              <div class="section-num">6</div>
+              <div>
+                <div class="section-title">Staff Members</div>
+                <div class="section-sub">Search and assign staff to this venue</div>
+              </div>
+            </div>
+
+            <div class="fields-wrap">
+              <!-- Search input -->
+              <div class="field-group">
+                <label class="field-label">Search users by name or email</label>
+                <v-text-field
+                  v-model="staffQuery"
+                  placeholder="Type at least 2 characters..."
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                  prepend-inner-icon="mdi-account-search-outline"
+                  class="spotly-input"
+                />
+              </div>
+
+              <!-- Search results -->
+              <div v-if="staffSearchResults.length" class="staff-list mt-2">
+                <div
+                  v-for="user in staffSearchResults"
+                  :key="user.email"
+                  class="staff-row d-flex align-center justify-space-between"
+                >
+                  <div>
+                    <span class="staff-name">{{ user.first_name }} {{ user.last_name }}</span>
+                    <span class="staff-email ml-2">{{ user.email }}</span>
+                  </div>
+                  <v-chip
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                    class="ml-2"
+                    style="cursor: pointer"
+                    @click="addStaffMember(user)"
+                  >
+                    Add
+                  </v-chip>
+                </div>
+              </div>
+
+              <!-- Divider -->
+              <div class="staff-divider mt-4 mb-3" />
+
+              <!-- Current staff -->
+              <div v-if="currentStaff.length === 0" class="staff-empty">No staff assigned yet</div>
+              <div v-else class="staff-list">
+                <div
+                  v-for="s in currentStaff"
+                  :key="s.record.id"
+                  class="staff-row d-flex align-center justify-space-between"
+                >
+                  <div>
+                    <span class="staff-name">{{ s.user.first_name }} {{ s.user.last_name }}</span>
+                    <span class="staff-email ml-2">{{ s.user.email }}</span>
+                  </div>
+                  <v-chip
+                    size="small"
+                    color="error"
+                    variant="outlined"
+                    class="ml-2"
+                    style="cursor: pointer"
+                    @click="removeStaffMember(s.record.id)"
+                  >
+                    Remove
+                  </v-chip>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- ══ RIGHT: Live Preview ══ -->
@@ -560,7 +638,7 @@
 // P16 — Venue Identity Studio
 import { ref, computed, reactive } from "vue";
 import { useRouter } from "vue-router";
-import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
+import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useAdminNav } from "@/composables/useAdminNav";
@@ -568,6 +646,8 @@ import { useAuth } from "@/composables/useAuth";
 import { updateVenue, getVenueByAdminEmail } from "@/datamodel/Venue.js";
 import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
 import { uploadImage } from "@/utils/uploadImage.js";
+import { VenueStaff, VENUE_STAFF_LIST, addVenueStaff, removeVenueStaff, getStaffByVenue } from "@/datamodel/VenueStaff.js";
+import { USER_LIST } from "@/datamodel/User.js";
 
 const router = useRouter();
 const { snackbar, notifySuccess, notifyError } = useSnackbar();
@@ -786,6 +866,44 @@ const resetForm = () => {
   Object.assign(form, defaultForm());
   notifySuccess("Form reset to defaults");
 };
+
+// ─── Staff Management ──────────────────────────────────────────────────────────
+const staffQuery = ref('');
+const venue = computed(() => session?.email ? getVenueByAdminEmail(session.email) : null);
+
+const currentStaff = computed(() => {
+  if (!venue.value) return [];
+  return getStaffByVenue(venue.value.id).map(record => ({
+    record,
+    user: USER_LIST.find(u => u.email === record.userEmail),
+  })).filter(s => s.user);
+});
+
+const staffSearchResults = computed(() => {
+  const q = staffQuery.value.trim().toLowerCase();
+  if (q.length < 2 || !venue.value) return [];
+  const ownerEmail = venue.value.adminEmail;
+  const assignedEmails = new Set(getStaffByVenue(venue.value.id).map(r => r.userEmail));
+  return USER_LIST.filter(u => {
+    if (u.email === ownerEmail) return false;
+    if (assignedEmails.has(u.email)) return false;
+    const full = (u.first_name + ' ' + u.last_name + ' ' + u.email).toLowerCase();
+    return full.includes(q);
+  });
+});
+
+function addStaffMember(user) {
+  if (!venue.value) return;
+  const ok = addVenueStaff(new VenueStaff({ id: Date.now(), venueId: venue.value.id, userEmail: user.email }));
+  staffQuery.value = '';
+  if (ok) notifySuccess('Staff member added');
+  else notifyError(`${user.first_name} ${user.last_name} is already staff at another venue`);
+}
+
+function removeStaffMember(id) {
+  removeVenueStaff(id);
+  notifySuccess('Staff member removed');
+}
 </script>
 
 <style scoped>
@@ -1637,5 +1755,39 @@ const resetForm = () => {
   color: #f0ead6;
   font-family: var(--font-body);
   font-size: 0.88rem;
+}
+
+/* ── Staff Management ── */
+.staff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.staff-row {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(212,175,55,0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.staff-name {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: #f0ead6;
+  font-weight: 500;
+}
+.staff-email {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+}
+.staff-divider {
+  border-top: 1px solid rgba(212,175,55,0.1);
+}
+.staff-empty {
+  font-family: var(--font-body);
+  font-size: 0.83rem;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+  padding: 16px 0;
 }
 </style>

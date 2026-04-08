@@ -52,39 +52,7 @@
 
       <!-- ── Right: Action slot ── -->
       <slot name="actions">
-        <!-- Default actions: My Profile + Logout -->
-        <div
-          v-if="showDefaultActions"
-          class="d-flex align-center"
-          style="gap: 12px"
-        >
-          <v-btn
-            variant="outlined"
-            color="primary"
-            class="btn-outlined-gold"
-            style="
-              font-size: 0.8rem;
-              letter-spacing: 1.5px;
-              text-transform: uppercase;
-            "
-          >
-            <v-icon start icon="mdi-account-outline" size="16" />
-            My Profile
-          </v-btn>
-          <v-btn
-            variant="text"
-            style="
-              font-size: 0.8rem;
-              letter-spacing: 1.5px;
-              text-transform: uppercase;
-              color: rgba(255, 255, 255, 0.55);
-            "
-            @click="$emit('logout')"
-          >
-            <v-icon start icon="mdi-logout" size="16" />
-            Log Out
-          </v-btn>
-        </div>
+        <NavAvatarMenu v-if="showDefaultActions" />
       </slot>
     </v-container>
   </v-app-bar>
@@ -107,7 +75,7 @@ defineProps({
     type: Boolean,
     default: true,
   },
-  /** Show the default My Profile + Logout button pair */
+  /** Show the default NavAvatarMenu dropdown */
   showDefaultActions: {
     type: Boolean,
     default: true,
@@ -119,7 +87,6 @@ defineProps({
   },
 });
 
-defineEmits(["logout"]);
 </script>
 
 <style scoped>

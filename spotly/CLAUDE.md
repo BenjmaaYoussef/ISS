@@ -106,6 +106,11 @@ All field names across UI and datamodel files must match these exactly:
 
 **`User`** — `first_name, last_name, email, password`
 - localStorage key: `spotly_users`
+- Note: user "role" is **derived, not stored** — ownership is determined by `Venue.adminEmail === email`; staff access by a `VenueStaff` record; customers have neither.
+
+**`VenueStaff`** — `id, venueId, userEmail`
+- localStorage key: `spotly_venue_staff`
+- Functions: `addVenueStaff`, `removeVenueStaff(id)`, `getStaffByVenue(venueId)`, `getVenuesByStaff(userEmail)`, `isVenueStaff(userEmail)`
 
 **`Venue`** — `id, name, description, ambienceTags[], activities[], images[], dressCode, supportedLanguages[]`
 - localStorage key: `spotly_venues`

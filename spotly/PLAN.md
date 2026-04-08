@@ -324,8 +324,95 @@ Extended: `{ title, subtitle, bgColor, imageUrl }` — `imageUrl` is optional; g
 
 ---
 
+## Phase 13 — Relationship-Based Authorization (Remove Role System)
+
+**Scope:** `src/datamodel/User.js`, new `src/datamodel/VenueStaff.js`, `src/pages/auth.vue`, `src/router/index.js`, `src/pages/[...all].vue`, `src/pages/staff/dashboard.vue`, `src/pages/admin/reservations.vue`, `src/pages/admin/venue-settings.vue`, `src/pages/home.vue`, `src/pages/seed.vue`, `CLAUDE.md`
+
+**Goal:** Replace the static `role` field on `User` with relationship-derived authorization. A user's access is determined by: (1) owning a venue (`Venue.adminEmail === email`), (2) being staff at a venue (new `VenueStaff` record), or (3) neither (plain customer). No role is chosen at registration. Any logged-in user can create a venue via a CTA on the home page. Venue owners add/remove staff from their venue settings page.
+
+### New `VenueStaff` model
+
+`src/datamodel/VenueStaff.js` — `{ id, venueId, userEmail }`
+- localStorage key: `spotly_venue_staff`
+- Functions: `addVenueStaff`, `removeVenueStaff(id)`, `getStaffByVenue(venueId)`, `getVenuesByStaff(userEmail)`, `isVenueStaff(userEmail)`
+
+### Session shape after migration
+
+```js
+{ userId: email, name: "First Last", email, venueId: number|null }
+```
+- Owners: `venueId` = their venue id
+- Staff: `venueId` = first assigned venue id
+- Customers: `venueId` = null
+- `role` field removed entirely
+
+### Role derivation (replaces `session.role`)
+
+| Old check | New check |
+|---|---|
+| `role === 'admin'` | `getVenueByAdminEmail(email) !== null` |
+| `role === 'staff'` | `isVenueStaff(email)` |
+| neither | plain customer |
+
+### Tasks
+
+- [x] **Create `VenueStaff.js`** — New file at `src/datamodel/VenueStaff.js`. Class `VenueStaff({ id, venueId, userEmail })`. Storage key `spotly_venue_staff`. Reactive `VENUE_STAFF_LIST`. `watch` + `storage` event listener (cross-tab, same pattern as other models). Functions: `addVenueStaff(record)`, `removeVenueStaff(id)` (splice by id), `getStaffByVenue(venueId)` → array of records, `getVenuesByStaff(userEmail)` → array of records, `isVenueStaff(userEmail)` → boolean.
+
+- [x] **Update `User.js`** — Remove `role` parameter from constructor and `this.role = role`. Change the localStorage load line from `map(u => new User({ role: 'client', ...u }))` to `map(u => new User(u))`. Remove the `if (newData.role !== undefined) user.role = newData.role` line in `updateUserByEmail`.
+
+- [x] **Update `auth.vue` — remove role from registration** — Remove the `regRole` ref, `roleOptions` array, and the role `<v-select>` from the register form template. In `register()`: remove `role: regRole.value` from the `new User(...)` call; remove the entire `if (regRole.value === "admin")` block that auto-created a Venue (users become owners via home page CTA instead). After that block `addUser(newUser)` and call `writeSessionAndRedirect(newUser, null)`.
+
+- [x] **Update `auth.vue` — rewrite `writeSessionAndRedirect`** — Import `getVenuesByStaff` from `VenueStaff.js`. Compute: `const ownerVenue = getVenueByAdminEmail(user.email)` and `const staffVenues = getVenuesByStaff(user.email)`. Set `venueId = ownerVenue?.id ?? staffVenues[0]?.venueId ?? null`. Write session as `{ userId: user.email, name, email: user.email, venueId }` (no `role` field). Redirect: `if (ownerVenue)` → `/admin/dashboard`, `else if (staffVenues.length)` → `/staff/dashboard`, else → `/home`.
+
+- [x] **Update `router/index.js`** — Import `isVenueStaff` from `VenueStaff.js`. Replace the `const role = session.role` block and all subsequent role checks with:
+  ```js
+  const isOwner = !!getVenueByAdminEmail(session.email)
+  const isStaff = isVenueStaff(session.email)
+
+  if (to.path.startsWith('/admin/') && !isOwner)
+    return isStaff ? '/staff/dashboard' : '/home'
+  if (to.path.startsWith('/staff/') && !isStaff && !isOwner)
+    return '/home'
+  if (to.path.startsWith('/client/') && isStaff && !isOwner)
+    return '/staff/dashboard'
+  if (to.path.startsWith('/client/') && isOwner)
+    return '/admin/dashboard'
+  // Onboarding gate — same logic, replace `role === 'admin'` with `isOwner`
+  if (isOwner && to.path.startsWith('/admin/') && to.path !== '/admin/onboarding') { ... }
+  ```
+
+- [x] **Update `[...all].vue`** — Import `getVenueByAdminEmail` from `Venue.js` and `isVenueStaff` from `VenueStaff.js`. In the `homeRoute` computed replace `session.role === 'admin'` with `!!getVenueByAdminEmail(session.email)` and `session.role === 'staff'` with `isVenueStaff(session.email)`.
+
+- [x] **Update `staff/dashboard.vue` — scope to assigned venue** — Read `session` via `useAuth`. Compute `const venueEnvs = computed(() => session?.venueId != null ? ENVIRONMENT_LIST.filter(e => e.venueId === session.venueId) : [])`. Replace all uses of `ENVIRONMENT_LIST` in the template and scripts with `venueEnvs`. Add an empty state (styled message) for when `venueEnvs` is empty. This fixes the existing bug where staff saw environments from all venues.
+
+- [x] **Update `admin/reservations.vue` — computed actorRole** — After reading `session`, add `const actorRole = getVenueByAdminEmail(session?.email) ? 'admin' : 'staff'`. Replace both hardcoded `actorRole: "admin"` strings (appear in the approve and reject log entries) with `actorRole`.
+
+- [x] **Update `admin/venue-settings.vue` — staff management section** — Add a "Staff Members" section at the bottom of the settings form (above the Save button). Import `VENUE_STAFF_LIST`, `addVenueStaff`, `removeVenueStaff`, `getStaffByVenue` from `VenueStaff.js`; import `VenueStaff` class; import `USER_LIST` from `User.js`. Add a `staffQuery` ref (search input). Computed `currentStaff`: `getStaffByVenue(venue.id)` — get the full user object for each record by matching `userEmail` in `USER_LIST`. Computed `staffSearchResults`: filter `USER_LIST` by query against `first_name + ' ' + last_name + email`, excluding users already in `currentStaff` and the owner email; only show results when `staffQuery.value.length >= 2`. UI:
+  - Search input with label "Search users by name or email"
+  - Search results list: each row shows name + email + "Add" chip — on click: `addVenueStaff(new VenueStaff({ id: Date.now(), venueId: venue.id, userEmail: result.email }))` + snackbar "Staff member added"
+  - Current staff list: each row shows name + email + "Remove" chip — on click: `removeVenueStaff(record.id)` + snackbar "Staff member removed"
+  - Show "No staff assigned yet" when list is empty
+
+- [x] **Update `home.vue` — "Open Your Venue" CTA** — Import `getVenueByAdminEmail`, `addVenue`, `Venue` from `Venue.js`; import `useAuth`. For logged-in users where `getVenueByAdminEmail(session.email) === null`, show a CTA card (matching the page design style) with text "Open Your Venue on Spotly" and a subtitle like "Start accepting reservations today". On click: create `new Venue({ id: Date.now(), adminEmail: session.email, name: '', description: '' })`, call `addVenue(...)`, update session in localStorage with the new `venueId`, then `router.push('/admin/onboarding')`. Hide this CTA when the user already owns a venue.
+
+- [x] **Update `seed.vue`** — Remove `role` from all `new User(...)` calls and from the seed preview table (remove role column, add a "Context" column showing "Venue Owner", "Staff", or "Customer"). After seeding users and venues, seed a VenueStaff record: capture the seeded venue's id and create `new VenueStaff({ id: Date.now() + 1, venueId: <seeded_venue_id>, userEmail: 'staff@spotly.com' })` → `addVenueStaff(...)`. Import `VenueStaff`, `addVenueStaff` from `VenueStaff.js`.
+
+- [x] **Update `CLAUDE.md`** — In the Canonical Data Models section: remove `role` from `User` fields; add a new `VenueStaff` entry: `id, venueId, userEmail` / localStorage key `spotly_venue_staff`; add a note that user "role" is derived — not stored — via `Venue.adminEmail` (owner) or `VenueStaff` record (staff).
+
+### Seed credentials after migration
+
+| Email | Password | Derived access |
+|-------|----------|----------------|
+| admin@spotly.com | admin123 | Venue Owner (Venue record with matching adminEmail) |
+| staff@spotly.com | staff123 | Staff (VenueStaff record linked to seeded venue) |
+| client@spotly.com | client123 | Customer (no relationship records) |
+| jane.smith@example.com | password456 | Customer |
+| alice.johnson@example.com | password789 | Customer |
+
+---
+
 ## Session Notes
 
-**Last session:** Phase 11 complete — `/` redirects to `/landing`, "How It Works" section added, "Explore Venues" CTA, footer dead links replaced with real anchors, AppNavbarPublic logo/Sign Up/nav links fixed, auth.vue "Back to Home" fixed, test.vue guarded with isDev.
-**Next session starts at:** Phase 12 — Per-Environment Menus.
+**Last session:** Phase 13 complete — VenueStaff model, role field removed from User, auth rewritten to derive access from relationships, router guards updated, staff dashboard scoped to assigned venue, venue-settings staff management section, home.vue "Open Your Venue" CTA, seed.vue updated.
+**Next session starts at:** Phase 14 (if any) or testing/polish.
 **Blockers / decisions pending:** None.

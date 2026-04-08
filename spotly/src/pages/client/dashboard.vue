@@ -1,19 +1,6 @@
 <template>
   <!-- ── Top Navigation Bar ── -->
-  <AppNavbarVenue
-    venue-name="Sunset Beach Club"
-    venue-sub-label="My Dashboard"
-    :show-powered-by="true"
-    :show-default-actions="false"
-    @logout="logout"
-  >
-    <template #actions>
-      <v-btn variant="text" class="logout-btn" size="small" @click="logout">
-        <v-icon start size="14">mdi-logout</v-icon>
-        Logout
-      </v-btn>
-    </template>
-  </AppNavbarVenue>
+  <AppNavbarSpotly />
 
   <!-- ── Main Content ── -->
   <v-main class="spotly-main">
@@ -240,7 +227,6 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useAuth } from "@/composables/useAuth";
-import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
 import SectionHeader from "@/components/ui/SectionHeader.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";

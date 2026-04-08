@@ -1,9 +1,8 @@
 <template>
   <!-- ── Top Navigation ── -->
-  <AppNavbarApp
+  <AppNavbarSpotly
     :nav-links="adminNavLinks"
     active-link="menu"
-    admin-label="Admin"
     @nav="handleNav"
   />
 
@@ -399,7 +398,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
+import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
 import { useAuth } from "@/composables/useAuth";
 import { MENU_ITEM_LIST, MenuItem, addMenuItem, updateMenuItem, deleteMenuItem } from "@/datamodel/MenuItem";

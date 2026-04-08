@@ -1,32 +1,6 @@
 <template>
   <!-- ── Top Navigation Bar ── -->
-  <AppNavbarVenue
-    venue-name="Spotly"
-    venue-sub-label="Venue Discovery"
-    :show-powered-by="false"
-    :show-default-actions="false"
-  >
-    <template #actions>
-      <v-btn
-        variant="text"
-        class="back-btn"
-        size="small"
-        @click="$router.push('/client/dashboard')"
-      >
-        <v-icon start size="14">mdi-arrow-left</v-icon>
-        My Dashboard
-      </v-btn>
-      <v-btn
-        variant="text"
-        class="logout-btn"
-        size="small"
-        @click="handleLogout"
-      >
-        <v-icon start size="14">mdi-logout</v-icon>
-        Logout
-      </v-btn>
-    </template>
-  </AppNavbarVenue>
+  <AppNavbarSpotly />
 
   <!-- ── Main Content ── -->
   <v-main class="spotly-main">
@@ -109,8 +83,17 @@
               @click="selectVenue(venue)"
             >
               <!-- Image area -->
-              <div class="venue-image-area">
-                <div class="venue-image-placeholder">🏖️</div>
+              <div
+                class="venue-image-area"
+                :style="venue.slides?.[0]?.imageUrl
+                  ? { backgroundImage: `url(${venue.slides[0].imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                  : {}"
+              >
+                <div v-if="!venue.slides?.[0]?.imageUrl" class="venue-image-placeholder">🏖️</div>
+                <!-- Owner badge -->
+                <div v-if="venue.id === ownerVenueId" class="owner-badge">
+                  <v-icon size="12" class="mr-1">mdi-crown</v-icon>YOUR VENUE
+                </div>
                 <transition name="fade">
                   <div
                     v-if="hoveredCard === venue.id"
@@ -121,7 +104,7 @@
                       size="small"
                       @click.stop="selectVenue(venue)"
                     >
-                      View Details
+                      {{ venue.id === ownerVenueId ? 'Preview' : 'View Details' }}
                     </v-btn>
                   </div>
                 </transition>
@@ -144,7 +127,16 @@
                   </v-chip>
                 </div>
 
-                <v-btn class="cta-btn" block @click.stop="selectVenue(venue)">
+                <v-btn
+                  v-if="venue.id === ownerVenueId"
+                  class="manage-btn"
+                  block
+                  @click.stop="router.push('/admin/dashboard')"
+                >
+                  <v-icon start size="16">mdi-cog-outline</v-icon>
+                  Manage Venue
+                </v-btn>
+                <v-btn v-else class="cta-btn" block @click.stop="selectVenue(venue)">
                   Book Now
                 </v-btn>
               </div>
@@ -169,6 +161,17 @@
           </v-btn>
         </div>
       </div>
+
+      <!-- ── Open Your Venue CTA ── -->
+      <div v-if="showOpenVenueCta" class="open-venue-cta mt-10" @click="createVenue">
+        <div class="cta-glow" />
+        <v-icon size="36" color="#D4AF37" class="mb-3">mdi-storefront-outline</v-icon>
+        <div class="cta-title">Open Your Venue on Spotly</div>
+        <div class="cta-sub">Start accepting reservations today</div>
+        <v-btn class="cta-btn mt-4" size="small">
+          Get Started
+        </v-btn>
+      </div>
     </div>
   </v-main>
 </template>
@@ -176,9 +179,9 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
+import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
 import SectionHeader from "@/components/ui/SectionHeader.vue";
-import { VENUE_LIST } from "@/datamodel/Venue.js";
+import { VENUE_LIST, Venue, addVenue, getVenueByAdminEmail } from "@/datamodel/Venue.js";
 
 const router = useRouter();
 
@@ -186,6 +189,27 @@ let _session = null;
 try { _session = JSON.parse(localStorage.getItem("spotly_session") || "null"); } catch {}
 const sessionName = _session?.name || "Guest";
 const sessionInitials = sessionName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+
+const ownerVenue = _session ? getVenueByAdminEmail(_session.email) : null;
+const ownerVenueId = ownerVenue?.id ?? null;
+
+const isOwner = computed(() => !!ownerVenueId);
+
+const showOpenVenueCta = computed(() => !!_session && !isOwner.value);
+
+function createVenue() {
+  if (!_session) return;
+  const newVenue = new Venue({
+    id: Date.now(),
+    name: "",
+    description: "",
+    adminEmail: _session.email,
+  });
+  addVenue(newVenue);
+  const session = { ..._session, venueId: newVenue.id };
+  localStorage.setItem("spotly_session", JSON.stringify(session));
+  router.push("/admin/onboarding");
+}
 
 const searchQuery = ref("");
 const selectedActivities = ref([]);
@@ -224,10 +248,6 @@ function selectVenue(venue) {
   router.push(`/venue/${venue.id}`);
 }
 
-function handleLogout() {
-  localStorage.removeItem("spotly_session");
-  router.push("/auth");
-}
 </script>
 
 <style scoped>
@@ -246,27 +266,6 @@ function handleLogout() {
   margin: 0 auto;
 }
 
-/* ── Navbar buttons — hardcoded so values survive outside v-main ── */
-.back-btn {
-  color: #6b7a8d !important;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transition: color 0.2s;
-}
-.back-btn:hover {
-  color: #d4af37 !important;
-}
-.logout-btn {
-  color: #6b7a8d !important;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transition: color 0.2s;
-}
-.logout-btn:hover {
-  color: #d4af37 !important;
-}
 
 /* ── Welcome Banner ── */
 .welcome-banner {
@@ -459,6 +458,24 @@ function handleLogout() {
   font-size: 0.7rem !important;
 }
 
+/* Owner badge */
+.owner-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(212, 175, 55, 0.92);
+  color: #0a0e14;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
 /* CTA button */
 .cta-btn {
   background: #d4af37 !important;
@@ -469,6 +486,22 @@ function handleLogout() {
   letter-spacing: 0.04em;
   text-transform: none;
   box-shadow: none !important;
+}
+
+/* Manage venue button (owner) */
+.manage-btn {
+  background: rgba(212, 175, 55, 0.12) !important;
+  color: #d4af37 !important;
+  border: 1px solid rgba(212, 175, 55, 0.35) !important;
+  font-weight: 600;
+  font-size: 0.8rem;
+  border-radius: 8px !important;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  box-shadow: none !important;
+}
+.manage-btn:hover {
+  background: rgba(212, 175, 55, 0.2) !important;
 }
 
 /* ── Empty State ── */
@@ -502,5 +535,45 @@ function handleLogout() {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ── Open Your Venue CTA ── */
+.open-venue-cta {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 20px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.open-venue-cta:hover {
+  border-color: rgba(212,175,55,0.5);
+}
+.cta-glow {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+.cta-sub {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-top: 6px;
 }
 </style>

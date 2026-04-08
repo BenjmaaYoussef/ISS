@@ -1,9 +1,8 @@
 <template>
   <!-- Top Navigation Bar -->
-  <AppNavbarApp
+  <AppNavbarSpotly
     :nav-links="adminNavLinks"
     active-link="reservations"
-    admin-label="Admin"
     @nav="handleNav"
   />
 
@@ -192,12 +191,13 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useSnackbar } from "@/composables/useSnackbar";
-import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
+import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
 import StatCard from "@/components/ui/StatCard.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
 import { useAuth } from "@/composables/useAuth";
+import { getVenueByAdminEmail } from "@/datamodel/Venue.js";
 import { RESERVATION_LIST, updateReservationStatus } from "@/datamodel/Reservation";
 import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog";
 
@@ -208,6 +208,7 @@ const { snackbar, notifySuccess, notifyError } = useSnackbar();
 const { adminNavLinks, handleNav } = useAdminNav();
 const { getSession } = useAuth();
 const session = getSession();
+const actorRole = getVenueByAdminEmail(session?.email) ? 'admin' : 'staff';
 
 // ─── Venue-scoped reservations ────────────────────────────────────────────────
 const venueReservations = computed(() =>
@@ -241,7 +242,7 @@ const doReject = () => {
     previousStatus: prev,
     newStatus: "REJECTED",
     timestamp: new Date().toISOString(),
-    actorRole: "admin",
+    actorRole,
   }));
   notifyError(`Reservation #${res.id} rejected`);
   rejectDialog.value = false;
@@ -274,7 +275,7 @@ const approve = (res) => {
     previousStatus: prev,
     newStatus: "APPROVED",
     timestamp: new Date().toISOString(),
-    actorRole: "admin",
+    actorRole,
   }));
   notifySuccess(`Reservation #${res.id} approved`);
 };

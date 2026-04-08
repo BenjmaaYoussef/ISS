@@ -39,20 +39,20 @@
       <v-card flat class="seed-card mb-6">
         <v-card-text class="pa-5">
           <div class="section-title mb-1">Accounts</div>
-          <div class="section-desc mb-3">Seeds 5 users: 1 admin, 1 staff, 3 clients.</div>
+          <div class="section-desc mb-3">Seeds 5 users (1 venue owner, 1 staff, 3 customers), a demo venue, and a VenueStaff record.</div>
           <v-table density="compact" class="seed-table mb-4">
             <thead>
               <tr>
                 <th>Email</th>
                 <th>Password</th>
-                <th>Role</th>
+                <th>Context</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="u in accountPreview" :key="u.email">
                 <td>{{ u.email }}</td>
                 <td><code>{{ u.password }}</code></td>
-                <td>{{ u.role }}</td>
+                <td>{{ u.context }}</td>
               </tr>
             </tbody>
           </v-table>
@@ -158,7 +158,8 @@ import { ref, computed } from 'vue';
 import SpotlySnackbar from '@/components/feedback/SpotlySnackbar.vue';
 import { useSnackbar } from '@/composables/useSnackbar';
 import { User, USER_LIST, addUser } from '@/datamodel/User.js';
-import { VENUE_LIST } from '@/datamodel/Venue.js';
+import { VENUE_LIST, Venue, addVenue } from '@/datamodel/Venue.js';
+import { VenueStaff, VENUE_STAFF_LIST, addVenueStaff } from '@/datamodel/VenueStaff.js';
 import { Environment, ENVIRONMENT_LIST, addEnvironment } from '@/datamodel/Environment.js';
 import { MenuItem, MENU_ITEM_LIST, addMenuItem } from '@/datamodel/MenuItem.js';
 import { Reservation, RESERVATION_LIST, addReservation } from '@/datamodel/Reservation.js';
@@ -184,11 +185,11 @@ const selectedResVenueHasEnvs = computed(() =>
 
 // ── Preview data ───────────────────────────────────────────────────────────────
 const accountPreview = [
-  { email: 'admin@spotly.com', password: 'admin123', role: 'admin' },
-  { email: 'staff@spotly.com', password: 'staff123', role: 'staff' },
-  { email: 'client@spotly.com', password: 'client123', role: 'client' },
-  { email: 'jane.smith@example.com', password: 'password456', role: 'client' },
-  { email: 'alice.johnson@example.com', password: 'password789', role: 'client' },
+  { email: 'admin@spotly.com', password: 'admin123', context: 'Venue Owner' },
+  { email: 'staff@spotly.com', password: 'staff123', context: 'Staff' },
+  { email: 'client@spotly.com', password: 'client123', context: 'Customer' },
+  { email: 'jane.smith@example.com', password: 'password456', context: 'Customer' },
+  { email: 'alice.johnson@example.com', password: 'password789', context: 'Customer' },
 ];
 
 // ── Clear All ──────────────────────────────────────────────────────────────────
@@ -201,11 +202,11 @@ function clearAll() {
 // ── Seed Accounts ─────────────────────────────────────────────────────────────
 function seedAccounts() {
   const seedUsers = [
-    new User({ first_name: 'Admin', last_name: 'User', email: 'admin@spotly.com', password: 'admin123', role: 'admin' }),
-    new User({ first_name: 'Staff', last_name: 'User', email: 'staff@spotly.com', password: 'staff123', role: 'staff' }),
-    new User({ first_name: 'John', last_name: 'Doe', email: 'client@spotly.com', password: 'client123', role: 'client' }),
-    new User({ first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', password: 'password456', role: 'client' }),
-    new User({ first_name: 'Alice', last_name: 'Johnson', email: 'alice.johnson@example.com', password: 'password789', role: 'client' }),
+    new User({ first_name: 'Admin', last_name: 'User', email: 'admin@spotly.com', password: 'admin123' }),
+    new User({ first_name: 'Staff', last_name: 'User', email: 'staff@spotly.com', password: 'staff123' }),
+    new User({ first_name: 'John', last_name: 'Doe', email: 'client@spotly.com', password: 'client123' }),
+    new User({ first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', password: 'password456' }),
+    new User({ first_name: 'Alice', last_name: 'Johnson', email: 'alice.johnson@example.com', password: 'password789' }),
   ];
   let added = 0;
   for (const u of seedUsers) {
@@ -214,6 +215,19 @@ function seedAccounts() {
       added++;
     }
   }
+
+  // Ensure admin has a venue record
+  let adminVenue = VENUE_LIST.find(v => v.adminEmail === 'admin@spotly.com');
+  if (!adminVenue) {
+    adminVenue = new Venue({ id: Date.now(), name: 'Spotly Demo Venue', description: 'A demo venue for testing.', adminEmail: 'admin@spotly.com' });
+    addVenue(adminVenue);
+  }
+
+  // Ensure staff has a VenueStaff record linked to the admin venue
+  if (!VENUE_STAFF_LIST.some(r => r.userEmail === 'staff@spotly.com')) {
+    addVenueStaff(new VenueStaff({ id: Date.now() + 1, venueId: adminVenue.id, userEmail: 'staff@spotly.com' }));
+  }
+
   notifySuccess(`Accounts seeded (${added} new, ${seedUsers.length - added} already existed)`);
 }
 

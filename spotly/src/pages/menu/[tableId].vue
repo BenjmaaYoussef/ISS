@@ -35,19 +35,24 @@
 
       <!-- Not found state -->
       <div v-if="!venueId" class="not-found">
-        <v-icon size="48" color="rgba(212,175,55,0.3)">mdi-silverware</v-icon>
-        <p>Menu not found</p>
-        <v-btn variant="outlined" color="#D4AF37" @click="$router.back()">Go Back</v-btn>
+        <div class="not-found-icon-wrapper">
+          <v-icon size="56" color="rgba(212,175,55,0.3)">mdi-silverware</v-icon>
+        </div>
+        <p class="not-found-text">Menu not found</p>
+        <v-btn variant="outlined" color="#D4AF37" @click="$router.back()" class="not-found-btn">Go Back</v-btn>
       </div>
 
       <template v-else>
         <!-- Welcome -->
-        <div class="welcome-section mb-6 mb-sm-8">
+        <div class="welcome-section mb-8 mb-sm-10">
           <div class="welcome-heading">{{ venueName }}</div>
+          <div class="welcome-divider" />
           <div class="welcome-sub">
-            <v-icon size="14" color="#D4AF37" class="mr-1">mdi-silverware-fork-knife</v-icon>
-            {{ subLabel }}
-            <span class="filtered-note ml-2 d-none d-sm-inline">— Items filtered for your location</span>
+            <div class="welcome-location-badge">
+              <v-icon size="12" color="#D4AF37" class="mr-1">mdi-silverware-fork-knife</v-icon>
+              {{ subLabel }}
+            </div>
+            <span class="filtered-note d-none d-sm-inline">Items filtered for your location</span>
           </div>
         </div>
 
@@ -55,25 +60,29 @@
         <MenuCategoryHero
           :categories="availableCategories"
           v-model="activeCategory"
-          class="mb-6 mb-sm-10"
+          class="mb-8 mb-sm-12"
         />
 
         <!-- Decorative divider -->
-        <SpotlyDivider :label="currentCategory?.label || ''" class="mb-8" />
+        <SpotlyDivider :label="currentCategory?.label || ''" class="mb-8 mb-sm-10" />
 
         <!-- Menu Items -->
-        <div v-if="filteredItems.length" class="menu-list">
-          <MenuItemRow
-            v-for="(item, i) in filteredItems"
-            :key="item.id"
-            :item="item"
-            :anim-delay="`${i * 60}ms`"
-          />
+        <div v-if="filteredItems.length" class="menu-list-wrapper">
+          <div class="menu-list">
+            <MenuItemRow
+              v-for="(item, i) in filteredItems"
+              :key="item.id"
+              :item="item"
+              :anim-delay="`${i * 60}ms`"
+            />
+          </div>
         </div>
 
         <div v-else class="menu-empty">
-          <v-icon size="36" color="rgba(212,175,55,0.2)">mdi-silverware</v-icon>
-          <p>No items in this category yet</p>
+          <div class="menu-empty-icon-wrapper">
+            <v-icon size="48" color="rgba(212,175,55,0.25)">mdi-silverware</v-icon>
+          </div>
+          <p class="menu-empty-text">No items in this category yet</p>
         </div>
       </template>
     </div>

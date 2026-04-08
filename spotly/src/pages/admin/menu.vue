@@ -85,7 +85,17 @@
 
           <!-- Name Column -->
           <template v-slot:item.name="{ item }">
-            <span class="item-name">{{ item.name }}</span>
+            <div class="d-flex align-center gap-2 flex-wrap">
+              <span class="item-name">{{ item.name }}</span>
+              <v-chip
+                v-for="eid in (item.environmentIds ?? [])"
+                :key="eid"
+                size="x-small"
+                style="background: rgba(212,175,55,0.12); color: #d4af37; border: 1px solid rgba(212,175,55,0.25); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em;"
+              >
+                {{ venueEnvironments.find(e => e.id === eid)?.name ?? eid }}
+              </v-chip>
+            </div>
           </template>
 
           <!-- Price Column -->
@@ -279,6 +289,28 @@
             ></v-select>
           </v-col>
 
+          <!-- Environment scope -->
+          <v-col cols="12" md="6">
+            <label class="field-label mb-2 d-block">Environments</label>
+            <v-select
+              v-model="formData.environmentIds"
+              :items="environmentOptions"
+              item-title="title"
+              item-value="value"
+              variant="outlined"
+              density="comfortable"
+              multiple
+              chips
+              closable-chips
+              hide-details
+              placeholder="All environments"
+              class="spotly-input"
+            ></v-select>
+            <p style="font-size: 0.75rem; color: #6a7080; margin-top: 6px;">
+              Leave empty to show in all environments.
+            </p>
+          </v-col>
+
           <!-- Allergens -->
           <v-col cols="12" md="6">
             <label class="field-label mb-2 d-block">Allergens</label>
@@ -402,6 +434,7 @@ import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
 import { useAuth } from "@/composables/useAuth";
 import { MENU_ITEM_LIST, MenuItem, addMenuItem, updateMenuItem, deleteMenuItem } from "@/datamodel/MenuItem";
+import { ENVIRONMENT_LIST } from "@/datamodel/Environment";
 
 const router = useRouter();
 
@@ -475,6 +508,15 @@ const headers = [
 // Live list from datamodel — filtered by the admin's own venue
 const VENUE_ID = session?.venueId ?? null;
 
+// Environments for this venue — used in the scope dropdown
+const venueEnvironments = computed(() =>
+  ENVIRONMENT_LIST.filter(e => e.venueId === VENUE_ID),
+);
+
+const environmentOptions = computed(() =>
+  venueEnvironments.value.map(e => ({ title: e.name, value: e.id })),
+);
+
 const formData = ref({
   name: "",
   price: "",
@@ -483,6 +525,7 @@ const formData = ref({
   tags: [],
   description: "",
   available: true,
+  environmentIds: [],
 });
 
 const filteredItems = computed(() => {
@@ -503,6 +546,7 @@ const openAddDialog = () => {
     tags: [],
     description: "",
     available: true,
+    environmentIds: [],
   };
   showItemDialog.value = true;
 };
@@ -510,7 +554,7 @@ const openAddDialog = () => {
 const editItem = (item) => {
   isEditing.value = true;
   formError.value = "";
-  formData.value = { ...item, description: item.desc, available: item.available ?? true };
+  formData.value = { ...item, description: item.desc, available: item.available ?? true, environmentIds: item.environmentIds ?? [] };
   showItemDialog.value = true;
 };
 
@@ -526,14 +570,14 @@ const confirmDelete = () => {
 };
 
 const saveItem = () => {
-  const { name, price, category, allergens, tags, description, available } = formData.value;
+  const { name, price, category, allergens, tags, description, available, environmentIds } = formData.value;
   if (!name || !price) {
     formError.value = !name ? "Item name is required." : "Price is required.";
     return;
   }
   formError.value = "";
   if (isEditing.value) {
-    updateMenuItem(formData.value.id, { name, price: Number(price), category, allergens, tags, desc: description, available });
+    updateMenuItem(formData.value.id, { name, price: Number(price), category, allergens, tags, desc: description, available, environmentIds });
   } else {
     addMenuItem(new MenuItem({
       id: Date.now(),
@@ -545,6 +589,7 @@ const saveItem = () => {
       tags,
       desc: description,
       available,
+      environmentIds,
     }));
   }
   closeDialog();
@@ -560,6 +605,7 @@ const closeDialog = () => {
     tags: [],
     description: "",
     available: true,
+    environmentIds: [],
   };
 };
 </script>

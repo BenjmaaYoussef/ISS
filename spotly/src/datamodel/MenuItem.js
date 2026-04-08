@@ -1,7 +1,7 @@
 import { reactive, watch } from 'vue'
 
 export class MenuItem {
-  constructor({ id, venueId = 1, category, name, price, desc = '', tags = [], allergens = [], available = true }) {
+  constructor({ id, venueId = 1, category, name, price, desc = '', tags = [], allergens = [], available = true, environmentIds = [] }) {
     this.id = id
     this.venueId = venueId
     this.category = category
@@ -11,6 +11,8 @@ export class MenuItem {
     this.tags = tags
     this.allergens = allergens
     this.available = available
+    // empty array = venue-wide (all environments); populated = restricted to those envs
+    this.environmentIds = environmentIds
   }
 }
 

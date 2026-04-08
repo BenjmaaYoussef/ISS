@@ -31,61 +31,75 @@
 
   <!-- ── Main ── -->
   <v-main class="spotly-main">
-    <div class="menu-container pa-4 pa-sm-6 pa-md-8">
 
-      <!-- Not found state -->
-      <div v-if="!venueId" class="not-found">
-        <div class="not-found-icon-wrapper">
-          <v-icon size="56" color="rgba(212,175,55,0.3)">mdi-silverware</v-icon>
+    <!-- Not found state -->
+    <div v-if="!venueId" class="not-found">
+      <div class="not-found-glow" />
+      <v-icon size="64" color="rgba(212,175,55,0.2)">mdi-silverware</v-icon>
+      <p class="not-found-title">Menu not found</p>
+      <p class="not-found-sub">We couldn't locate a menu for this table.</p>
+      <v-btn variant="outlined" color="#D4AF37" rounded="xl" @click="$router.back()">Go Back</v-btn>
+    </div>
+
+    <template v-else>
+      <!-- ── Hero banner ── -->
+      <div class="menu-hero">
+        <div class="hero-bg-overlay" />
+        <div class="hero-content">
+          <div class="hero-ornament">
+            <span class="ornament-line" />
+            <v-icon size="16" color="rgba(212,175,55,0.6)">mdi-silverware-fork-knife</v-icon>
+            <span class="ornament-line" />
+          </div>
+          <h1 class="hero-title">{{ venueName }}</h1>
+          <div class="hero-badge">
+            <v-icon size="12" color="#D4AF37">mdi-map-marker-outline</v-icon>
+            <span>{{ subLabel }}</span>
+          </div>
+          <p v-if="subLabel !== 'Full Menu'" class="hero-note">Menu curated for your location</p>
         </div>
-        <p class="not-found-text">Menu not found</p>
-        <v-btn variant="outlined" color="#D4AF37" @click="$router.back()" class="not-found-btn">Go Back</v-btn>
+        <!-- Bottom fade -->
+        <div class="hero-fade" />
       </div>
 
-      <template v-else>
-        <!-- Welcome -->
-        <div class="welcome-section mb-8 mb-sm-10">
-          <div class="welcome-heading">{{ venueName }}</div>
-          <div class="welcome-divider" />
-          <div class="welcome-sub">
-            <div class="welcome-location-badge">
-              <v-icon size="12" color="#D4AF37" class="mr-1">mdi-silverware-fork-knife</v-icon>
-              {{ subLabel }}
-            </div>
-            <span class="filtered-note d-none d-sm-inline">Items filtered for your location</span>
-          </div>
+      <!-- ── Sticky category nav ── -->
+      <div class="category-sticky">
+        <div class="category-sticky-inner">
+          <MenuCategoryHero
+            :categories="availableCategories"
+            v-model="activeCategory"
+          />
+        </div>
+      </div>
+
+      <!-- ── Items ── -->
+      <div class="menu-body">
+        <!-- Section heading -->
+        <div class="section-heading">
+          <span class="section-ornament" />
+          <span class="section-title">{{ currentCategory?.label }}</span>
+          <span class="section-ornament" />
         </div>
 
-        <!-- Category Hero Images -->
-        <MenuCategoryHero
-          :categories="availableCategories"
-          v-model="activeCategory"
-          class="mb-8 mb-sm-12"
-        />
-
-        <!-- Decorative divider -->
-        <SpotlyDivider :label="currentCategory?.label || ''" class="mb-8 mb-sm-10" />
-
-        <!-- Menu Items -->
-        <div v-if="filteredItems.length" class="menu-list-wrapper">
-          <div class="menu-list">
-            <MenuItemRow
-              v-for="(item, i) in filteredItems"
-              :key="item.id"
-              :item="item"
-              :anim-delay="`${i * 60}ms`"
-            />
-          </div>
+        <div v-if="filteredItems.length" class="menu-grid">
+          <MenuItemRow
+            v-for="(item, i) in filteredItems"
+            :key="item.id"
+            :item="item"
+            :anim-delay="`${i * 55}ms`"
+          />
         </div>
 
         <div v-else class="menu-empty">
-          <div class="menu-empty-icon-wrapper">
-            <v-icon size="48" color="rgba(212,175,55,0.25)">mdi-silverware</v-icon>
+          <div class="empty-icon-ring">
+            <v-icon size="36" color="rgba(212,175,55,0.35)">mdi-silverware</v-icon>
           </div>
-          <p class="menu-empty-text">No items in this category yet</p>
+          <p class="empty-title">Nothing here yet</p>
+          <p class="empty-sub">This category has no items for your location.</p>
         </div>
-      </template>
-    </div>
+      </div>
+    </template>
+
   </v-main>
 
   <!-- Snackbar -->
@@ -114,13 +128,13 @@ const resolved = computed(() => {
   for (const env of ENVIRONMENT_LIST) {
     const el = env.elements.find(e => e.id === tableId)
     if (el) {
-      return { venueId: env.venueId, elementLabel: el.label, envName: env.name }
+      return { venueId: env.venueId, elementLabel: el.label, envName: env.name, envId: env.id }
     }
   }
   // Fall back: treat as venueId
   const numId = parseInt(tableId)
   if (!isNaN(numId) && VENUE_LIST.find(v => v.id === numId)) {
-    return { venueId: numId, elementLabel: null, envName: null }
+    return { venueId: numId, elementLabel: null, envName: null, envId: null }
   }
   return null
 })
@@ -167,12 +181,21 @@ const ALL_CATEGORIES = [
   },
 ]
 
-// ── Items for this venue ───────────────────────────────────────────────────────
-const venueItems = computed(() =>
-  venueId.value != null
-    ? MENU_ITEM_LIST.filter(m => m.venueId === venueId.value && m.available !== false)
-    : [],
-)
+// ── Items for this venue / environment ────────────────────────────────────────
+const envId = computed(() => resolved.value?.envId ?? null)
+
+const venueItems = computed(() => {
+  if (venueId.value == null) return []
+  const eid = envId.value
+  return MENU_ITEM_LIST.filter(m => {
+    if (m.venueId !== venueId.value || m.available === false) return false
+    // Full menu (no element context): show everything for this venue
+    if (eid == null) return true
+    // Element context: show venue-wide items (empty array) + items scoped to this env
+    const ids = m.environmentIds ?? []
+    return ids.length === 0 || ids.includes(eid)
+  })
+})
 
 // Only show categories that have at least one item
 const availableCategories = computed(() => {
@@ -200,55 +223,226 @@ const callWaiter = () =>
 <style scoped>
 .spotly-main {
   background: #0a0e14 !important;
-}
-.menu-container {
-  max-width: 960px;
-  margin: 0 auto;
+  min-height: 100vh;
 }
 
-/* ── Welcome ── */
-.welcome-heading {
-  font-family: var(--font-heading);
-  font-size: clamp(1.4rem, 5vw, 2.4rem);
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.1;
-}
-.welcome-sub {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  font-size: 0.84rem;
-  color: #d4af37;
-  margin-top: 8px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
-.filtered-note {
-  color: #6b7a8d;
-  font-style: italic;
-  font-size: 0.78rem;
-}
-
-/* ── Menu list ── */
-.menu-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-/* ── Empty / not found ── */
-.menu-empty,
+/* ── Not found ── */
 .not-found {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 64px 16px;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.3);
-  font-size: 0.85rem;
+  min-height: 80vh;
+  gap: 14px;
   text-align: center;
+  padding: 32px;
+  overflow: hidden;
+}
+.not-found-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.not-found-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: #fff;
+  font-weight: 600;
+  margin: 0;
+}
+.not-found-sub {
+  font-size: 0.85rem;
+  color: #6b7a8d;
+  margin: 0 0 8px;
+}
+
+/* ── Hero banner ── */
+.menu-hero {
+  position: relative;
+  background: linear-gradient(180deg, #0f1520 0%, #0a0e14 100%);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 40px 20px 44px;
+  text-align: center;
+  overflow: hidden;
+}
+@media (min-width: 600px) {
+  .menu-hero {
+    padding: 64px 32px 56px;
+  }
+}
+.hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 20% 100%, rgba(212, 175, 55, 0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, #0a0e14);
+  pointer-events: none;
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.hero-ornament {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ornament-line {
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4));
+}
+.ornament-line:last-child {
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.4), transparent);
+}
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 50px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.07);
+  font-size: 0.8rem;
+  color: #d4af37;
+  font-weight: 500;
+  font-family: var(--font-body);
+  letter-spacing: 0.04em;
+}
+.hero-note {
+  font-size: 0.78rem;
+  color: #6b7a8d;
+  font-style: italic;
+  margin: 0;
+  font-family: var(--font-body);
+}
+
+/* ── Sticky category nav ── */
+.category-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(10, 14, 20, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 14px 0;
+}
+.category-sticky-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ── Menu body ── */
+.menu-body {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* Section heading */
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(212, 175, 55, 0.8);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.section-ornament {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), transparent);
+}
+.section-ornament:last-child {
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2));
+}
+
+/* Card grid */
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 600px) {
+  .menu-grid {
+    gap: 16px;
+  }
+}
+@media (min-width: 680px) {
+  .menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Empty state ── */
+.menu-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 16px;
+  gap: 14px;
+  text-align: center;
+}
+.empty-icon-ring {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 175, 55, 0.04);
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.06);
+}
+.empty-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+  font-weight: 600;
+}
+.empty-sub {
+  font-size: 0.8rem;
+  color: #6b7a8d;
+  margin: 0;
+  font-family: var(--font-body);
 }
 
 /* ── Navbar icon button ── */

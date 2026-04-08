@@ -948,7 +948,7 @@ const onCanvasClick = (e) => {
   const def = getElementDef(armedType.value);
   const isTableType = armedType.value.startsWith("table_");
   const newEl = {
-    id: "el_" + ++idCounter,
+    id: `${currentEnvId.value}_el_${++idCounter}`,
     type: armedType.value,
     label:
       def.name +

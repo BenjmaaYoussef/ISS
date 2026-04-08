@@ -316,11 +316,11 @@ Extended: `{ title, subtitle, bgColor, imageUrl }` — `imageUrl` is optional; g
 
 ### Tasks
 
-- [ ] **MenuItem.js — add `environmentId` field** — Extend the `MenuItem` class with `environmentId = null`. No migration needed — existing items default to `null` (venue-wide). Update `addMenuItem` and `updateMenuItem` to pass through the field.
+- [x] **MenuItem.js — add `environmentIds` field** — Extended `MenuItem` with `environmentIds = []` (empty = venue-wide, array = restricted to those envs). Multi-env support replaces the original single `environmentId`.
 
-- [ ] **menu/[tableId].vue — filter by environmentId** — Update `venueItems` computed: `m.venueId === venueId && (m.environmentId == null || m.environmentId === envId)`. `envId` is already available from the element → environment lookup; when only venueId is known (accessed from venue page), `envId` stays `null` and only venue-wide items show.
+- [x] **menu/[tableId].vue — filter by environmentIds** — Full menu (no element context) shows all items. Element context filters: `environmentIds.length === 0 || environmentIds.includes(envId)`. Also returns `envId` from resolved lookup.
 
-- [ ] **admin/menu.vue — environment scope selector** — Add an optional "Environment" dropdown to the add/edit dialog. Options: "All environments" (null) + each environment name from `ENVIRONMENT_LIST` filtered by the venue. Persist as `environmentId` on the item. Show the environment name as a small tag on each menu item row when set.
+- [x] **admin/menu.vue — environment scope multi-select** — Multi-select chips dropdown in add/edit dialog. Empty = all environments. Each selected env shows as a gold chip on the item row. Also fixed element ID generation in floor-plan to prefix with envId for global uniqueness.
 
 ---
 
@@ -408,6 +408,41 @@ Extended: `{ title, subtitle, bgColor, imageUrl }` — `imageUrl` is optional; g
 | client@spotly.com | client123 | Customer (no relationship records) |
 | jane.smith@example.com | password456 | Customer |
 | alice.johnson@example.com | password789 | Customer |
+
+---
+
+## Phase 14 — Table QR Codes & Call Waiter
+
+**Scope:** `src/pages/admin/qr-codes.vue` (new), `src/datamodel/WaiterCall.js` (new), `src/pages/menu/[tableId].vue`, `src/pages/staff/dashboard.vue`, `src/router/index.js`
+
+**Goal:** Venue managers can generate and print QR code cards for every table. Guests scan a table's QR code to open the menu; they can call the waiter from the menu page. Staff see live waiter call notifications on their dashboard.
+
+### Design decisions (settled)
+
+- QR codes encode the **element ID** (not environment ID), so the call waiter feature can identify the exact table. If a table element is deleted from the floor plan, only that one card needs reprinting — acceptable because removing a physical table is intentional.
+- One card per table element. Cards are grouped by environment in the print layout.
+- Print is done via `window.print()` with print-specific CSS — no PDF library needed. The browser's "Save as PDF" covers the PDF use case.
+- QR library: `qrcode` npm package (generates SVG, no external requests).
+
+### Tasks
+
+- [ ] **Install `qrcode`** — `npm install qrcode`. Used to generate QR SVGs client-side.
+
+- [ ] **`WaiterCall.js` — new datamodel** — `src/datamodel/WaiterCall.js`. Class `WaiterCall({ id, venueId, environmentId, elementId, tableLabel, envName, timestamp, status })` where `status: 'pending' | 'acknowledged'`. Storage key `spotly_waiter_calls`. Reactive `WAITER_CALL_LIST`. `watch` + `storage` event listener (cross-tab sync — staff dashboard must update in real time). Functions: `addWaiterCall(call)`, `acknowledgeWaiterCall(id)` (sets status to `'acknowledged'`), `getPendingCallsByVenue(venueId)` → active calls only.
+
+- [ ] **`menu/[tableId].vue` — wire Call Waiter button** — When the element context is resolved (elementId known), "Call Waiter" creates a `new WaiterCall({ id: Date.now(), venueId, environmentId: envId, elementId: tableId, tableLabel: resolved.elementLabel, envName: resolved.envName, timestamp: new Date().toISOString(), status: 'pending' })` and calls `addWaiterCall(...)`. Show a success snackbar "Waiter has been notified". When no element context (full menu via venueId), keep the current dummy snackbar — no real call is sent.
+
+- [ ] **`staff/dashboard.vue` — waiter call notifications** — Import `WAITER_CALL_LIST`, `acknowledgeWaiterCall`, `getPendingCallsByVenue` from `WaiterCall.js`. Add a "Waiter Calls" section at the top of the dashboard (above the floor map). Computed `pendingCalls`: `getPendingCallsByVenue(session.venueId)` sorted by timestamp descending. Each call shows: table label, environment name, time elapsed (e.g. "2 min ago"), and an "Acknowledge" button that calls `acknowledgeWaiterCall(id)`. Acknowledged calls disappear from the list. Show "No active calls" when empty. The cross-tab storage listener already in `WaiterCall.js` makes this update in real time without any polling.
+
+- [ ] **`admin/qr-codes.vue` — new page** — Route `/admin/qr-codes`. Add to admin nav. Layout:
+  - Page header: "Table QR Codes" + "Print All" button
+  - Environments listed as sections. Each section has a header (environment name) and a grid of table cards.
+  - Each card: venue name (small, top), table label (large), environment name (small), QR code (SVG centered), "Scan to view menu" tagline, Spotly wordmark at bottom.
+  - QR encodes the full URL: `${window.location.origin}/menu/${element.id}`
+  - Checkboxes on each card for selective printing. "Print Selected" button activates when any are checked.
+  - Print CSS (`@media print`): hides everything except the selected (or all) cards, removes checkboxes, breaks pages between cards, forces white background and black text for ink efficiency.
+
+- [ ] **Router** — Register `/admin/qr-codes` route and add it to `useAdminNav.js` nav links.
 
 ---
 

@@ -1,0 +1,351 @@
+<template>
+  <v-main style="background: #0a0e14; min-height: 100vh;">
+    <div style="max-width: 860px; margin: 0 auto; padding: 48px 24px 80px;">
+
+      <!-- Header -->
+      <div style="margin-bottom: 8px;">
+        <div style="font-family: 'Inter', sans-serif; font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase; color: #d4af37; margin-bottom: 10px;">
+          Developer Tool
+        </div>
+        <h1 style="font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; color: #f0ead6; margin: 0 0 8px;">
+          Seed &amp; Reset Dev Tool
+        </h1>
+      </div>
+
+      <!-- Warning -->
+      <v-alert
+        type="warning"
+        variant="tonal"
+        density="compact"
+        class="mb-8"
+        style="font-family: 'Inter', sans-serif; font-size: 0.85rem;"
+      >
+        This page is for development only. All actions modify localStorage directly.
+      </v-alert>
+
+      <!-- Clear All -->
+      <v-card flat class="seed-card mb-6">
+        <v-card-text class="pa-5">
+          <div class="section-title mb-1">Clear All Data</div>
+          <div class="section-desc mb-4">Removes all <code>spotly_*</code> keys from localStorage and reloads the page. Use this to start fresh.</div>
+          <v-btn flat class="danger-btn" @click="clearAll">
+            <v-icon start size="16">mdi-delete-sweep-outline</v-icon>
+            Clear All Data
+          </v-btn>
+        </v-card-text>
+      </v-card>
+
+      <!-- Accounts -->
+      <v-card flat class="seed-card mb-6">
+        <v-card-text class="pa-5">
+          <div class="section-title mb-1">Accounts</div>
+          <div class="section-desc mb-3">Seeds 5 users: 1 admin, 1 staff, 3 clients.</div>
+          <v-table density="compact" class="seed-table mb-4">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="u in accountPreview" :key="u.email">
+                <td>{{ u.email }}</td>
+                <td><code>{{ u.password }}</code></td>
+                <td>{{ u.role }}</td>
+              </tr>
+            </tbody>
+          </v-table>
+          <v-btn flat class="gold-btn" @click="seedAccounts">
+            <v-icon start size="16">mdi-account-plus-outline</v-icon>
+            Seed Accounts
+          </v-btn>
+        </v-card-text>
+      </v-card>
+
+      <!-- Menu Items -->
+      <v-card flat class="seed-card mb-6">
+        <v-card-text class="pa-5">
+          <div class="section-title mb-1">Menu Items</div>
+          <div class="section-desc mb-4">
+            Seeds 9 menu items for the selected venue.
+            <span v-if="!hasVenues" style="color: #c71585;"> No venues found — register an admin account first.</span>
+          </div>
+          <v-select
+            v-model="selectedMenuVenueId"
+            :items="venueOptions"
+            item-title="label"
+            item-value="id"
+            label="Venue"
+            variant="outlined"
+            density="compact"
+            hide-details
+            class="spotly-input mb-4"
+            style="max-width: 340px;"
+            :disabled="!hasVenues"
+          />
+          <v-btn flat class="gold-btn" :disabled="!selectedMenuVenueId" @click="seedMenuItems">
+            <v-icon start size="16">mdi-silverware-fork-knife</v-icon>
+            Seed Menu Items
+          </v-btn>
+        </v-card-text>
+      </v-card>
+
+      <!-- Reservations -->
+      <v-card flat class="seed-card mb-6">
+        <v-card-text class="pa-5">
+          <div class="section-title mb-1">Reservations</div>
+          <div class="section-desc mb-3">
+            Seeds reservations with mixed statuses for the selected venue on the chosen date.
+            <span v-if="!hasVenues" style="color: #c71585;"> No venues found — register an admin account first.</span>
+            <span v-else-if="selectedResVenueId && !selectedResVenueHasEnvs" style="color: #c71585;"> Selected venue has no environments — build the floor plan first.</span>
+          </div>
+          <div class="d-flex flex-wrap ga-3 mb-4">
+            <v-select
+              v-model="selectedResVenueId"
+              :items="venueOptions"
+              item-title="label"
+              item-value="id"
+              label="Venue"
+              variant="outlined"
+              density="compact"
+              hide-details
+              class="spotly-input"
+              style="max-width: 340px;"
+              :disabled="!hasVenues"
+            />
+            <v-text-field
+              v-model="reservationDate"
+              type="date"
+              label="Date"
+              variant="outlined"
+              density="compact"
+              hide-details
+              class="spotly-input"
+              style="max-width: 200px;"
+            />
+          </div>
+          <v-btn flat class="gold-btn" :disabled="!selectedResVenueId || !selectedResVenueHasEnvs" @click="seedReservations">
+            <v-icon start size="16">mdi-calendar-plus-outline</v-icon>
+            Seed Reservations
+          </v-btn>
+        </v-card-text>
+      </v-card>
+
+      <!-- Seed Everything -->
+      <v-card flat class="seed-card" style="border-color: rgba(212,175,55,0.4);">
+        <v-card-text class="pa-5">
+          <div class="section-title mb-1" style="color: #d4af37;">Seed Everything</div>
+          <div class="section-desc mb-4">
+            Seeds accounts, then menu items and reservations for the first venue in localStorage (if one exists).
+          </div>
+          <v-btn flat class="gold-btn" size="large" @click="seedAll">
+            <v-icon start size="18">mdi-database-plus-outline</v-icon>
+            Seed All
+          </v-btn>
+        </v-card-text>
+      </v-card>
+
+    </div>
+  </v-main>
+
+  <!-- Snackbar -->
+  <SpotlySnackbar :snackbar="snackbar" />
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import SpotlySnackbar from '@/components/feedback/SpotlySnackbar.vue';
+import { useSnackbar } from '@/composables/useSnackbar';
+import { User, USER_LIST, addUser } from '@/datamodel/User.js';
+import { VENUE_LIST } from '@/datamodel/Venue.js';
+import { Environment, ENVIRONMENT_LIST, addEnvironment } from '@/datamodel/Environment.js';
+import { MenuItem, MENU_ITEM_LIST, addMenuItem } from '@/datamodel/MenuItem.js';
+import { Reservation, RESERVATION_LIST, addReservation } from '@/datamodel/Reservation.js';
+
+const { snackbar, notifySuccess, notifyError } = useSnackbar();
+
+const today = new Date().toISOString().split('T')[0];
+const reservationDate = ref(today);
+
+// ── Venue selectors ────────────────────────────────────────────────────────────
+const venueOptions = computed(() =>
+  VENUE_LIST.map(v => ({ id: v.id, label: v.name ? `${v.name} (${v.adminEmail || 'no owner'})` : `Venue ${v.id} (${v.adminEmail || 'no owner'})` }))
+);
+const hasVenues = computed(() => VENUE_LIST.length > 0);
+
+const selectedMenuVenueId = ref(null);
+const selectedResVenueId = ref(null);
+
+const selectedResVenueHasEnvs = computed(() =>
+  selectedResVenueId.value != null &&
+  ENVIRONMENT_LIST.some(e => e.venueId === selectedResVenueId.value)
+);
+
+// ── Preview data ───────────────────────────────────────────────────────────────
+const accountPreview = [
+  { email: 'admin@spotly.com', password: 'admin123', role: 'admin' },
+  { email: 'staff@spotly.com', password: 'staff123', role: 'staff' },
+  { email: 'client@spotly.com', password: 'client123', role: 'client' },
+  { email: 'jane.smith@example.com', password: 'password456', role: 'client' },
+  { email: 'alice.johnson@example.com', password: 'password789', role: 'client' },
+];
+
+// ── Clear All ──────────────────────────────────────────────────────────────────
+function clearAll() {
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('spotly_'));
+  keys.forEach(k => localStorage.removeItem(k));
+  window.location.reload();
+}
+
+// ── Seed Accounts ─────────────────────────────────────────────────────────────
+function seedAccounts() {
+  const seedUsers = [
+    new User({ first_name: 'Admin', last_name: 'User', email: 'admin@spotly.com', password: 'admin123', role: 'admin' }),
+    new User({ first_name: 'Staff', last_name: 'User', email: 'staff@spotly.com', password: 'staff123', role: 'staff' }),
+    new User({ first_name: 'John', last_name: 'Doe', email: 'client@spotly.com', password: 'client123', role: 'client' }),
+    new User({ first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', password: 'password456', role: 'client' }),
+    new User({ first_name: 'Alice', last_name: 'Johnson', email: 'alice.johnson@example.com', password: 'password789', role: 'client' }),
+  ];
+  let added = 0;
+  for (const u of seedUsers) {
+    if (!USER_LIST.some(existing => existing.email === u.email)) {
+      addUser(u);
+      added++;
+    }
+  }
+  notifySuccess(`Accounts seeded (${added} new, ${seedUsers.length - added} already existed)`);
+}
+
+// ── Seed Menu Items ────────────────────────────────────────────────────────────
+function seedMenuItems(venueId = selectedMenuVenueId.value) {
+  if (!venueId) return;
+  const base = Date.now();
+  const items = [
+    new MenuItem({ id: base + 1, venueId, category: 'starters', name: 'Truffle Fries', price: 18.0, tags: ['Vegetarian'], allergens: [] }),
+    new MenuItem({ id: base + 2, venueId, category: 'starters', name: 'Caesar Salad', price: 15.0, tags: [], allergens: ['Dairy', 'Eggs'] }),
+    new MenuItem({ id: base + 3, venueId, category: 'mains', name: 'Grilled Salmon', price: 35.0, tags: ['Chef Special'], allergens: ['Fish'] }),
+    new MenuItem({ id: base + 4, venueId, category: 'mains', name: 'Beef Wellington', price: 42.0, tags: ['Popular'], allergens: ['Gluten'] }),
+    new MenuItem({ id: base + 5, venueId, category: 'drinks', name: 'Signature Spritz', price: 16.0, tags: ['Signature'], allergens: [] }),
+    new MenuItem({ id: base + 6, venueId, category: 'drinks', name: 'Gold Rush', price: 18.0, tags: ['Popular'], allergens: [] }),
+    new MenuItem({ id: base + 7, venueId, category: 'drinks', name: 'Virgin Sunrise', price: 12.0, tags: ['Non-Alcoholic'], allergens: [] }),
+    new MenuItem({ id: base + 8, venueId, category: 'desserts', name: 'Crème Brûlée', price: 14.0, tags: ['Classic'], allergens: ['Dairy', 'Eggs'] }),
+    new MenuItem({ id: base + 9, venueId, category: 'desserts', name: 'Chocolate Fondant', price: 16.0, tags: ["Chef's Pick"], allergens: ['Dairy', 'Gluten'] }),
+  ];
+  items.forEach(item => addMenuItem(item));
+  notifySuccess(`9 menu items seeded for venue ${venueId}`);
+}
+
+// ── Seed Reservations ──────────────────────────────────────────────────────────
+function seedReservations(venueId = selectedResVenueId.value) {
+  if (!venueId) return;
+  const envs = ENVIRONMENT_LIST.filter(e => e.venueId === venueId);
+  if (!envs.length) { notifyError('No environments found for this venue'); return; }
+
+  const date = reservationDate.value || today;
+  const tomorrow = new Date(new Date(date + 'T12:00:00').getTime() + 86400000).toISOString().split('T')[0];
+
+  // Pick elements from available environments (tables only)
+  const pickEl = (envIndex, elIndex) => {
+    const env = envs[envIndex % envs.length];
+    const tables = env.elements.filter(el => el.capacity > 0);
+    return tables.length ? { envId: env.id, elId: tables[elIndex % tables.length].id } : null;
+  };
+
+  const slots = [0,1,2,3,4,5,6,7,8,9].map(i => pickEl(i % envs.length, i)).filter(Boolean);
+  if (!slots.length) { notifyError('No table elements found in environments'); return; }
+
+  const names = ['Sarah Smith', 'Marcus Lee', 'Layla Hassan', 'Alex Morgan', 'James Wilson', 'Emma Davis', 'Noah Clark', 'Olivia Brown', 'Liam Jones', 'Sophia White'];
+  const times = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'];
+  const statuses = ['REQUESTED', 'APPROVED', 'REQUESTED', 'CHECKED_IN', 'REQUESTED', 'APPROVED', 'REJECTED', 'REQUESTED', 'APPROVED', 'COMPLETED'];
+  const dates = [date, date, date, date, date, tomorrow, tomorrow, '2026-01-10', '2026-02-14', '2026-03-01'];
+
+  const baseId = RESERVATION_LIST.length > 0 ? Math.max(...RESERVATION_LIST.map(r => r.id)) + 1 : 1;
+
+  let added = 0;
+  slots.forEach((slot, i) => {
+    addReservation(new Reservation({
+      id: baseId + i,
+      venueId,
+      environmentId: slot.envId,
+      elementId: slot.elId,
+      userId: i >= 7 ? 'client@spotly.com' : '',
+      name: names[i],
+      email: i >= 7 ? 'client@spotly.com' : '',
+      date: dates[i],
+      time: times[i % times.length],
+      guests: [2, 3, 4, 6, 4, 2, 5, 3, 4, 2][i],
+      notes: ['', 'Anniversary', 'Corporate event', 'Birthday dinner', 'Window seat', '', '', '', 'Valentine dinner', ''][i],
+      status: statuses[i],
+    }));
+    added++;
+  });
+  notifySuccess(`${added} reservations seeded for venue ${venueId} on ${date}`);
+}
+
+// ── Seed All ───────────────────────────────────────────────────────────────────
+function seedAll() {
+  seedAccounts();
+  const firstVenue = VENUE_LIST[0];
+  if (firstVenue) {
+    selectedMenuVenueId.value = firstVenue.id;
+    selectedResVenueId.value = firstVenue.id;
+    seedMenuItems(firstVenue.id);
+    reservationDate.value = today;
+    seedReservations(firstVenue.id);
+  } else {
+    notifySuccess('Accounts seeded. No venues found — register an admin to create one.');
+    return;
+  }
+  notifySuccess('All data seeded successfully!');
+}
+</script>
+
+<style scoped>
+.seed-card {
+  background: #13181f !important;
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 12px;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f0ead6;
+}
+
+.section-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.87rem;
+  color: #8a8fa8;
+  line-height: 1.6;
+}
+
+.seed-table {
+  background: transparent !important;
+}
+
+:deep(.seed-table th) {
+  color: #8a8fa8 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.72rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  background: transparent !important;
+}
+
+:deep(.seed-table td) {
+  color: #b8bcc8 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.85rem !important;
+}
+
+code {
+  background: rgba(212, 175, 55, 0.1);
+  color: #d4af37;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+</style>

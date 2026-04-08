@@ -564,12 +564,15 @@ import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useAdminNav } from "@/composables/useAdminNav";
-import { VENUE_LIST, updateVenue } from "@/datamodel/Venue.js";
+import { useAuth } from "@/composables/useAuth";
+import { updateVenue, getVenueByAdminEmail } from "@/datamodel/Venue.js";
 import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
 import { uploadImage } from "@/utils/uploadImage.js";
 
 const router = useRouter();
 const { snackbar, notifySuccess, notifyError } = useSnackbar();
+const { getSession } = useAuth();
+const session = getSession();
 
 // ─── Image Upload ──────────────────────────────────────────────────────────────
 const fileInputs = ref([]);
@@ -644,7 +647,7 @@ const availableLangs = [
 
 // ─── Defaults (pre-populated from datamodel) ──────────────────────────────────
 const defaultForm = () => {
-  const v = VENUE_LIST[0] ?? null;
+  const v = session?.email ? getVenueByAdminEmail(session.email) : null;
   if (!v) return { name: '', tagline: '', description: '', location: '', venueType: '', tags: [], dressCode: '', languages: [], environments: [], slides: [] };
   return {
     name: v.name ?? "Sunset Beach Club",
@@ -752,7 +755,8 @@ const previewSlide = ref(0);
 const saving = ref(false);
 
 const saveChanges = () => {
-  if (!VENUE_LIST[0]) return;
+  const v = session?.email ? getVenueByAdminEmail(session.email) : null;
+  if (!v) return;
   const invalidSlide = form.slides.findIndex(s => !s.imageUrl || !s.title.trim() || !s.sub.trim());
   if (invalidSlide !== -1) {
     previewSlide.value = invalidSlide;
@@ -760,7 +764,7 @@ const saveChanges = () => {
     return;
   }
   saving.value = true;
-  updateVenue(VENUE_LIST[0].id, {
+  updateVenue(v.id, {
     name: form.name,
     description: form.description,
     ambienceTags: [...form.tags],

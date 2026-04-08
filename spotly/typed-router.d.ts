@@ -36,6 +36,7 @@ declare module 'vue-router/auto-routes' {
     '/menu/[tableId]': RouteRecordInfo<'/menu/[tableId]', '/menu/:tableId', { tableId: ParamValue<true> }, { tableId: ParamValue<false> }>,
     '/modals/delete-constraint': RouteRecordInfo<'/modals/delete-constraint', '/modals/delete-constraint', Record<never, never>, Record<never, never>>,
     '/modals/guest-check-in': RouteRecordInfo<'/modals/guest-check-in', '/modals/guest-check-in', Record<never, never>, Record<never, never>>,
+    '/seed': RouteRecordInfo<'/seed', '/seed', Record<never, never>, Record<never, never>>,
     '/staff/dashboard': RouteRecordInfo<'/staff/dashboard', '/staff/dashboard', Record<never, never>, Record<never, never>>,
     '/test': RouteRecordInfo<'/test', '/test', Record<never, never>, Record<never, never>>,
     '/venue/[id]': RouteRecordInfo<'/venue/[id]', '/venue/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
@@ -122,6 +123,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/modals/guest-check-in.vue': {
       routes: '/modals/guest-check-in'
+      views: never
+    }
+    'src/pages/seed.vue': {
+      routes: '/seed'
       views: never
     }
     'src/pages/staff/dashboard.vue': {

@@ -249,6 +249,18 @@ const session = getSession();
 const sessionName = session?.name || "Admin";
 const sessionFirstName = session?.name?.split(" ")[0] || "Admin";
 
+// ─── Venue-scoped data ────────────────────────────────────────────────────────
+const venueReservations = computed(() =>
+  session?.venueId != null
+    ? RESERVATION_LIST.filter(r => r.venueId === session.venueId)
+    : []
+);
+const venueEnvironments = computed(() =>
+  session?.venueId != null
+    ? ENVIRONMENT_LIST.filter(e => e.venueId === session.venueId)
+    : []
+);
+
 // ─── Date ─────────────────────────────────────────────────────────────────────
 const todayLabel = computed(() => {
   return new Date().toLocaleDateString("en-US", {
@@ -270,10 +282,10 @@ const today = new Date().toISOString().split("T")[0];
 
 // ─── KPIs from live data ───────────────────────────────────────────────────────
 const kpis = computed(() => {
-  const total = RESERVATION_LIST.length;
-  const pending = RESERVATION_LIST.filter((r) => r.status === "REQUESTED").length;
-  const approved = RESERVATION_LIST.filter((r) => r.status === "APPROVED").length;
-  const totalTables = ENVIRONMENT_LIST.reduce(
+  const total = venueReservations.value.length;
+  const pending = venueReservations.value.filter((r) => r.status === "REQUESTED").length;
+  const approved = venueReservations.value.filter((r) => r.status === "APPROVED").length;
+  const totalTables = venueEnvironments.value.reduce(
     (s, e) => s + e.elements.filter((el) => el.capacity > 0).length,
     0,
   );
@@ -287,7 +299,7 @@ const kpis = computed(() => {
 
 // ─── Status Breakdown ─────────────────────────────────────────────────────────
 const statusBreakdown = computed(() => {
-  const total = RESERVATION_LIST.length || 1;
+  const total = venueReservations.value.length || 1;
   const map = [
     { label: "Pending", status: "REQUESTED", color: "#C71585" },
     { label: "Approved", status: "APPROVED", color: "#2EBB57" },
@@ -295,7 +307,7 @@ const statusBreakdown = computed(() => {
     { label: "Cancelled", status: "CANCELLED", color: "#444444" },
   ];
   return map.map((m) => {
-    const count = RESERVATION_LIST.filter((r) => r.status === m.status).length;
+    const count = venueReservations.value.filter((r) => r.status === m.status).length;
     return { label: m.label, color: m.color, count, pct: Math.round((count / total) * 100) };
   });
 });
@@ -327,11 +339,11 @@ const quickActions = [
 
 // ─── Environments from datamodel ──────────────────────────────────────────────
 const environments = computed(() =>
-  ENVIRONMENT_LIST.map((env) => {
+  venueEnvironments.value.map((env) => {
     const seatElements = env.elements.filter((el) => el.capacity > 0);
     const tableCount = seatElements.length;
     const capacity = seatElements.reduce((s, el) => s + el.capacity, 0);
-    const activeToday = RESERVATION_LIST.filter(
+    const activeToday = venueReservations.value.filter(
       (r) =>
         r.environmentId === env.id &&
         r.date === today &&
@@ -350,11 +362,11 @@ const occupancyColor = (pct) => {
 
 // ─── Recent (last 5) ─────────────────────────────────────────────────────────
 const recentReservations = computed(() => {
-  return [...RESERVATION_LIST]
+  return [...venueReservations.value]
     .sort((a, b) => b.id - a.id)
     .slice(0, 5)
     .map((r) => {
-      const env = ENVIRONMENT_LIST.find((e) => e.id === r.environmentId);
+      const env = venueEnvironments.value.find((e) => e.id === r.environmentId);
       const el = env?.elements.find((el) => el.id === r.elementId);
       return {
         id: r.id,

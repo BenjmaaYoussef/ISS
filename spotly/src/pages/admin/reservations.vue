@@ -150,7 +150,7 @@
       <div class="footer-note mt-6 d-flex align-center justify-space-between">
         <span
           >Showing {{ filteredReservations.length }} of
-          {{ RESERVATION_LIST.length }} reservations</span
+          {{ venueReservations.length }} reservations</span
         >
         <div class="legend d-flex align-center ga-4">
           <div class="legend-item">
@@ -197,6 +197,7 @@ import StatCard from "@/components/ui/StatCard.vue";
 import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
 import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
+import { useAuth } from "@/composables/useAuth";
 import { RESERVATION_LIST, updateReservationStatus } from "@/datamodel/Reservation";
 import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog";
 
@@ -205,6 +206,15 @@ const { snackbar, notifySuccess, notifyError } = useSnackbar();
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 const { adminNavLinks, handleNav } = useAdminNav();
+const { getSession } = useAuth();
+const session = getSession();
+
+// ─── Venue-scoped reservations ────────────────────────────────────────────────
+const venueReservations = computed(() =>
+  session?.venueId != null
+    ? RESERVATION_LIST.filter(r => r.venueId === session.venueId)
+    : []
+);
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const statusFilter = ref("All");
@@ -239,16 +249,16 @@ const doReject = () => {
 };
 
 const stats = computed(() => [
-  { label: "Total", value: RESERVATION_LIST.length, color: "#D4AF37" },
-  { label: "Pending", value: RESERVATION_LIST.filter((r) => r.status === "REQUESTED").length, color: "#C71585" },
-  { label: "Approved", value: RESERVATION_LIST.filter((r) => r.status === "APPROVED").length, color: "#2EBB57" },
-  { label: "Rejected", value: RESERVATION_LIST.filter((r) => r.status === "REJECTED").length, color: "#888" },
+  { label: "Total", value: venueReservations.value.length, color: "#D4AF37" },
+  { label: "Pending", value: venueReservations.value.filter((r) => r.status === "REQUESTED").length, color: "#C71585" },
+  { label: "Approved", value: venueReservations.value.filter((r) => r.status === "APPROVED").length, color: "#2EBB57" },
+  { label: "Rejected", value: venueReservations.value.filter((r) => r.status === "REJECTED").length, color: "#888" },
 ]);
 
 const filteredReservations = computed(() => {
-  if (statusFilter.value === "All") return RESERVATION_LIST;
+  if (statusFilter.value === "All") return venueReservations.value;
   const canonical = displayToStatus[statusFilter.value];
-  return RESERVATION_LIST.filter((r) => r.status === canonical);
+  return venueReservations.value.filter((r) => r.status === canonical);
 });
 
 // ─── Snackbar ─────────────────────────────────────────────────────────────────

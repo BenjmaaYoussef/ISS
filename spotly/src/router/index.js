@@ -33,7 +33,7 @@ router.isReady().then(() => {
 })
 
 // ── Public routes (no auth required) ──────────────────────────────────────────
-const PUBLIC_ROUTES = ['/', '/landing', '/auth', '/home']
+const PUBLIC_ROUTES = ['/', '/landing', '/auth', '/home', '/seed']
 
 function isPublic(path) {
   if (PUBLIC_ROUTES.includes(path)) return true

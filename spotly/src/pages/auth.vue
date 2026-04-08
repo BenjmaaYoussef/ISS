@@ -315,6 +315,7 @@ import { useRouter, useRoute } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import { getUserByEmailAndPassword, addUser, userExists } from "@/datamodel/User.js";
 import { User } from "@/datamodel/User.js";
+import { Venue, addVenue, getVenueByAdminEmail } from "@/datamodel/Venue.js";
 
 const router = useRouter();
 const route = useRoute();
@@ -345,7 +346,14 @@ const rules = {
   email: (v) => /.+@.+\..+/.test(v) || "Enter a valid email.",
 };
 
-function writeSessionAndRedirect(user) {
+function writeSessionAndRedirect(user, venueIdOverride) {
+  let venueId = venueIdOverride ?? null;
+  if (venueId === undefined || venueId === null) {
+    if (user.role === "admin") {
+      const venue = getVenueByAdminEmail(user.email);
+      venueId = venue?.id ?? null;
+    }
+  }
   localStorage.setItem(
     "spotly_session",
     JSON.stringify({
@@ -353,6 +361,7 @@ function writeSessionAndRedirect(user) {
       name: user.first_name + " " + user.last_name,
       email: user.email,
       role: user.role,
+      venueId: user.role === "admin" ? venueId : null,
     })
   );
   if (user.role === "admin") router.push("/admin/dashboard");
@@ -399,7 +408,18 @@ async function register() {
       role: regRole.value,
     });
     addUser(newUser);
-    writeSessionAndRedirect(newUser);
+    let venueIdForSession = null;
+    if (regRole.value === "admin") {
+      const newVenue = new Venue({
+        id: Date.now(),
+        name: "",
+        description: "",
+        adminEmail: newUser.email,
+      });
+      addVenue(newVenue);
+      venueIdForSession = newVenue.id;
+    }
+    writeSessionAndRedirect(newUser, venueIdForSession);
   } finally {
     loading.value = false;
   }

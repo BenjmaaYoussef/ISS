@@ -15,20 +15,9 @@ export class MenuItem {
 }
 
 const STORAGE_KEY = 'spotly_menu_items'
-const _seed = [
-  new MenuItem({ id: 1, venueId: 1, category: 'starters', name: 'Truffle Fries', price: 18.0, tags: ['Vegetarian'], allergens: [] }),
-  new MenuItem({ id: 2, venueId: 1, category: 'starters', name: 'Caesar Salad', price: 15.0, tags: [], allergens: ['Dairy', 'Eggs'] }),
-  new MenuItem({ id: 3, venueId: 1, category: 'mains', name: 'Grilled Salmon', price: 35.0, tags: ['Chef Special'], allergens: ['Fish'] }),
-  new MenuItem({ id: 4, venueId: 1, category: 'mains', name: 'Beef Wellington', price: 42.0, tags: ['Popular'], allergens: ['Gluten'] }),
-  new MenuItem({ id: 5, venueId: 1, category: 'drinks', name: 'Signature Spritz', price: 16.0, tags: ['Signature'], allergens: [] }),
-  new MenuItem({ id: 6, venueId: 1, category: 'drinks', name: 'Gold Rush', price: 18.0, tags: ['Popular'], allergens: [] }),
-  new MenuItem({ id: 7, venueId: 1, category: 'drinks', name: 'Virgin Sunrise', price: 12.0, tags: ['Non-Alcoholic'], allergens: [] }),
-  new MenuItem({ id: 8, venueId: 1, category: 'desserts', name: 'Crème Brûlée', price: 14.0, tags: ['Classic'], allergens: ['Dairy', 'Eggs'] }),
-  new MenuItem({ id: 9, venueId: 1, category: 'desserts', name: 'Chocolate Fondant', price: 16.0, tags: ["Chef's Pick"], allergens: ['Dairy', 'Gluten'] }),
-]
 const _saved = localStorage.getItem(STORAGE_KEY)
-let _initial = _seed
-try { if (_saved) _initial = JSON.parse(_saved).map(m => new MenuItem(m)) } catch { _initial = _seed }
+let _initial = []
+try { if (_saved) _initial = JSON.parse(_saved).map(m => new MenuItem(m)) } catch { _initial = [] }
 export const MENU_ITEM_LIST = reactive(_initial)
 
 watch(MENU_ITEM_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })

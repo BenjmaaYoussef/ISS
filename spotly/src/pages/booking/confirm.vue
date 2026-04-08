@@ -436,7 +436,7 @@ const requestReservation = () => {
     addReservation(
       new Reservation({
         id: resId,
-        venueId: 1,
+        venueId: (() => { try { return JSON.parse(sessionStorage.getItem('spotly_booking') || '{}').venueId ?? null } catch { return null } })(),
         environmentId: item.envId,
         elementId: item.id,
         userId: (() => { try { return JSON.parse(localStorage.getItem('spotly_session') || '{}').userId || '' } catch { return '' } })(),

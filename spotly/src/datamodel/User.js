@@ -11,23 +11,10 @@ export class User {
 }
 
 const STORAGE_KEY = 'spotly_users'
-const _seed = [
-  new User({ first_name: 'Admin', last_name: 'User', email: 'admin@spotly.com', password: 'admin123', role: 'admin' }),
-  new User({ first_name: 'Staff', last_name: 'User', email: 'staff@spotly.com', password: 'staff123', role: 'staff' }),
-  new User({ first_name: 'John', last_name: 'Doe', email: 'client@spotly.com', password: 'client123', role: 'client' }),
-  new User({ first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', password: 'password456', role: 'client' }),
-  new User({ first_name: 'Alice', last_name: 'Johnson', email: 'alice.johnson@example.com', password: 'password789', role: 'client' }),
-]
 const _saved = localStorage.getItem(STORAGE_KEY)
-// Migrate existing saved users: ensure all have a role field
-let _parsed = _seed
-try { if (_saved) _parsed = JSON.parse(_saved).map(u => new User({ role: 'client', ...u })) } catch { _parsed = _seed }
-// Ensure seed admin/staff accounts always exist (add if missing)
-const _emails = _parsed.map(u => u.email)
-for (const seedUser of _seed.slice(0, 2)) {
-  if (!_emails.includes(seedUser.email)) _parsed.push(seedUser)
-}
-export const USER_LIST = reactive(_parsed)
+let _initial = []
+try { if (_saved) _initial = JSON.parse(_saved).map(u => new User({ role: 'client', ...u })) } catch { _initial = [] }
+export const USER_LIST = reactive(_initial)
 
 watch(USER_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {

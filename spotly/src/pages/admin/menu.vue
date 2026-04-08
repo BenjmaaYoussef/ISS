@@ -401,12 +401,15 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
+import { useAuth } from "@/composables/useAuth";
 import { MENU_ITEM_LIST, MenuItem, addMenuItem, updateMenuItem, deleteMenuItem } from "@/datamodel/MenuItem";
 
 const router = useRouter();
 
 // ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
 const { adminNavLinks, handleNav } = useAdminNav();
+const { getSession } = useAuth();
+const session = getSession();
 
 const currentTab = ref("menu");
 const selectedCategory = ref("starters");
@@ -470,8 +473,8 @@ const headers = [
   { title: "Actions", key: "actions", sortable: false, align: "end" },
 ];
 
-// Live list from datamodel — filters by venueId 1 (single venue for now)
-const VENUE_ID = 1;
+// Live list from datamodel — filtered by the admin's own venue
+const VENUE_ID = session?.venueId ?? null;
 
 const formData = ref({
   name: "",
@@ -483,11 +486,12 @@ const formData = ref({
   available: true,
 });
 
-const filteredItems = computed(() =>
-  MENU_ITEM_LIST.filter(
+const filteredItems = computed(() => {
+  if (VENUE_ID === null) return [];
+  return MENU_ITEM_LIST.filter(
     (item) => item.venueId === VENUE_ID && item.category === selectedCategory.value,
-  ),
-);
+  );
+});
 
 const openAddDialog = () => {
   isEditing.value = false;

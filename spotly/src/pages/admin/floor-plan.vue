@@ -638,7 +638,7 @@
             </button>
           </template>
 
-          <template v-else>
+          <template v-else-if="currentEnv">
             <div class="env-settings-head">Environment</div>
 
             <div class="prop-group">
@@ -673,6 +673,13 @@
               <v-icon size="14" class="mr-1">mdi-trash-can-outline</v-icon
               >Delete Environment
             </button>
+          </template>
+
+          <template v-else>
+            <div class="props-idle" style="padding-top: 32px">
+              <v-icon size="36" style="color: rgba(212, 175, 55, 0.18); margin-bottom: 10px">mdi-floor-plan</v-icon>
+              <p>No environments yet.<br>Add one using the + button above.</p>
+            </div>
           </template>
         </div>
       </transition>
@@ -792,12 +799,15 @@ import { ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import AppNavbarApp from "@/components/layout/AppNavbarApp.vue";
 import { useAdminNav } from "@/composables/useAdminNav";
+import { useAuth } from "@/composables/useAuth";
 import { ENVIRONMENT_LIST, Environment } from "@/datamodel/Environment.js";
 import { RESERVATION_LIST } from "@/datamodel/Reservation.js";
 const router = useRouter();
 
 // ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
 const { adminNavLinks, handleNav } = useAdminNav();
+const { getSession } = useAuth();
+const session = getSession();
 
 // ── Element catalog ──────────────────────────────────────────────────────────
 const elementDefs = {
@@ -881,8 +891,10 @@ const paletteCategories = [
   },
 ];
 
-// ── Data model — initialized from ENVIRONMENT_LIST (local working copy) ───────
-const environments = ref(JSON.parse(JSON.stringify(ENVIRONMENT_LIST)));
+// ── Data model — initialized from ENVIRONMENT_LIST (local working copy, this venue only) ──────
+const environments = ref(
+  JSON.parse(JSON.stringify(ENVIRONMENT_LIST.filter(e => e.venueId === session?.venueId)))
+);
 
 // ── Environment state ─────────────────────────────────────────────────────────
 const currentEnvId = ref(environments.value[0]?.id ?? '');
@@ -960,6 +972,7 @@ const onCanvasClick = (e) => {
     rotation: 0,
     status: "available",
   };
+  if (!currentEnv.value) return;
   currentEnv.value.elements.push(newEl);
   selectedId.value = newEl.id;
   pushHistory();
@@ -1106,6 +1119,7 @@ const deleteSelected = () => {
     return;
   }
 
+  if (!currentEnv.value) return;
   const idx = currentEnv.value.elements.findIndex(
     (el) => el.id === selectedId.value,
   );
@@ -1196,6 +1210,7 @@ const confirmAddEnv = () => {
   const id = "env_" + Date.now();
   environments.value.push({
     id,
+    venueId: session?.venueId ?? null,
     name,
     icon: "mdi-map-outline",
     canvas: { width: 1000, height: 660 },
@@ -1218,10 +1233,12 @@ const confirmDeleteEnv = () => {
 const showSaveDialog = ref(false);
 const jsonPreview = ref("");
 const saveLayout = () => {
-  // Persist local working copy back to ENVIRONMENT_LIST (triggers localStorage watch)
+  // Persist local working copy back to ENVIRONMENT_LIST — preserve other venues' environments
+  const others = ENVIRONMENT_LIST.filter(e => e.venueId !== session?.venueId);
   ENVIRONMENT_LIST.splice(
     0,
     ENVIRONMENT_LIST.length,
+    ...others,
     ...environments.value.map((e) => new Environment(e)),
   );
   jsonPreview.value =

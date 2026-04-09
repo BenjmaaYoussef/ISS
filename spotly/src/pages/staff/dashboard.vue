@@ -13,6 +13,19 @@
   <v-main class="spotly-main">
     <div class="staff-wrap pa-3 pa-sm-4 pa-md-5">
 
+      <!-- ── Walk-in next-reservation alert ── -->
+      <div v-if="walkInNotif" class="walkin-notif mb-3">
+        <div class="wn-inner d-flex align-center ga-2">
+          <v-icon size="16" color="#D4AF37">mdi-clock-alert-outline</v-icon>
+          <span class="wn-text">
+            <strong>{{ walkInNotif.tableLabel }}</strong> — next reservation
+            <strong>{{ walkInNotif.nextReservation.name }}</strong>
+            at <strong>{{ walkInNotif.nextReservation.time }}</strong>
+            ({{ walkInNotif.minutesUntilNext }} min away)
+          </span>
+        </div>
+      </div>
+
       <!-- ── Waiter Calls ── -->
       <div v-if="pendingCalls.length || showEmptyCallsState" class="waiter-calls-section mb-4">
         <div class="wc-header d-flex align-center ga-2 mb-2">
@@ -87,6 +100,12 @@
           </button>
           <div v-if="venueEnvs.length === 0" style="color: rgba(255,255,255,0.3); font-size: 0.78rem;">No environments assigned</div>
         </div>
+
+        <!-- Walk-in button -->
+        <button class="walkin-btn" @click="openWalkInDialog">
+          <v-icon size="15" class="mr-1">mdi-walk</v-icon>
+          Walk-in
+        </button>
 
         <div class="flex-grow-1" />
 
@@ -216,12 +235,21 @@
     @mark-no-show="handleMarkNoShow"
   />
 
+  <!-- ── Walk-in Dialog ── -->
+  <WalkInDialog
+    v-model="walkInDialog"
+    :free-tables="freeTablesForWalkIn"
+    :venue-id="venueId"
+    @confirm="handleWalkIn"
+  />
+
   <!-- ── Snackbar ── -->
   <SpotlySnackbar :snackbar="snackbar" />
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { Reservation, addReservation } from '@/datamodel/Reservation.js'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { useAuth } from '@/composables/useAuth'
 import { useFloorTables } from '@/composables/useFloorTables'
@@ -453,6 +481,96 @@ const handleMarkNoShow = (payload) => {
   notify(`${payload.tableId} marked no-show`, '#C71585', 'mdi-account-off')
 }
 
+// ── Walk-in ───────────────────────────────────────────────────────────────────
+const currentTimeString = () => new Date().toTimeString().slice(0, 5)
+
+const walkInDialog = ref(false)
+const freeTablesForWalkIn = ref([])
+
+const WALKIN_NOTIF_KEY = `spotly_walkin_notif_${session?.email}`
+const _savedNotif = localStorage.getItem(WALKIN_NOTIF_KEY)
+const walkInNotif = ref(_savedNotif ? JSON.parse(_savedNotif) : null)
+
+watch(walkInNotif, val => {
+  if (val) localStorage.setItem(WALKIN_NOTIF_KEY, JSON.stringify(val))
+  else localStorage.removeItem(WALKIN_NOTIF_KEY)
+})
+
+// Auto-dismiss when the walk-in reservation is checked out / completed
+watch(RESERVATION_LIST, () => {
+  if (!walkInNotif.value?.reservationId) return
+  const res = RESERVATION_LIST.find(r => r.id === walkInNotif.value.reservationId)
+  if (!res || !['CHECKED_IN', 'REQUESTED', 'APPROVED'].includes(res.status)) {
+    walkInNotif.value = null
+  }
+}, { deep: true })
+
+function openWalkInDialog() {
+  const today = new Date().toISOString().split('T')[0]
+  const now = currentTimeString()
+
+  const allVenueEnvs = venueId.value != null
+    ? ENVIRONMENT_LIST.filter(e => e.venueId === venueId.value)
+    : []
+
+  const free = []
+  for (const env of allVenueEnvs) {
+    for (const el of (env.elements || []).filter(el => el.capacity > 0)) {
+      const isOccupied = RESERVATION_LIST.some(r =>
+        r.environmentId === env.id &&
+        r.elementId === el.id &&
+        r.date === today &&
+        r.status === 'CHECKED_IN',
+      )
+      if (!isOccupied) {
+        free.push({
+          label: el.label,
+          envId: env.id,
+          envName: env.name,
+          elementId: el.id,
+          seats: el.capacity,
+        })
+      }
+    }
+  }
+
+  freeTablesForWalkIn.value = free
+  walkInDialog.value = true
+}
+
+function handleWalkIn({ table, partySize, notes, user, conflict }) {
+  const today = new Date().toISOString().split('T')[0]
+  const guestName = user
+    ? `${user.first_name} ${user.last_name}`
+    : `Walk-in (${partySize} pax)`
+  const reservationId = Date.now()
+  addReservation(new Reservation({
+    id: reservationId,
+    venueId: venueId.value,
+    environmentId: table.envId,
+    elementId: table.elementId,
+    userId: user?.email ?? '',
+    name: guestName,
+    email: user?.email ?? '',
+    phone: '',
+    date: today,
+    time: currentTimeString(),
+    guests: partySize,
+    notes: notes || '',
+    status: 'CHECKED_IN',
+  }))
+  notify(`Walk-in seated at ${table.label}`, '#D4AF37', 'mdi-walk')
+
+  if (conflict?.nextReservation) {
+    walkInNotif.value = {
+      reservationId,
+      tableLabel: table.label,
+      nextReservation: conflict.nextReservation,
+      minutesUntilNext: conflict.minutesUntilNext,
+    }
+  }
+}
+
 // ── Check-out ─────────────────────────────────────────────────────────────────
 const checkOut = (t) => {
   const res = t.reservationId ? getReservationById(t.reservationId) : null
@@ -474,6 +592,27 @@ const checkOut = (t) => {
 </script>
 
 <style scoped>
+/* ── Walk-in next-reservation alert ──────────────────────────────────── */
+.walkin-notif {
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  animation: wcSlideIn 0.2s ease;
+}
+.wn-inner {
+  flex-wrap: wrap;
+}
+.wn-text {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
+  flex: 1;
+  line-height: 1.4;
+}
+.wn-text strong {
+  color: #D4AF37;
+}
+
 /* ── Waiter Calls ─────────────────────────────────────────────────────── */
 .waiter-calls-section {
   background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, rgba(212,175,55,0.02) 100%);
@@ -677,6 +816,24 @@ const checkOut = (t) => {
   background: rgba(212, 175, 55, 0.1);
   border-color: rgba(212, 175, 55, 0.4);
   color: #d4af37;
+}
+
+.walkin-btn {
+  display: flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #0a0e14;
+  background: rgba(212, 175, 55, 0.85);
+  transition: background 0.18s;
+  white-space: nowrap;
+}
+.walkin-btn:hover {
+  background: #D4AF37;
 }
 
 .panel-toggle-btn {

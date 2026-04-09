@@ -24,12 +24,21 @@ export function useFloorTables(environmentId, date) {
     return env.elements
       .filter(el => el.capacity > 0)
       .map(el => {
-        const res = RESERVATION_LIST.find(r =>
+        // Collect all active reservations for this element today, then pick
+        // the most "urgent" one: CHECKED_IN wins over APPROVED over REQUESTED.
+        // This handles the case where a walk-in is seated while a future
+        // approved reservation also exists on the same table.
+        const allRes = RESERVATION_LIST.filter(r =>
           r.environmentId === env.id &&
           r.elementId === el.id &&
           r.date === date.value &&
           ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
-        ) ?? null
+        )
+        const res =
+          allRes.find(r => r.status === 'CHECKED_IN') ??
+          allRes.find(r => r.status === 'APPROVED') ??
+          allRes.find(r => r.status === 'REQUESTED') ??
+          null
 
         let status = 'free'
         if (res?.status === 'CHECKED_IN') status = 'occupied'

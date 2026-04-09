@@ -452,39 +452,71 @@ Extended: `{ title, subtitle, bgColor, imageUrl }` — `imageUrl` is optional; g
 
 **Scope:** `src/components/dialogs/WalkInDialog.vue` (new), `src/pages/staff/dashboard.vue`
 
-**Goal:** Staff can seat walk-in customers at free tables directly from the floor map. Before confirming, the dialog checks for upcoming reservations on that table and warns or blocks based on how soon the conflict is.
+**Goal:** Staff can seat walk-in customers from a dedicated "Walk-in" button on the dashboard. The dialog lists all free tables **across every environment** for today with their next upcoming reservation (if any) and a conflict indicator, so staff can pick the best table in one place — no need to hunt the floor map first.
 
 ### Design decisions
 
 - Walk-ins are stored as real `Reservation` records with `status: CHECKED_IN` and `userId: ''` (no account). This means the floor map automatically marks the table as occupied via the existing `useFloorTables` logic — no extra wiring needed.
-- The table's upcoming reservations (today, status `REQUESTED` or `APPROVED`, time > now) are fetched and displayed inside the dialog. Time comparison uses today's date + the reservation's time string.
-- Conflict urgency thresholds:
-  - **< 30 min** — block the action (disable confirm button, show red error banner). Staff must find another table.
-  - **30–90 min** — warn (yellow banner). Confirm is still allowed but staff must acknowledge the risk.
-  - **> 90 min or no upcoming reservation** — safe to seat (green info note showing the window).
-- Explicitly inform staff: "Seating this walk-in does not cancel upcoming reservations — you will need to handle them manually."
-- Party size is validated against table capacity (confirm disabled if exceeded).
+- The dialog is **table-picker first**: it opens showing all currently free tables across all environments. Staff selects a table, then fills in party size and notes, then confirms.
+- For each free table, compute its `nextReservation`: earliest reservation today with `status in ['REQUESTED', 'APPROVED']` and `time > now`. `time` is a "HH:MM" string — compare lexicographically against `currentTimeStr` (same format). Derive `minutesUntilNext` and a `conflictLevel`:
+  - **`block`** — next reservation < 30 min away. Table shown with red chip "Reserved in X min". Cannot be selected.
+  - **`warn`** — next reservation 30–90 min away. Table shown with yellow chip "X min window". Selectable but the selection card highlights the risk.
+  - **`safe`** — next reservation > 90 min away or none. Green chip "Xh Ym free" (or "Open" if no reservations today).
+- The table list is **sorted**: `safe` first → `warn` → `block`. Within `safe` and `warn`, sort by `minutesUntilNext` descending (most time = best options at top). Block rows are always last.
+- When a table is selected, a detail panel expands below the list showing full conflict info, upcoming reservations, party size stepper, and notes. The overall dialog uses a fixed footer with a scrollable content area (`overflow-y: auto`) so the Cancel/Confirm buttons are always visible regardless of detail panel height.
+- Whenever `selectedTable` changes, reset `partySize` to `1` to avoid stale over-capacity state from a previously selected table.
+- Footer: Cancel + "Seat Walk-in" button. Disabled when no table selected, `conflictLevel === 'block'`, or `partySize > selectedTable.seats`.
+- Free tables with `conflictLevel === 'block'` are displayed but visually dimmed (`opacity: 0.5`, `pointer-events: none`) with a `v-tooltip` on the row: "Unavailable — reservation in X min". The click handler also guards `if (conflict.conflictLevel === 'block') return` as a safety net.
+- If `freeTables` is empty **or** every table is `block`-level, show a centred empty-state message instead of the list: "No tables available for walk-in right now."
+- Walk-in reservation name format: `Walk-in (N pax)` using the party size, so multiple simultaneous walk-ins are distinguishable in the reservation list.
 
 ### Tasks
 
-- [ ] **`WalkInDialog.vue` — new component** — `src/components/dialogs/WalkInDialog.vue`. Props: `modelValue` (v-model open), `table` (floor table object with `id`, `envId`, `elementId`, `seats`, `env`). On open, compute `upcomingReservations`: filter `RESERVATION_LIST` by `elementId === table.elementId`, `environmentId === table.envId`, `date === today`, `status in ['REQUESTED', 'APPROVED']`, sorted by time ascending. Derive `nextReservation` (soonest). Compute `minutesUntilNext` from now to next reservation's time. Derive `conflictLevel`: `'block'` (< 30 min), `'warn'` (30–90 min), `'safe'` (> 90 min or none). UI:
-  - Header: table name + environment + capacity badge
-  - Conflict banner (conditional):
-    - Red (`conflictLevel === 'block'`): "Cannot seat — reservation arrives in X min ([Guest Name] at [time]). Please find another table."
-    - Yellow (`conflictLevel === 'warn'`): "Limited window — next reservation at [time] ([X] min). Confirm only if the party can be seated and served in time."
-    - Green (`conflictLevel === 'safe'` and next exists): "Next reservation at [time] — [X] min window."
-  - Full list of upcoming reservations (name, time, guests) shown as compact rows beneath the banner.
-  - Disclaimer line (when any upcoming reservation exists): "Seating this walk-in does not cancel upcoming reservations."
-  - Party size stepper (1 → table capacity). Validation error if exceeded.
-  - Optional notes field.
-  - Footer: Cancel + "Seat Walk-in" button. Disabled when `conflictLevel === 'block'` or party size invalid.
+- [x] **`WalkInDialog.vue` — new component** — `src/components/dialogs/WalkInDialog.vue`. Props: `modelValue` (v-model open), `freeTables` (array of `{ label, envId, envName, elementId, seats }` — note: `useFloorTables` returns `id: el.label` and `env: env.name`, so the dashboard maps `label: t.id, envName: t.env` when building this array). Emits: `confirm({ table, partySize, notes })`.
 
-- [ ] **`staff/dashboard.vue` — wire free-table click to WalkInDialog** — Replace the current `notify(...)` snackbar for free tables in `onTableClick` with: `walkInTable.value = table; walkInDialog.value = true`. Add `walkInDialog` and `walkInTable` refs. Add `handleWalkIn(payload)` function: creates `new Reservation({ id: Date.now(), venueId: venueId.value, environmentId: payload.table.envId, elementId: payload.table.elementId, userId: '', name: 'Walk-in', email: '', phone: '', date: today, time: currentTimeString(), guests: payload.partySize, notes: payload.notes, status: 'CHECKED_IN' })` and calls `addReservation(...)`. Show snackbar "Walk-in seated at [table]". Import `WalkInDialog` (auto-imported via unplugin). Add `<WalkInDialog v-model="walkInDialog" :table="walkInTable" @confirm="handleWalkIn" />` to the template.
+  **Conflict computation** — use a `watch` on `modelValue` (runs when dialog opens). For each table in `freeTables`, filter `RESERVATION_LIST` by `elementId === table.elementId`, `date === today`, `status in ['REQUESTED', 'APPROVED']`, `time > currentTimeStr` (where `currentTimeStr = new Date().toTimeString().slice(0, 5)`). Sort by `time` ascending, take the first. Compute `minutesUntilNext = Math.round((parseTime(next.time) - parseTime(currentTimeStr)) / 60000)` where `parseTime(hhmm)` converts "HH:MM" to a comparable ms value via `new Date(\`1970-01-01T\${hhmm}:00\`).getTime()`. Assign `conflictLevel`: `'block'` (< 30), `'warn'` (30–90), `'safe'` (> 90 or no next). Store results as a `Map<elementId, { nextReservation, minutesUntilNext, conflictLevel, upcomingReservations }>` where `upcomingReservations` is the full sorted list for that table (not just the soonest). Note: filter by `elementId` alone — no `venueId` filter needed since element IDs are globally unique.
+
+  **Sorted display list** — `computed` derived from `freeTables`: sort order `safe → warn → block`, within safe/warn sort by `minutesUntilNext` descending. Expose as `sortedTables`.
+
+  **Empty state** — `computed` `allBlocked`: true when `freeTables.length === 0` or every table has `conflictLevel === 'block'`.
+
+  **Internal state**: `selectedTable` ref (null), `partySize` ref (1), `notes` ref ('').
+
+  **Table change handler** — `watch(selectedTable, () => { partySize.value = 1 })` — resets party size on every table switch to prevent stale over-capacity validation errors.
+
+  **UI layout** — dialog with `max-width="520"`, fixed footer (put Cancel + confirm in `v-card-actions` outside the scrollable area):
+  - `v-card-title`: "Seat a Walk-in"
+  - `v-card-text` with `style="overflow-y: auto; max-height: 60vh"`:
+    - **Empty state** (`v-if="allBlocked"`): centred grey text "No tables available for walk-in right now."
+    - **Table list** (`v-else`): iterate `sortedTables`. Each row is a `v-list-item` styled as a clickable card:
+      - Click handler: `if (conflict.conflictLevel === 'block') return; selectedTable = table`.
+      - Left: `table.label` (bold) + `table.envName` (small muted).
+      - Right: conflict chip — red "Reserved in Xm" (block), yellow "Xm window" (warn), green "Xh Ym free" / "Open" (safe).
+      - Block rows: `opacity: 0.5`, `cursor: not-allowed`. Wrap in `v-tooltip` with text "Unavailable — reservation in X min".
+      - Selected row: gold left border (`border-left: 3px solid var(--color-gold)`).
+    - **Detail panel** (`v-if="selectedTable"`) below a `v-divider`:
+      - `v-alert` (type matches conflictLevel: `error`/`warning`/`success`) with message:
+        - block: "Cannot seat — reservation arrives in X min ([Name] at [time])."
+        - warn: "Limited window — next reservation at [time] (X min). Confirm only if the party can be served in time."
+        - safe + next exists: "Next reservation at [time] — X min window."
+        - safe + no next: "No reservations today — table is fully open."
+      - Upcoming reservations list (compact rows: name · time · N guests) — only shown when `upcomingReservations.length > 0`.
+      - Disclaimer (`v-if="upcomingReservations.length > 0"`): muted italic "Seating this walk-in does not cancel upcoming reservations."
+      - Party size stepper (`v-number-input` or manual +/− buttons, min 1, max `selectedTable.seats`). Show inline error "Exceeds table capacity (X seats)" when `partySize > selectedTable.seats`.
+      - Notes `v-textarea` (optional, 2 rows, label "Notes").
+  - `v-card-actions` (outside scrollable area, always visible): "Cancel" (text) + "Seat Walk-in" (`disabled` when `!selectedTable || conflict.conflictLevel === 'block' || partySize > selectedTable.seats`).
+  - On confirm emit: `emit('confirm', { table: selectedTable, partySize: partySize.value, notes: notes.value })`. Then reset state: `selectedTable = null; partySize = 1; notes = ''`.
+
+- [x] **`staff/dashboard.vue` — add Walk-in button and wire WalkInDialog** — Define a module-level helper: `const currentTimeString = () => new Date().toTimeString().slice(0, 5)`. Add a "Walk-in" button (`mdi-walk` icon, gold variant) in the dashboard header near the environment selector.
+
+  On button click, build `freeTablesForWalkIn`: iterate **all** environments for this venue (`ENVIRONMENT_LIST.filter(e => e.venueId === venueId.value)`), then for each environment iterate `e.elements.filter(el => el.capacity > 0)`, determine if the element is free by checking `RESERVATION_LIST` has no entry with `environmentId === e.id`, `elementId === el.id`, `date === today`, `status in ['REQUESTED', 'APPROVED', 'CHECKED_IN']`. Map free elements to `{ label: el.label, envId: e.id, envName: e.name, elementId: el.id, seats: el.capacity }`. Set `walkInDialog.value = true`.
+
+  Add `walkInDialog` ref (false), `freeTablesForWalkIn` ref ([]). Add `handleWalkIn({ table, partySize, notes })`: creates `new Reservation({ id: Date.now(), venueId: venueId.value, environmentId: table.envId, elementId: table.elementId, userId: '', name: \`Walk-in (\${partySize} pax)\`, email: '', phone: '', date: today, time: currentTimeString(), guests: partySize, notes, status: 'CHECKED_IN' })` and calls `addReservation(...)`. Show snackbar `"Walk-in seated at ${table.label}"`. Add `<WalkInDialog v-model="walkInDialog" :free-tables="freeTablesForWalkIn" @confirm="handleWalkIn" />` to template. Free-table clicks on the floor map keep the existing `notify(...)` snackbar unchanged.
 
 ---
 
 ## Session Notes
 
-**Last session:** Phase 14 complete — qrcode installed, WaiterCall datamodel, QR codes admin page with print support, Call Waiter wired in menu page, waiter call notifications on staff dashboard. Also fixed staff dashboard venueId derivation to always use VENUE_STAFF_LIST instead of session.venueId (handles users who own one venue but staff another).
-**Next session starts at:** Phase 15 — Walk-in Seating with Conflict Detection.
+**Last session:** Phase 15 complete — WalkInDialog component with conflict detection (block/warn/safe), sorted table picker, detail panel with upcoming reservations, party size stepper, notes. Walk-in button on staff dashboard builds free-table list across all venue environments and creates CHECKED_IN reservation records. Bug fix: `useFloorTables` now prioritises CHECKED_IN > APPROVED > REQUESTED when multiple reservations exist for the same table on the same day, preventing staff from being able to check in a future reservation while a walk-in is already seated.
+**Next session starts at:** Phase 16 (if defined) or review.
 **Blockers / decisions pending:** None.

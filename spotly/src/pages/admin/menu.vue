@@ -8,197 +8,191 @@
 
   <!-- ── Main Content ── -->
   <v-main class="spotly-main">
-    <div class="spotly-container spotly-container--wide">
-      <!-- Page Header -->
-      <div class="d-flex align-center justify-space-between mb-6">
+    <div class="menu-page-container">
+
+      <!-- ══ Page Header ══ -->
+      <div class="page-header">
         <div>
+          <div class="page-eyebrow">
+            <v-icon class="mr-1" color="#D4AF37" size="13">mdi-silverware-fork-knife</v-icon>
+            Admin · Menu
+          </div>
           <h1 class="page-title">Menu Management</h1>
-          <p class="page-subtitle">
-            Manage menu items, prices, allergens, and categories
-          </p>
+          <p class="page-sub">Manage items, prices, allergens &amp; categories</p>
         </div>
+        <div class="header-actions">
+          <!-- Desktop add button -->
+          <v-btn
+            class="gold-btn header-add-btn--desktop"
+            flat
+            prepend-icon="mdi-plus"
+            :ripple="false"
+            size="large"
+            @click="openAddDialog"
+          >
+            Add New Item
+          </v-btn>
+        </div>
+      </div>
+      <div class="header-line" />
+
+      <!-- ══ Category Pill Bar ══ -->
+      <div class="category-bar-wrap">
+        <div class="category-bar">
+          <button
+            v-for="cat in categories"
+            :key="cat.value"
+            class="category-pill"
+            :class="{ 'category-pill--active': selectedCategory === cat.value }"
+            type="button"
+            @click="selectedCategory = cat.value"
+          >
+            <v-icon class="category-pill__icon" size="18">{{ cat.icon }}</v-icon>
+            <span class="category-pill__label">{{ cat.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ Items Count ══ -->
+      <div class="items-count-row">
+        <span class="items-count">
+          {{ filteredItems.length }}
+          {{ filteredItems.length === 1 ? 'item' : 'items' }}
+          in {{ categories.find(c => c.value === selectedCategory)?.label }}
+        </span>
+      </div>
+
+      <!-- ══ Empty State ══ -->
+      <div v-if="filteredItems.length === 0" class="empty-state">
+        <div class="empty-state__icon-wrap">
+          <v-icon class="empty-state__icon" size="48">mdi-silverware-fork-knife</v-icon>
+        </div>
+        <div class="empty-state__line" />
+        <h3 class="empty-state__title">No items yet</h3>
+        <p class="empty-state__desc">Add your first {{ categories.find(c => c.value === selectedCategory)?.label.toLowerCase() }} item to get started.</p>
         <v-btn
-          class="gold-btn"
+          class="gold-btn mt-4"
           flat
           prepend-icon="mdi-plus"
           :ripple="false"
-          size="large"
           @click="openAddDialog"
         >
-          Add New Item
+          Add Item
         </v-btn>
       </div>
 
-      <!-- Category Filter -->
-      <div class="mb-5">
-        <label class="filter-label mb-2 d-block">Category</label>
-        <v-chip-group
-          v-model="selectedCategory"
-          mandatory
-          selected-class="category-chip--active"
+      <!-- ══ Card Grid ══ -->
+      <div v-else class="menu-grid">
+        <div
+          v-for="(item, index) in filteredItems"
+          :key="item.id"
+          class="menu-card"
+          :style="{ '--card-delay': `${index * 40}ms` }"
         >
-          <v-chip
-            v-for="cat in categories"
-            :key="cat.value"
-            class="category-chip"
-            :value="cat.value"
-          >
-            {{ cat.label }}
-          </v-chip>
-        </v-chip-group>
-      </div>
+          <!-- Card: Left — image placeholder -->
+          <div class="menu-card__image">
+            <v-icon size="28" style="color: #6a7080;">mdi-image-outline</v-icon>
+          </div>
 
-      <!-- Menu Items Table -->
-      <v-card
-        class="menu-table-card"
-        flat
-        style="
-          background: var(--color-surface-elevated);
-          border: 1px solid rgba(212, 175, 55, 0.18);
-          border-radius: 12px;
-        "
-      >
-        <v-data-table
-          class="menu-table"
-          :headers="headers"
-          :items="filteredItems"
-          :items-per-page="10"
-          style="background: transparent"
-        >
-          <!-- Image Column -->
-          <template #item.image="{ item }">
-            <div class="item-image-cell">
-              <v-checkbox
-                v-model="item.selected"
-                class="mr-2"
-                color="#D4AF37"
-                density="compact"
-                hide-details
-              />
-              <div class="item-image-placeholder">
-                <v-icon
-                  size="24"
-                  style="color: #6a7080"
-                >mdi-image-outline</v-icon>
-              </div>
+          <!-- Card: Center — content -->
+          <div class="menu-card__body">
+            <!-- Name + environments -->
+            <div class="menu-card__name-row">
+              <span class="menu-card__name">{{ item.name }}</span>
+              <span
+                v-if="item.available !== false"
+                class="status-pill status-pill--available"
+              >
+                <v-icon size="9" style="margin-right:3px;">mdi-check-circle</v-icon>
+                Available
+              </span>
+              <span v-else class="status-pill status-pill--unavailable">
+                <v-icon size="9" style="margin-right:3px;">mdi-minus-circle</v-icon>
+                Off menu
+              </span>
             </div>
-          </template>
 
-          <!-- Name Column -->
-          <template #item.name="{ item }">
-            <div class="d-flex align-center gap-2 flex-wrap">
-              <span class="item-name">{{ item.name }}</span>
-              <v-chip
+            <!-- Description snippet -->
+            <p v-if="item.desc" class="menu-card__desc">{{ item.desc }}</p>
+
+            <!-- Environment scope chips -->
+            <div v-if="(item.environmentIds ?? []).length > 0" class="menu-card__chips-row">
+              <span
                 v-for="eid in (item.environmentIds ?? [])"
                 :key="eid"
-                size="x-small"
-                style="background: rgba(212,175,55,0.12); color: #d4af37; border: 1px solid rgba(212,175,55,0.25); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em;"
+                class="scope-chip"
               >
+                <v-icon size="10" style="margin-right:2px;">mdi-map-marker-outline</v-icon>
                 {{ venueEnvironments.find(e => e.id === eid)?.name ?? eid }}
-              </v-chip>
+              </span>
             </div>
-          </template>
 
-          <!-- Price Column -->
-          <template #item.price="{ item }">
-            <span class="item-price">{{ item.price }} TND</span>
-          </template>
-
-          <!-- Allergens Column -->
-          <template #item.allergens="{ item }">
-            <div class="allergens-cell">
-              <v-chip
-                v-for="allergen in item.allergens"
-                :key="allergen"
-                class="allergen-chip"
-                size="x-small"
-                style="
-                  background: rgba(212, 175, 55, 0.1);
-                  color: #d4af37;
-                  margin-right: 4px;
-                "
-              >
-                {{ allergen }}
-              </v-chip>
+            <!-- Tags row -->
+            <div v-if="(item.tags ?? []).length > 0" class="menu-card__chips-row">
               <span
-                v-if="item.allergens.length === 0"
-                style="color: #6a7080; font-size: 0.8rem"
-              >None</span>
-            </div>
-          </template>
-
-          <!-- Tags Column -->
-          <template #item.tags="{ item }">
-            <div class="tags-cell">
-              <v-chip
                 v-for="tag in item.tags"
                 :key="tag"
                 class="tag-chip"
-                size="x-small"
-                style="
-                  background: rgba(46, 187, 87, 0.15);
-                  color: #2ebb57;
-                  margin-right: 4px;
-                "
-              >
-                {{ tag }}
-              </v-chip>
+              >{{ tag }}</span>
             </div>
-          </template>
 
-          <!-- Available Column -->
-          <template #item.available="{ item }">
-            <v-chip
-              size="x-small"
-              :style="item.available !== false
-                ? 'background: rgba(46,187,87,0.15); color: #2ebb57; border: 1px solid rgba(46,187,87,0.3);'
-                : 'background: rgba(150,150,150,0.1); color: #888; border: 1px solid rgba(150,150,150,0.2);'"
-            >
-              <v-icon size="10" start>{{ item.available !== false ? 'mdi-check-circle' : 'mdi-minus-circle' }}</v-icon>
-              {{ item.available !== false ? 'Available' : 'Unavailable' }}
-            </v-chip>
-          </template>
+            <!-- Allergens row -->
+            <div v-if="(item.allergens ?? []).length > 0" class="menu-card__chips-row">
+              <span class="allergen-label">Allergens:</span>
+              <span
+                v-for="allergen in item.allergens"
+                :key="allergen"
+                class="allergen-chip"
+              >{{ allergen }}</span>
+            </div>
+          </div>
 
-          <!-- Actions Column -->
-          <template #item.actions="{ item }">
-            <div class="actions-cell">
-              <v-btn
-                icon
-                :ripple="false"
-                size="small"
-                variant="text"
+          <!-- Card: Right — price + actions -->
+          <div class="menu-card__aside">
+            <span class="menu-card__price">{{ item.price }}<span class="menu-card__currency"> TND</span></span>
+            <div class="menu-card__actions">
+              <button
+                class="icon-btn icon-btn--edit"
+                title="Edit item"
+                type="button"
                 @click="editItem(item)"
               >
-                <v-icon size="18" style="color: #d4af37">mdi-pencil</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                :ripple="false"
-                size="small"
-                variant="text"
+                <v-icon size="17">mdi-pencil</v-icon>
+              </button>
+              <button
+                class="icon-btn icon-btn--delete"
+                title="Delete item"
+                type="button"
                 @click="deleteItem(item)"
               >
-                <v-icon
-                  size="18"
-                  style="color: #c71585"
-                >mdi-delete-outline</v-icon>
-              </v-btn>
+                <v-icon size="17">mdi-delete-outline</v-icon>
+              </button>
             </div>
-          </template>
-        </v-data-table>
-      </v-card>
-    </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /menu-page-container -->
   </v-main>
 
-  <!-- ── Add/Edit Item Dialog ── -->
+  <!-- ══ Mobile FAB ══ -->
+  <v-btn
+    class="mobile-fab"
+    color="#D4AF37"
+    elevation="8"
+    icon
+    :ripple="false"
+    size="56"
+    @click="openAddDialog"
+  >
+    <v-icon size="24" style="color: #0A0E14;">mdi-plus</v-icon>
+  </v-btn>
+
+  <!-- ══ Add/Edit Item Dialog ══ -->
   <v-dialog v-model="showItemDialog" max-width="700" persistent>
     <v-card
       flat
-      style="
-        background: var(--color-surface-elevated);
-        border: 1px solid rgba(212, 175, 55, 0.18);
-        border-radius: 16px;
-      "
+      style="background: var(--color-surface-elevated); border: 1px solid rgba(212,175,55,0.18); border-radius: 16px;"
     >
       <v-card-title class="dialog-header pa-6">
         <h2 class="dialog-title">
@@ -208,11 +202,11 @@
           icon
           :ripple="false"
           size="small"
-          style="position: absolute; top: 16px; right: 16px"
+          style="position: absolute; top: 16px; right: 16px;"
           variant="text"
           @click="closeDialog"
         >
-          <v-icon size="20" style="color: #6a7080">mdi-close</v-icon>
+          <v-icon size="20" style="color: #6a7080;">mdi-close</v-icon>
         </v-btn>
       </v-card-title>
 
@@ -225,24 +219,20 @@
           type="error"
           variant="tonal"
         >{{ formError }}</v-alert>
+
         <v-row>
           <!-- Image Upload -->
           <v-col cols="12">
             <label class="field-label mb-2 d-block">Image</label>
             <div class="image-upload-zone">
-              <v-icon
-                size="48"
-                style="color: rgba(212, 175, 55, 0.3); margin-bottom: 8px"
-              >mdi-image-plus</v-icon>
-              <p style="color: #6a7080; font-size: 0.85rem; margin: 0">
-                Click to upload or drag and drop
-              </p>
+              <v-icon size="48" style="color: rgba(212,175,55,0.3); margin-bottom: 8px;">mdi-image-plus</v-icon>
+              <p style="color: #6a7080; font-size: 0.85rem; margin: 0;">Click to upload or drag and drop</p>
             </div>
           </v-col>
 
           <!-- Name -->
           <v-col cols="12" md="6">
-            <label class="field-label mb-2 d-block">Name <span style="color: #c71585">*</span></label>
+            <label class="field-label mb-2 d-block">Name <span style="color:#c71585;">*</span></label>
             <v-text-field
               v-model="formData.name"
               class="spotly-input"
@@ -255,7 +245,7 @@
 
           <!-- Price -->
           <v-col cols="12" md="6">
-            <label class="field-label mb-2 d-block">Price <span style="color: #c71585">*</span></label>
+            <label class="field-label mb-2 d-block">Price <span style="color:#c71585;">*</span></label>
             <v-text-field
               v-model="formData.price"
               class="spotly-input"
@@ -270,7 +260,7 @@
 
           <!-- Category -->
           <v-col cols="12" md="6">
-            <label class="field-label mb-2 d-block">Category <span style="color: #c71585">*</span></label>
+            <label class="field-label mb-2 d-block">Category <span style="color:#c71585;">*</span></label>
             <v-select
               v-model="formData.category"
               class="spotly-input"
@@ -300,9 +290,7 @@
               placeholder="All environments"
               variant="outlined"
             />
-            <p style="font-size: 0.75rem; color: #6a7080; margin-top: 6px;">
-              Leave empty to show in all environments.
-            </p>
+            <p style="font-size:0.75rem; color:#6a7080; margin-top:6px;">Leave empty to show in all environments.</p>
           </v-col>
 
           <!-- Allergens -->
@@ -357,7 +345,7 @@
               hide-details
             >
               <template #label>
-                <span class="field-label" style="text-transform: none; font-size: 0.85rem; color: #b8bcc8;">
+                <span class="field-label" style="text-transform:none; font-size:0.85rem; color:#b8bcc8;">
                   Available on menu
                 </span>
               </template>
@@ -383,25 +371,19 @@
     </v-card>
   </v-dialog>
 
-  <!-- ── Delete Confirmation Dialog ── -->
+  <!-- ══ Delete Confirmation Dialog ══ -->
   <v-dialog v-model="showDeleteDialog" max-width="420">
     <v-card
       flat
-      style="
-        background: var(--color-surface-elevated);
-        border: 1px solid rgba(212, 175, 55, 0.18);
-        border-radius: 16px;
-      "
+      style="background: var(--color-surface-elevated); border: 1px solid rgba(212,175,55,0.18); border-radius: 16px;"
     >
       <v-card-text class="pa-6 text-center">
-        <v-icon
-          size="64"
-          style="color: #c71585; margin-bottom: 16px"
-        >mdi-alert-circle-outline</v-icon>
+        <v-icon size="64" style="color: #c71585; margin-bottom: 16px;">mdi-alert-circle-outline</v-icon>
         <h2 class="dialog-title mb-2">Delete Menu Item?</h2>
         <p class="dialog-text mb-4">
           Are you sure you want to delete
-          <strong style="color: #d4af37">{{ itemToDelete?.name }}</strong>? This action cannot be undone.
+          <strong style="color: #d4af37;">{{ itemToDelete?.name }}</strong>?
+          This action cannot be undone.
         </p>
         <div class="d-flex gap-2 justify-center">
           <v-btn
@@ -432,7 +414,7 @@
 
   const router = useRouter()
 
-  // ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
+  // ─── Admin Nav ─────────────────────────────────────────────────────────────
   const { adminNavLinks, handleNav } = useAdminNav()
   const { getSession } = useAuth()
   const session = getSession()
@@ -465,10 +447,10 @@
   }
 
   const categories = [
-    { label: 'Starters', value: 'starters' },
-    { label: 'Mains', value: 'mains' },
-    { label: 'Desserts', value: 'desserts' },
-    { label: 'Drinks', value: 'drinks' },
+    { label: 'Starters', value: 'starters', icon: 'mdi-food' },
+    { label: 'Mains', value: 'mains', icon: 'mdi-silverware' },
+    { label: 'Desserts', value: 'desserts', icon: 'mdi-cake-variant' },
+    { label: 'Drinks', value: 'drinks', icon: 'mdi-glass-cocktail' },
   ]
 
   const allergenOptions = [
@@ -605,179 +587,509 @@
 </script>
 
 <style scoped>
-/* ═══ TYPOGRAPHY ═══ */
+/* ═══════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════ */
+.menu-page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 48px 80px;
+}
+@media (max-width: 1024px) {
+  .menu-page-container {
+    padding: 32px 24px 60px;
+  }
+}
 
-.admin-badge {
+/* ═══════════════════════════════════════════════════
+   PAGE HEADER
+═══════════════════════════════════════════════════ */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-eyebrow {
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+.page-title {
+  font-family: var(--font-heading);
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #f0ead6;
+  line-height: 1.15;
+  margin: 0 0 8px;
+}
+.page-sub {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: #6a7080;
+  margin: 0;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.header-line {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(212,175,55,0.3) 0%, rgba(212,175,55,0.05) 100%);
+  margin-top: 24px;
+  margin-bottom: 32px;
+}
+
+/* Hide desktop button on mobile; it's replaced by FAB */
+.header-add-btn--desktop {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .header-add-btn--desktop {
+    display: none;
+  }
+  .menu-page-container {
+    padding: 24px 16px 120px; /* extra bottom for FAB */
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   CATEGORY PILL BAR
+═══════════════════════════════════════════════════ */
+.category-bar-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-bottom: 20px;
+}
+
+.category-bar-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.category-bar {
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px 0 6px;
+  min-width: max-content;
+}
+
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  color: #8a8fa8;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+  white-space: nowrap;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px; /* touch target */
+}
+
+.category-pill:hover {
+  border-color: rgba(212, 175, 55, 0.45);
+  color: #d4af37;
+  background: rgba(212, 175, 55, 0.07);
+}
+
+.category-pill--active {
+  background: rgba(212, 175, 55, 0.14);
+  border-color: #d4af37;
+  color: #d4af37;
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.25) inset;
+}
+
+.category-pill__icon {
+  opacity: 0.85;
+}
+
+.category-pill__label {
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════
+   ITEMS COUNT
+═══════════════════════════════════════════════════ */
+.items-count-row {
+  margin-bottom: 16px;
+}
+
+.items-count {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
   font-weight: 600;
+  color: #6a7080;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
-.admin-name {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  color: #f0ead6;
-  font-weight: 500;
+/* ═══════════════════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════════════════ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 72px 24px;
+  text-align: center;
 }
 
-/* ═══ SECONDARY NAV ═══ */
-.secondary-nav {
-  background: var(--color-surface);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.18);
-  padding: 8px 0;
+.empty-state__icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
-.nav-tab {
-  font-family: var(--font-body) !important;
-  font-size: 0.85rem !important;
-  font-weight: 500 !important;
-  color: #6a7080 !important;
-  text-transform: none !important;
-  letter-spacing: 0.02em !important;
+.empty-state__icon {
+  color: rgba(212, 175, 55, 0.5) !important;
 }
 
-.nav-tab--active {
-  color: #d4af37 !important;
-  background: rgba(212, 175, 55, 0.08) !important;
+.empty-state__line {
+  width: 48px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #d4af37, transparent);
+  border-radius: 1px;
+  margin-bottom: 20px;
+  animation: pulse-line 2.4s ease-in-out infinite;
 }
 
-/* ═══ PAGE HEADER ═══ */
-.page-title {
+@keyframes pulse-line {
+  0%, 100% { opacity: 0.4; transform: scaleX(0.6); }
+  50%       { opacity: 1;   transform: scaleX(1); }
+}
+
+.empty-state__title {
   font-family: var(--font-heading);
-  font-size: 2rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #f0ead6;
-  letter-spacing: 0.02em;
-  margin: 0;
+  margin: 0 0 8px;
 }
 
-.page-subtitle {
+.empty-state__desc {
   font-family: var(--font-body);
   font-size: 0.9rem;
   color: #8a8fa8;
-  margin: 4px 0 0 0;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 320px;
 }
 
-/* ═══ CATEGORY FILTER ═══ */
-.filter-label {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #8a8fa8;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+/* ═══════════════════════════════════════════════════
+   MENU CARD GRID
+═══════════════════════════════════════════════════ */
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
-.category-chip {
-  background: #161d2b !important;
-  border: 1px solid rgba(212, 175, 55, 0.18) !important;
-  color: #b8bcc8 !important;
-  font-family: var(--font-body) !important;
-  font-size: 0.85rem !important;
-  font-weight: 500 !important;
-  text-transform: none !important;
-  letter-spacing: 0.02em !important;
+/* Two-column grid on desktop */
+@media (min-width: 768px) {
+  .menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
 }
 
-.category-chip--active {
-  background: rgba(212, 175, 55, 0.18) !important;
-  border-color: #d4af37 !important;
-  color: #d4af37 !important;
+@media (min-width: 1100px) {
+  .menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
 }
 
-/* ═══ DATA TABLE ═══ */
-.menu-table-card {
-  overflow: hidden;
-}
-
-:deep(.menu-table) {
-  background: transparent;
-}
-
-:deep(.menu-table .v-table__wrapper) {
-  background: transparent;
-}
-
-:deep(.menu-table th) {
-  background: var(--color-surface) !important;
-  color: #8a8fa8 !important;
-  font-family: var(--font-body) !important;
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.08em !important;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.18) !important;
-}
-
-:deep(.menu-table td) {
-  border-bottom: 1px solid rgba(212, 175, 55, 0.08) !important;
-  padding: 16px !important;
-}
-
-:deep(.menu-table tr:hover) {
-  background: rgba(212, 175, 55, 0.05) !important;
-}
-
-.item-image-cell {
+/* ═══════════════════════════════════════════════════
+   MENU CARD
+═══════════════════════════════════════════════════ */
+.menu-card {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--color-surface-elevated);
+  border: 1px solid rgba(212, 175, 55, 0.13);
+  cursor: default;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
+  animation: card-in 300ms ease both;
+  animation-delay: var(--card-delay, 0ms);
 }
 
-.item-image-placeholder {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: #161d2b;
-  border: 1px solid rgba(212, 175, 55, 0.18);
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.menu-card:hover {
+  border-color: rgba(212, 175, 55, 0.38);
+  box-shadow: 0 4px 24px rgba(212, 175, 55, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Image placeholder */
+.menu-card__image {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.item-name {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #f0ead6;
+/* Body (center) */
+.menu-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.item-price {
+.menu-card__name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.menu-card__name {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
+  color: #f0ead6;
+  line-height: 1.3;
+  /* Allow wrapping on small screens */
+  word-break: break-word;
+}
+
+.menu-card__desc {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: #8a8fa8;
+  margin: 0;
+  line-height: 1.5;
+  /* Cap to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.menu-card__chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Status pills */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-pill--available {
+  background: rgba(46, 187, 87, 0.14);
+  color: #2ebb57;
+  border: 1px solid rgba(46, 187, 87, 0.28);
+}
+
+.status-pill--unavailable {
+  background: rgba(150, 150, 150, 0.1);
+  color: #888;
+  border: 1px solid rgba(150, 150, 150, 0.2);
+}
+
+/* Scope chips (environments) */
+.scope-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  color: #d4af37;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* Tag chips */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(46, 187, 87, 0.1);
+  border: 1px solid rgba(46, 187, 87, 0.2);
+  color: #2ebb57;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* Allergen chips */
+.allergen-label {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6a7080;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.allergen-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.07);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  color: #c4a435;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* Aside (right) — price + action buttons */
+.menu-card__aside {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  min-width: 76px;
+}
+
+.menu-card__price {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #d4af37;
+  white-space: nowrap;
+  /* tabular nums for alignment in list */
+  font-variant-numeric: tabular-nums;
+}
+
+.menu-card__currency {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.7;
+  letter-spacing: 0.04em;
+}
+
+.menu-card__actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* Icon action buttons */
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure min 44×44 touch area via padding trick on mobile */
+@media (max-width: 600px) {
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+}
+
+.icon-btn--edit {
   color: #d4af37;
 }
 
-.allergens-cell,
-.tags-cell {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: center;
+.icon-btn--edit:hover {
+  background: rgba(212, 175, 55, 0.14);
+  border-color: rgba(212, 175, 55, 0.3);
 }
 
-.allergen-chip,
-.tag-chip {
-  font-family: var(--font-body) !important;
-  font-size: 0.7rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.06em !important;
+.icon-btn--delete {
+  color: #c0506a;
 }
 
-.actions-cell {
-  display: flex;
-  gap: 4px;
-  justify-content: flex-end;
+.icon-btn--delete:hover {
+  background: rgba(199, 21, 133, 0.12);
+  border-color: rgba(199, 21, 133, 0.25);
 }
 
-/* ═══ BUTTONS ═══ */
-/* .gold-btn, .secondary-btn, .danger-btn are global — see settings.scss */
+/* ═══════════════════════════════════════════════════
+   MOBILE FAB
+═══════════════════════════════════════════════════ */
+.mobile-fab {
+  position: fixed !important;
+  bottom: 24px;
+  right: 20px;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.35) !important;
+  /* Only show on mobile */
+  display: none !important;
+}
 
-/* ═══ DIALOG ═══ */
+@media (max-width: 600px) {
+  .mobile-fab {
+    display: flex !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   DIALOG STYLES
+═══════════════════════════════════════════════════ */
 .dialog-header {
   position: relative;
   border-bottom: 1px solid rgba(212, 175, 55, 0.18);
@@ -788,6 +1100,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: #f0ead6;
+  margin: 0;
 }
 
 .dialog-text {
@@ -825,7 +1138,9 @@
   background: rgba(212, 175, 55, 0.08);
 }
 
-/* Input deep overrides handled by global .spotly-input */
+/* ═══════════════════════════════════════════════════
+   FORM INPUT DEEP OVERRIDES
+═══════════════════════════════════════════════════ */
 :deep(.spotly-input .v-select__selection-text) {
   color: #f0ead6;
 }
@@ -833,5 +1148,18 @@
 :deep(.spotly-input .v-chip) {
   background: rgba(212, 175, 55, 0.18);
   color: #d4af37;
+}
+
+/* ═══════════════════════════════════════════════════
+   REDUCED MOTION
+═══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .menu-card,
+  .category-pill,
+  .icon-btn,
+  .empty-state__line {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 </style>

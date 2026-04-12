@@ -6,33 +6,39 @@
   />
 
   <v-main class="spotly-main">
-    <div class="qr-wrap pa-4 pa-sm-6">
+    <div class="qr-wrap">
 
       <!-- ── Page header ── -->
-      <div class="page-header d-flex flex-wrap align-center ga-3 mb-6">
-        <div class="header-text">
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">
+            <v-icon class="mr-1" color="#D4AF37" size="13">mdi-qrcode</v-icon>
+            Admin · QR Codes
+          </div>
           <h1 class="page-title">Table QR Codes</h1>
           <p class="page-sub">Generate and print QR cards for every table in your venue</p>
         </div>
-        <div class="flex-grow-1" />
-        <v-btn
-          v-if="selectedIds.length > 0"
-          class="print-btn"
-          variant="outlined"
-          @click="printSelected"
-        >
-          <v-icon size="16" start>mdi-printer-outline</v-icon>
-          Print Selected ({{ selectedIds.length }})
-        </v-btn>
-        <v-btn
-          class="print-btn print-btn--primary"
-          :disabled="allTableElements.length === 0"
-          @click="printAll"
-        >
-          <v-icon size="16" start>mdi-printer</v-icon>
-          Print All
-        </v-btn>
+        <div class="header-actions">
+          <v-btn
+            v-if="selectedIds.length > 0"
+            class="print-btn mr-2"
+            variant="outlined"
+            @click="printSelected"
+          >
+            <v-icon size="16" start>mdi-printer-outline</v-icon>
+            Print Selected ({{ selectedIds.length }})
+          </v-btn>
+          <v-btn
+            class="print-btn print-btn--primary"
+            :disabled="allTableElements.length === 0"
+            @click="printAll"
+          >
+            <v-icon size="16" start>mdi-printer</v-icon>
+            Print All
+          </v-btn>
+        </div>
       </div>
+      <div class="header-line" />
 
       <!-- ── Empty state ── -->
       <div v-if="allTableElements.length === 0" class="empty-state">
@@ -370,22 +376,63 @@
   min-height: 100vh;
 }
 .qr-wrap {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 40px 48px 80px;
+}
+@media (max-width: 1024px) {
+  .qr-wrap {
+    padding: 32px 24px 60px;
+  }
+}
+@media (max-width: 600px) {
+  .qr-wrap {
+    padding: 24px 16px 60px;
+  }
 }
 
 /* ── Header ── */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
 .page-title {
   font-family: var(--font-heading);
-  font-size: 1.7rem;
+  font-size: 2.1rem;
   font-weight: 700;
-  color: #fff;
-  margin: 0 0 4px;
+  color: #f0ead6;
+  line-height: 1.15;
+  margin: 0 0 8px;
 }
 .page-sub {
-  font-size: 0.83rem;
-  color: rgba(255,255,255,0.45);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: #6a7080;
   margin: 0;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.header-line {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(212,175,55,0.3) 0%, rgba(212,175,55,0.05) 100%);
+  margin-top: 24px;
+  margin-bottom: 32px;
 }
 .print-btn {
   font-size: 0.8rem !important;

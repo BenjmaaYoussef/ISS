@@ -1,67 +1,90 @@
 <template>
-  <!-- APP BAR -->
-  <AppNavbarSpotly
-    active-link="builder"
-    :nav-links="adminNavLinks"
-    @nav="handleNav"
-  >
-    <template #actions>
-      <!-- Mode toggle -->
-      <div class="mode-segmented mr-4">
-        <button
-          class="mode-seg-btn"
-          :class="{ 'mode-seg-btn--active': !isPreviewMode }"
-          @click="isPreviewMode = false"
-        >
-          <v-icon class="mr-1" size="13">mdi-pencil-ruler</v-icon>Edit
-        </button>
-        <button
-          class="mode-seg-btn"
-          :class="{ 'mode-seg-btn--active': isPreviewMode }"
-          @click="isPreviewMode = true"
-        >
-          <v-icon class="mr-1" size="13">mdi-eye-outline</v-icon>Preview
-        </button>
+  <!-- ── MOBILE GATE ── -->
+  <div v-if="isMobile" class="mobile-gate">
+    <div class="mobile-gate__card">
+      <div class="mobile-gate__icon">
+        <v-icon color="#d4af37" size="48">mdi-monitor</v-icon>
       </div>
+      <h2 class="mobile-gate__title">Desktop Required</h2>
+      <p class="mobile-gate__desc">
+        The Floor Plan Builder is a precision drag-and-drop tool designed for desktop use.<br>
+        Please open this page on a laptop or desktop for the best experience.
+      </p>
       <v-btn
-        class="mr-1"
-        :disabled="historyIndex <= 0"
-        icon
-        :ripple="false"
-        size="x-small"
-        style="color: #6a7080"
-        title="Undo"
-        variant="text"
-        @click="undo"
+        class="gold-btn mt-2"
+        flat
+        @click="$router.push('/admin/dashboard')"
       >
-        <v-icon size="17">mdi-undo</v-icon>
+        <v-icon size="16" start>mdi-arrow-left</v-icon>
+        Back to Dashboard
       </v-btn>
-      <v-btn
-        class="mr-3"
-        :disabled="historyIndex >= history.length - 1"
-        icon
-        :ripple="false"
-        size="x-small"
-        style="color: #6a7080"
-        title="Redo"
-        variant="text"
-        @click="redo"
-      >
-        <v-icon size="17">mdi-redo</v-icon>
-      </v-btn>
-      <button class="gold-btn" @click="saveLayout">
-        <v-icon class="mr-1" size="14">mdi-content-save-outline</v-icon>Save
-        Layout
-      </button>
-    </template>
-  </AppNavbarSpotly>
+    </div>
+  </div>
 
-  <!-- MAIN 3-COLUMN BUILDER -->
-  <v-main class="spotly-main">
-    <!-- ── Secondary Nav: Back + Environment Tabs ── -->
-    <div
-      class="secondary-nav"
-      style="
+  <!-- APP BAR (desktop only) -->
+  <template v-if="!isMobile">
+    <AppNavbarSpotly
+      active-link="builder"
+      :nav-links="adminNavLinks"
+      @nav="handleNav"
+    >
+      <template #actions>
+        <!-- Mode toggle -->
+        <div class="mode-segmented mr-4">
+          <button
+            class="mode-seg-btn"
+            :class="{ 'mode-seg-btn--active': !isPreviewMode }"
+            @click="isPreviewMode = false"
+          >
+            <v-icon class="mr-1" size="13">mdi-pencil-ruler</v-icon>Edit
+          </button>
+          <button
+            class="mode-seg-btn"
+            :class="{ 'mode-seg-btn--active': isPreviewMode }"
+            @click="isPreviewMode = true"
+          >
+            <v-icon class="mr-1" size="13">mdi-eye-outline</v-icon>Preview
+          </button>
+        </div>
+        <v-btn
+          class="mr-1"
+          :disabled="historyIndex <= 0"
+          icon
+          :ripple="false"
+          size="x-small"
+          style="color: #6a7080"
+          title="Undo"
+          variant="text"
+          @click="undo"
+        >
+          <v-icon size="17">mdi-undo</v-icon>
+        </v-btn>
+        <v-btn
+          class="mr-3"
+          :disabled="historyIndex >= history.length - 1"
+          icon
+          :ripple="false"
+          size="x-small"
+          style="color: #6a7080"
+          title="Redo"
+          variant="text"
+          @click="redo"
+        >
+          <v-icon size="17">mdi-redo</v-icon>
+        </v-btn>
+        <button class="gold-btn" @click="saveLayout">
+          <v-icon class="mr-1" size="14">mdi-content-save-outline</v-icon>Save
+          Layout
+        </button>
+      </template>
+    </AppNavbarSpotly>
+
+    <!-- MAIN 3-COLUMN BUILDER -->
+    <v-main class="spotly-main">
+      <!-- ── Secondary Nav: Back + Environment Tabs ── -->
+      <div
+        class="secondary-nav"
+        style="
         position: sticky;
         top: 0;
         z-index: 10;
@@ -69,725 +92,726 @@
         border-bottom: 1px solid rgba(212, 175, 55, 0.1);
         padding: 0 20px;
       "
-    >
-      <div class="d-flex align-center" style="height: 44px; gap: 4px">
-        <button
-          class="dash-back-btn"
-          title="Admin Dashboard"
-          @click="router.push('/admin/dashboard')"
-        >
-          <v-icon class="mr-1" size="12">mdi-view-dashboard-outline</v-icon>Dashboard
-        </button>
-        <div class="bar-divider mx-4" />
-        <div class="env-tabs">
+      >
+        <div class="d-flex align-center" style="height: 44px; gap: 4px">
           <button
-            v-for="env in environments"
-            :key="env.id"
-            class="env-tab"
-            :class="{ 'env-tab--active': currentEnvId === env.id }"
-            @click="switchEnv(env.id)"
+            class="dash-back-btn"
+            title="Admin Dashboard"
+            @click="router.push('/admin/dashboard')"
           >
-            <v-icon
-              class="mr-1"
-              size="13"
-              :style="{
-                color: currentEnvId === env.id ? '#D4AF37' : '#6A7080',
-              }"
-            >{{ env.icon }}</v-icon>
-            {{ env.name }}
+            <v-icon class="mr-1" size="12">mdi-view-dashboard-outline</v-icon>Dashboard
           </button>
-          <button
-            class="env-tab env-tab--add"
-            title="Add environment"
-            @click="openAddEnv"
-          >
-            <v-icon size="14">mdi-plus</v-icon>
-          </button>
+          <div class="bar-divider mx-4" />
+          <div class="env-tabs">
+            <button
+              v-for="env in environments"
+              :key="env.id"
+              class="env-tab"
+              :class="{ 'env-tab--active': currentEnvId === env.id }"
+              @click="switchEnv(env.id)"
+            >
+              <v-icon
+                class="mr-1"
+                size="13"
+                :style="{
+                  color: currentEnvId === env.id ? '#D4AF37' : '#6A7080',
+                }"
+              >{{ env.icon }}</v-icon>
+              {{ env.name }}
+            </button>
+            <button
+              class="env-tab env-tab--add"
+              title="Add environment"
+              @click="openAddEnv"
+            >
+              <v-icon size="14">mdi-plus</v-icon>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="builder-layout">
-      <!-- LEFT: Palette -->
-      <transition name="panel-slide-left">
-        <div v-if="!isPreviewMode" class="side-panel palette-panel">
-          <div class="panel-head">
-            <span class="panel-title">Elements</span>
-            <span class="panel-hint">arm → click canvas</span>
-          </div>
+      <div class="builder-layout">
+        <!-- LEFT: Palette -->
+        <transition name="panel-slide-left">
+          <div v-if="!isPreviewMode" class="side-panel palette-panel">
+            <div class="panel-head">
+              <span class="panel-title">Elements</span>
+              <span class="panel-hint">arm → click canvas</span>
+            </div>
 
-          <div v-for="cat in paletteCategories" :key="cat.id" class="pal-cat">
-            <div class="pal-cat-label">{{ cat.name }}</div>
-            <div class="pal-grid">
-              <div
-                v-for="el in cat.items"
-                :key="el.type"
-                class="pal-card"
-                :class="{ 'pal-card--armed': armedType === el.type }"
-                :title="el.name"
-                @click="armElement(el.type)"
-              >
-                <div v-if="el.type.startsWith('table_')" class="pal-preview">
-                  <div
-                    class="pal-table-mini"
-                    :class="{
-                      'mini--round':
-                        el.type === 'table_round_2' ||
-                        el.type === 'table_large_8',
-                    }"
-                  >
-                    <div class="mini-chairs-top">
-                      <div
-                        v-for="i in getMiniChairs(el.type).top"
-                        :key="i"
-                        class="mini-chair mini-chair--h"
-                      />
-                    </div>
-                    <div class="mini-mid">
-                      <div class="mini-chairs-side">
+            <div v-for="cat in paletteCategories" :key="cat.id" class="pal-cat">
+              <div class="pal-cat-label">{{ cat.name }}</div>
+              <div class="pal-grid">
+                <div
+                  v-for="el in cat.items"
+                  :key="el.type"
+                  class="pal-card"
+                  :class="{ 'pal-card--armed': armedType === el.type }"
+                  :title="el.name"
+                  @click="armElement(el.type)"
+                >
+                  <div v-if="el.type.startsWith('table_')" class="pal-preview">
+                    <div
+                      class="pal-table-mini"
+                      :class="{
+                        'mini--round':
+                          el.type === 'table_round_2' ||
+                          el.type === 'table_large_8',
+                      }"
+                    >
+                      <div class="mini-chairs-top">
                         <div
-                          v-for="i in getMiniChairs(el.type).left"
+                          v-for="i in getMiniChairs(el.type).top"
                           :key="i"
-                          class="mini-chair mini-chair--v"
+                          class="mini-chair mini-chair--h"
                         />
                       </div>
-                      <div
-                        class="mini-surface"
-                        :class="{
-                          'mini-surface--round':
-                            el.type === 'table_round_2' ||
-                            el.type === 'table_large_8',
-                        }"
-                      />
-                      <div class="mini-chairs-side">
+                      <div class="mini-mid">
+                        <div class="mini-chairs-side">
+                          <div
+                            v-for="i in getMiniChairs(el.type).left"
+                            :key="i"
+                            class="mini-chair mini-chair--v"
+                          />
+                        </div>
                         <div
-                          v-for="i in getMiniChairs(el.type).right"
+                          class="mini-surface"
+                          :class="{
+                            'mini-surface--round':
+                              el.type === 'table_round_2' ||
+                              el.type === 'table_large_8',
+                          }"
+                        />
+                        <div class="mini-chairs-side">
+                          <div
+                            v-for="i in getMiniChairs(el.type).right"
+                            :key="i"
+                            class="mini-chair mini-chair--v"
+                          />
+                        </div>
+                      </div>
+                      <div class="mini-chairs-top">
+                        <div
+                          v-for="i in getMiniChairs(el.type).bottom"
                           :key="i"
-                          class="mini-chair mini-chair--v"
+                          class="mini-chair mini-chair--h"
                         />
                       </div>
-                    </div>
-                    <div class="mini-chairs-top">
-                      <div
-                        v-for="i in getMiniChairs(el.type).bottom"
-                        :key="i"
-                        class="mini-chair mini-chair--h"
-                      />
                     </div>
                   </div>
+                  <div v-else class="pal-preview">
+                    <v-icon
+                      size="24"
+                      :style="{
+                        color: armedType === el.type ? '#D4AF37' : '#6A7080',
+                      }"
+                    >{{ el.icon }}</v-icon>
+                  </div>
+                  <div class="pal-name">{{ el.name }}</div>
+                  <div v-if="armedType === el.type" class="armed-pip" />
                 </div>
-                <div v-else class="pal-preview">
-                  <v-icon
-                    size="24"
-                    :style="{
-                      color: armedType === el.type ? '#D4AF37' : '#6A7080',
-                    }"
-                  >{{ el.icon }}</v-icon>
-                </div>
-                <div class="pal-name">{{ el.name }}</div>
-                <div v-if="armedType === el.type" class="armed-pip" />
               </div>
             </div>
           </div>
-        </div>
-      </transition>
+        </transition>
 
-      <!-- CENTER: Canvas -->
-      <div class="canvas-col">
-        <!-- Canvas toolbar -->
-        <div class="canvas-bar">
-          <div class="d-flex align-center" style="gap: 8px">
-            <span class="canvas-env-name">{{ currentEnv?.name }}</span>
-            <div class="elem-count-chip">
-              {{ currentEnvElements.length }} elements
+        <!-- CENTER: Canvas -->
+        <div class="canvas-col">
+          <!-- Canvas toolbar -->
+          <div class="canvas-bar">
+            <div class="d-flex align-center" style="gap: 8px">
+              <span class="canvas-env-name">{{ currentEnv?.name }}</span>
+              <div class="elem-count-chip">
+                {{ currentEnvElements.length }} elements
+              </div>
+              <div v-if="armedType && !isPreviewMode" class="armed-indicator">
+                <v-icon class="mr-1" size="11">mdi-cursor-default-click</v-icon>
+                Placing: {{ getElementDef(armedType)?.name }}
+                <button class="armed-cancel" @click="armedType = null">✕</button>
+              </div>
             </div>
-            <div v-if="armedType && !isPreviewMode" class="armed-indicator">
-              <v-icon class="mr-1" size="11">mdi-cursor-default-click</v-icon>
-              Placing: {{ getElementDef(armedType)?.name }}
-              <button class="armed-cancel" @click="armedType = null">✕</button>
+            <div class="d-flex align-center" style="gap: 4px">
+              <button
+                class="zoom-btn"
+                title="Zoom out"
+                @click="zoom = Math.max(0.4, zoom - 0.25)"
+              >
+                <v-icon size="15">mdi-magnify-minus-outline</v-icon>
+              </button>
+              <span class="zoom-val">{{ Math.round(zoom * 100) }}%</span>
+              <button
+                class="zoom-btn"
+                title="Zoom in"
+                @click="zoom = Math.min(2, zoom + 0.25)"
+              >
+                <v-icon size="15">mdi-magnify-plus-outline</v-icon>
+              </button>
+              <button
+                class="zoom-btn"
+                style="margin-left: 2px"
+                title="Reset zoom"
+                @click="zoom = 1"
+              >
+                <v-icon size="15">mdi-fullscreen</v-icon>
+              </button>
             </div>
           </div>
-          <div class="d-flex align-center" style="gap: 4px">
-            <button
-              class="zoom-btn"
-              title="Zoom out"
-              @click="zoom = Math.max(0.4, zoom - 0.25)"
-            >
-              <v-icon size="15">mdi-magnify-minus-outline</v-icon>
-            </button>
-            <span class="zoom-val">{{ Math.round(zoom * 100) }}%</span>
-            <button
-              class="zoom-btn"
-              title="Zoom in"
-              @click="zoom = Math.min(2, zoom + 0.25)"
-            >
-              <v-icon size="15">mdi-magnify-plus-outline</v-icon>
-            </button>
-            <button
-              class="zoom-btn"
-              style="margin-left: 2px"
-              title="Reset zoom"
-              @click="zoom = 1"
-            >
-              <v-icon size="15">mdi-fullscreen</v-icon>
-            </button>
-          </div>
-        </div>
 
-        <!-- Canvas viewport -->
-        <div
-          ref="canvasViewport"
-          class="canvas-viewport"
-          tabindex="0"
-          @click="onCanvasClick"
-          @keydown.backspace.prevent="deleteSelected"
-          @keydown.delete.prevent="deleteSelected"
-          @keydown.escape="
-            armedType = null;
-            selectedId = null;
-          "
-          @mouseleave="onMouseUp"
-          @mousemove="onCanvasMouseMove"
-          @mouseup="onMouseUp"
-        >
+          <!-- Canvas viewport -->
           <div
-            class="canvas-scaler"
-            :style="{
-              transform: 'scale(' + zoom + ')',
-              transformOrigin: '0 0',
-              width: (currentEnv?.canvas.width ?? 1000) + 'px',
-              height: (currentEnv?.canvas.height ?? 660) + 'px',
-            }"
+            ref="canvasViewport"
+            class="canvas-viewport"
+            tabindex="0"
+            @click="onCanvasClick"
+            @keydown.backspace.prevent="deleteSelected"
+            @keydown.delete.prevent="deleteSelected"
+            @keydown.escape="
+              armedType = null;
+              selectedId = null;
+            "
+            @mouseleave="onMouseUp"
+            @mousemove="onCanvasMouseMove"
+            @mouseup="onMouseUp"
           >
-            <!-- Grid SVG -->
-            <svg
-              class="grid-svg"
-              :height="currentEnv?.canvas.height ?? 660"
-              :width="currentEnv?.canvas.width ?? 1000"
-            >
-              <defs>
-                <pattern
-                  id="g40"
-                  height="40"
-                  patternUnits="userSpaceOnUse"
-                  width="40"
-                >
-                  <path
-                    d="M 40 0 L 0 0 0 40"
-                    fill="none"
-                    stroke="rgba(212,175,55,0.06)"
-                    stroke-width="0.5"
-                  />
-                </pattern>
-                <pattern
-                  id="g200"
-                  height="200"
-                  patternUnits="userSpaceOnUse"
-                  width="200"
-                >
-                  <path
-                    d="M 200 0 L 0 0 0 200"
-                    fill="none"
-                    stroke="rgba(212,175,55,0.13)"
-                    stroke-width="1"
-                  />
-                </pattern>
-              </defs>
-              <rect fill="url(#g40)" height="100%" width="100%" />
-              <rect fill="url(#g200)" height="100%" width="100%" />
-            </svg>
-
-            <!-- Placed elements -->
             <div
-              v-for="el in currentEnvElements"
-              :key="el.id"
-              class="placed-el"
-              :class="[
-                {
-                  'placed-el--selected': selectedId === el.id && !isPreviewMode,
-                },
-                {
-                  'placed-el--available':
-                    isPreviewMode &&
-                    el.status === 'available' &&
-                    el.type.startsWith('table_'),
-                },
-                {
-                  'placed-el--reserved':
-                    isPreviewMode &&
-                    el.status === 'reserved' &&
-                    el.type.startsWith('table_'),
-                },
-                { 'placed-el--non-table': !el.type.startsWith('table_') },
-              ]"
-              :style="getElementStyle(el)"
-              @click.stop
-              @mousedown.stop="startDrag($event, el)"
-            >
-              <!-- Table with chairs -->
-              <template v-if="el.type.startsWith('table_')">
-                <div
-                  class="table-unit"
-                  :class="{ 'table-unit--round': isRound(el) }"
-                >
-                  <div class="chair-row">
-                    <div
-                      v-for="i in getChairs(el).top"
-                      :key="'t' + i"
-                      class="chair chair--h"
-                    />
-                  </div>
-                  <div
-                    class="table-surface"
-                    :class="{ 'table-surface--round': isRound(el) }"
-                  />
-                  <div class="chair-row">
-                    <div
-                      v-for="i in getChairs(el).bottom"
-                      :key="'b' + i"
-                      class="chair chair--h"
-                    />
-                  </div>
-                </div>
-                <div class="el-label">
-                  <span class="el-name">{{ el.label }}</span>
-                  <span class="el-seats">{{ el.capacity }}p</span>
-                </div>
-              </template>
-
-              <!-- Structure / decor -->
-              <template v-else>
-                <div
-                  class="struct-el"
-                  :class="'struct-el--' + el.type"
-                  :style="getStructStyle(el)"
-                >
-                  <v-icon class="struct-icon" size="20">{{
-                    getElementDef(el.type)?.icon
-                  }}</v-icon>
-                </div>
-                <div class="el-label-sm">{{ el.label }}</div>
-              </template>
-
-              <!-- Selection ring -->
-              <div
-                v-if="selectedId === el.id && !isPreviewMode"
-                class="sel-ring"
-              >
-                <div class="sel-handle sel-h--tl" />
-                <div class="sel-handle sel-h--tr" />
-                <div class="sel-handle sel-h--bl" />
-                <div
-                  class="sel-handle sel-h--br sel-h--resize"
-                  :title="
-                    el.type.startsWith('table_')
-                      ? 'Drag to resize capacity'
-                      : 'Drag to resize'
-                  "
-                  @mousedown.stop.prevent="startResize($event, el)"
-                />
-              </div>
-            </div>
-
-            <!-- Placement cursor -->
-            <div
-              v-if="armedType && cursorSnap.x !== null && !isPreviewMode"
-              class="place-cursor"
+              class="canvas-scaler"
               :style="{
-                left: cursorSnap.x + 'px',
-                top: cursorSnap.y + 'px',
-                pointerEvents: 'none',
+                transform: 'scale(' + zoom + ')',
+                transformOrigin: '0 0',
+                width: (currentEnv?.canvas.width ?? 1000) + 'px',
+                height: (currentEnv?.canvas.height ?? 660) + 'px',
               }"
             >
-              <div class="place-cursor-ring" />
-              <v-icon
-                size="12"
-                style="
+              <!-- Grid SVG -->
+              <svg
+                class="grid-svg"
+                :height="currentEnv?.canvas.height ?? 660"
+                :width="currentEnv?.canvas.width ?? 1000"
+              >
+                <defs>
+                  <pattern
+                    id="g40"
+                    height="40"
+                    patternUnits="userSpaceOnUse"
+                    width="40"
+                  >
+                    <path
+                      d="M 40 0 L 0 0 0 40"
+                      fill="none"
+                      stroke="rgba(212,175,55,0.06)"
+                      stroke-width="0.5"
+                    />
+                  </pattern>
+                  <pattern
+                    id="g200"
+                    height="200"
+                    patternUnits="userSpaceOnUse"
+                    width="200"
+                  >
+                    <path
+                      d="M 200 0 L 0 0 0 200"
+                      fill="none"
+                      stroke="rgba(212,175,55,0.13)"
+                      stroke-width="1"
+                    />
+                  </pattern>
+                </defs>
+                <rect fill="url(#g40)" height="100%" width="100%" />
+                <rect fill="url(#g200)" height="100%" width="100%" />
+              </svg>
+
+              <!-- Placed elements -->
+              <div
+                v-for="el in currentEnvElements"
+                :key="el.id"
+                class="placed-el"
+                :class="[
+                  {
+                    'placed-el--selected': selectedId === el.id && !isPreviewMode,
+                  },
+                  {
+                    'placed-el--available':
+                      isPreviewMode &&
+                      el.status === 'available' &&
+                      el.type.startsWith('table_'),
+                  },
+                  {
+                    'placed-el--reserved':
+                      isPreviewMode &&
+                      el.status === 'reserved' &&
+                      el.type.startsWith('table_'),
+                  },
+                  { 'placed-el--non-table': !el.type.startsWith('table_') },
+                ]"
+                :style="getElementStyle(el)"
+                @click.stop
+                @mousedown.stop="startDrag($event, el)"
+              >
+                <!-- Table with chairs -->
+                <template v-if="el.type.startsWith('table_')">
+                  <div
+                    class="table-unit"
+                    :class="{ 'table-unit--round': isRound(el) }"
+                  >
+                    <div class="chair-row">
+                      <div
+                        v-for="i in getChairs(el).top"
+                        :key="'t' + i"
+                        class="chair chair--h"
+                      />
+                    </div>
+                    <div
+                      class="table-surface"
+                      :class="{ 'table-surface--round': isRound(el) }"
+                    />
+                    <div class="chair-row">
+                      <div
+                        v-for="i in getChairs(el).bottom"
+                        :key="'b' + i"
+                        class="chair chair--h"
+                      />
+                    </div>
+                  </div>
+                  <div class="el-label">
+                    <span class="el-name">{{ el.label }}</span>
+                    <span class="el-seats">{{ el.capacity }}p</span>
+                  </div>
+                </template>
+
+                <!-- Structure / decor -->
+                <template v-else>
+                  <div
+                    class="struct-el"
+                    :class="'struct-el--' + el.type"
+                    :style="getStructStyle(el)"
+                  >
+                    <v-icon class="struct-icon" size="20">{{
+                      getElementDef(el.type)?.icon
+                    }}</v-icon>
+                  </div>
+                  <div class="el-label-sm">{{ el.label }}</div>
+                </template>
+
+                <!-- Selection ring -->
+                <div
+                  v-if="selectedId === el.id && !isPreviewMode"
+                  class="sel-ring"
+                >
+                  <div class="sel-handle sel-h--tl" />
+                  <div class="sel-handle sel-h--tr" />
+                  <div class="sel-handle sel-h--bl" />
+                  <div
+                    class="sel-handle sel-h--br sel-h--resize"
+                    :title="
+                      el.type.startsWith('table_')
+                        ? 'Drag to resize capacity'
+                        : 'Drag to resize'
+                    "
+                    @mousedown.stop.prevent="startResize($event, el)"
+                  />
+                </div>
+              </div>
+
+              <!-- Placement cursor -->
+              <div
+                v-if="armedType && cursorSnap.x !== null && !isPreviewMode"
+                class="place-cursor"
+                :style="{
+                  left: cursorSnap.x + 'px',
+                  top: cursorSnap.y + 'px',
+                  pointerEvents: 'none',
+                }"
+              >
+                <div class="place-cursor-ring" />
+                <v-icon
+                  size="12"
+                  style="
                   color: #d4af37;
                   position: absolute;
                   top: 50%;
                   left: 50%;
                   transform: translate(-50%, -50%);
                 "
-              >mdi-plus</v-icon>
-            </div>
+                >mdi-plus</v-icon>
+              </div>
 
-            <!-- Empty hint -->
-            <div
-              v-if="currentEnvElements.length === 0 && !armedType"
-              class="canvas-empty-hint"
-            >
-              <v-icon
-                size="40"
-                style="color: rgba(212, 175, 55, 0.18); margin-bottom: 12px"
-              >mdi-floor-plan</v-icon>
-              <p>
-                Select an element from the palette<br>and click the grid to
-                place it
-              </p>
+              <!-- Empty hint -->
+              <div
+                v-if="currentEnvElements.length === 0 && !armedType"
+                class="canvas-empty-hint"
+              >
+                <v-icon
+                  size="40"
+                  style="color: rgba(212, 175, 55, 0.18); margin-bottom: 12px"
+                >mdi-floor-plan</v-icon>
+                <p>
+                  Select an element from the palette<br>and click the grid to
+                  place it
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- RIGHT: Properties -->
+        <transition name="panel-slide-right">
+          <div v-if="!isPreviewMode" class="side-panel props-panel">
+            <div class="panel-head">
+              <span class="panel-title">Properties</span>
+            </div>
+
+            <template v-if="selectedEl">
+              <div class="prop-type-row">
+                <v-icon class="mr-1" size="13" style="color: #d4af37">{{
+                  getElementDef(selectedEl.type)?.icon
+                }}</v-icon>
+                <span>{{ getElementDef(selectedEl.type)?.name }}</span>
+              </div>
+
+              <div class="prop-group">
+                <label class="prop-lbl">Label</label>
+                <v-text-field
+                  v-model="selectedEl.label"
+                  class="prop-tf"
+                  density="compact"
+                  hide-details
+                  variant="outlined"
+                  @input="pushHistory"
+                />
+              </div>
+
+              <div v-if="selectedEl.type.startsWith('table_')" class="prop-group">
+                <label class="prop-lbl">Capacity</label>
+                <div class="cap-stepper">
+                  <button class="cap-step-btn" @click="adjustCapacity(-1)">
+                    −
+                  </button>
+                  <span class="cap-val">{{ selectedEl.capacity }}</span>
+                  <button class="cap-step-btn" @click="adjustCapacity(1)">
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div
+                v-if="!selectedEl.type.startsWith('table_')"
+                class="prop-group"
+              >
+                <label class="prop-lbl">Size (grid units)</label>
+                <div class="size-steppers">
+                  <div style="flex: 1">
+                    <div
+                      class="prop-lbl"
+                      style="font-size: 0.58rem; margin-bottom: 3px"
+                    >
+                      Width
+                    </div>
+                    <div class="cap-stepper">
+                      <button class="cap-step-btn" @click="adjustW(-1)">−</button>
+                      <span class="cap-val">{{ selectedEl.w ?? 1 }}</span>
+                      <button class="cap-step-btn" @click="adjustW(1)">+</button>
+                    </div>
+                  </div>
+                  <div style="flex: 1">
+                    <div
+                      class="prop-lbl"
+                      style="font-size: 0.58rem; margin-bottom: 3px"
+                    >
+                      Height
+                    </div>
+                    <div class="cap-stepper">
+                      <button class="cap-step-btn" @click="adjustH(-1)">−</button>
+                      <span class="cap-val">{{ selectedEl.h ?? 1 }}</span>
+                      <button class="cap-step-btn" @click="adjustH(1)">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="selectedEl.type.startsWith('table_')" class="prop-group">
+                <label class="prop-lbl">Shape</label>
+                <div class="shape-toggle">
+                  <button
+                    class="shape-btn"
+                    :class="{ 'shape-btn--on': !isRound(selectedEl) }"
+                    @click="setShape('rect')"
+                  >
+                    <svg height="14" viewBox="0 0 20 14" width="20">
+                      <rect
+                        fill="none"
+                        height="12"
+                        rx="2"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        width="18"
+                        x="1"
+                        y="1"
+                      />
+                    </svg>
+                    Rect
+                  </button>
+                  <button
+                    class="shape-btn"
+                    :class="{ 'shape-btn--on': isRound(selectedEl) }"
+                    @click="setShape('round')"
+                  >
+                    <svg height="14" viewBox="0 0 14 14" width="14">
+                      <circle
+                        cx="7"
+                        cy="7"
+                        fill="none"
+                        r="6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                    </svg>
+                    Round
+                  </button>
+                </div>
+              </div>
+
+              <div class="prop-divider" />
+
+              <div class="prop-row">
+                <div class="prop-group prop-group--half">
+                  <label class="prop-lbl">X</label>
+                  <v-text-field
+                    v-model.number="selectedEl.x"
+                    class="prop-tf"
+                    density="compact"
+                    hide-details
+                    type="number"
+                    variant="outlined"
+                    @input="pushHistory"
+                  />
+                </div>
+                <div class="prop-group prop-group--half">
+                  <label class="prop-lbl">Y</label>
+                  <v-text-field
+                    v-model.number="selectedEl.y"
+                    class="prop-tf"
+                    density="compact"
+                    hide-details
+                    type="number"
+                    variant="outlined"
+                    @input="pushHistory"
+                  />
+                </div>
+              </div>
+
+              <div class="prop-group">
+                <label class="prop-lbl">Rotation — {{ selectedEl.rotation }}°</label>
+                <v-slider
+                  v-model="selectedEl.rotation"
+                  class="prop-slider"
+                  color="#D4AF37"
+                  hide-details
+                  :max="315"
+                  :min="0"
+                  :step="45"
+                  @end="pushHistory"
+                />
+              </div>
+
+              <div class="prop-divider" />
+
+              <div v-if="selectedEl.type.startsWith('table_')" class="prop-group">
+                <label class="prop-lbl">Status (preview)</label>
+                <div class="status-toggle">
+                  <button
+                    class="status-btn status-btn--avail"
+                    :class="{
+                      'status-btn--on': selectedEl.status === 'available',
+                    }"
+                    @click="
+                      selectedEl.status = 'available';
+                      pushHistory();
+                    "
+                  >
+                    Available
+                  </button>
+                  <button
+                    class="status-btn status-btn--rsvd"
+                    :class="{
+                      'status-btn--on': selectedEl.status === 'reserved',
+                    }"
+                    @click="
+                      selectedEl.status = 'reserved';
+                      pushHistory();
+                    "
+                  >
+                    Reserved
+                  </button>
+                </div>
+              </div>
+
+              <div class="prop-divider" />
+
+              <button class="delete-el-btn" @click="deleteSelected">
+                <v-icon class="mr-1" size="14">mdi-delete-outline</v-icon>Delete
+                Element
+              </button>
+            </template>
+
+            <template v-else-if="currentEnv">
+              <div class="env-settings-head">Environment</div>
+
+              <div class="prop-group">
+                <label class="prop-lbl">Name</label>
+                <v-text-field
+                  v-model="currentEnv.name"
+                  class="prop-tf"
+                  density="compact"
+                  hide-details
+                  variant="outlined"
+                />
+              </div>
+
+              <div class="prop-divider" />
+
+              <div class="props-idle">
+                <v-icon
+                  size="36"
+                  style="color: rgba(212, 175, 55, 0.18); margin-bottom: 10px"
+                >mdi-cursor-default-click</v-icon>
+                <p>Click an element on the canvas to edit its properties</p>
+              </div>
+
+              <div class="prop-divider" />
+
+              <button
+                class="danger-env-btn"
+                :disabled="environments.length <= 1"
+                @click="openDeleteEnv"
+              >
+                <v-icon class="mr-1" size="14">mdi-trash-can-outline</v-icon>Delete Environment
+              </button>
+            </template>
+
+            <template v-else>
+              <div class="props-idle" style="padding-top: 32px">
+                <v-icon size="36" style="color: rgba(212, 175, 55, 0.18); margin-bottom: 10px">mdi-floor-plan</v-icon>
+                <p>No environments yet.<br>Add one using the + button above.</p>
+              </div>
+            </template>
+          </div>
+        </transition>
       </div>
+    </v-main>
 
-      <!-- RIGHT: Properties -->
-      <transition name="panel-slide-right">
-        <div v-if="!isPreviewMode" class="side-panel props-panel">
-          <div class="panel-head">
-            <span class="panel-title">Properties</span>
+    <!-- Save Dialog -->
+    <v-dialog v-model="showSaveDialog" max-width="380">
+      <v-card
+        flat
+        style="
+        background: var(--color-surface);
+        border: 1px solid rgba(212, 175, 55, 0.18);
+        border-radius: 16px;
+      "
+      >
+        <v-card-text class="pa-7 text-center">
+          <div class="save-icon-ring">
+            <v-icon
+              size="44"
+              style="color: #2ebb57"
+            >mdi-check-circle-outline</v-icon>
           </div>
+          <div class="save-dlg-title mt-4">Layout Saved</div>
+          <div class="save-dlg-sub mt-1">
+            {{ totalElements }} elements · {{ environments.length }} environment{{
+              environments.length !== 1 ? "s" : ""
+            }}
+          </div>
+          <pre class="json-preview mt-4">{{ jsonPreview }}</pre>
+          <button class="gold-btn w-100 mt-5" @click="showSaveDialog = false">
+            Done
+          </button>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
-          <template v-if="selectedEl">
-            <div class="prop-type-row">
-              <v-icon class="mr-1" size="13" style="color: #d4af37">{{
-                getElementDef(selectedEl.type)?.icon
-              }}</v-icon>
-              <span>{{ getElementDef(selectedEl.type)?.name }}</span>
-            </div>
-
-            <div class="prop-group">
-              <label class="prop-lbl">Label</label>
-              <v-text-field
-                v-model="selectedEl.label"
-                class="prop-tf"
-                density="compact"
-                hide-details
-                variant="outlined"
-                @input="pushHistory"
-              />
-            </div>
-
-            <div v-if="selectedEl.type.startsWith('table_')" class="prop-group">
-              <label class="prop-lbl">Capacity</label>
-              <div class="cap-stepper">
-                <button class="cap-step-btn" @click="adjustCapacity(-1)">
-                  −
-                </button>
-                <span class="cap-val">{{ selectedEl.capacity }}</span>
-                <button class="cap-step-btn" @click="adjustCapacity(1)">
-                  +
-                </button>
-              </div>
-            </div>
-
-            <div
-              v-if="!selectedEl.type.startsWith('table_')"
-              class="prop-group"
-            >
-              <label class="prop-lbl">Size (grid units)</label>
-              <div class="size-steppers">
-                <div style="flex: 1">
-                  <div
-                    class="prop-lbl"
-                    style="font-size: 0.58rem; margin-bottom: 3px"
-                  >
-                    Width
-                  </div>
-                  <div class="cap-stepper">
-                    <button class="cap-step-btn" @click="adjustW(-1)">−</button>
-                    <span class="cap-val">{{ selectedEl.w ?? 1 }}</span>
-                    <button class="cap-step-btn" @click="adjustW(1)">+</button>
-                  </div>
-                </div>
-                <div style="flex: 1">
-                  <div
-                    class="prop-lbl"
-                    style="font-size: 0.58rem; margin-bottom: 3px"
-                  >
-                    Height
-                  </div>
-                  <div class="cap-stepper">
-                    <button class="cap-step-btn" @click="adjustH(-1)">−</button>
-                    <span class="cap-val">{{ selectedEl.h ?? 1 }}</span>
-                    <button class="cap-step-btn" @click="adjustH(1)">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="selectedEl.type.startsWith('table_')" class="prop-group">
-              <label class="prop-lbl">Shape</label>
-              <div class="shape-toggle">
-                <button
-                  class="shape-btn"
-                  :class="{ 'shape-btn--on': !isRound(selectedEl) }"
-                  @click="setShape('rect')"
-                >
-                  <svg height="14" viewBox="0 0 20 14" width="20">
-                    <rect
-                      fill="none"
-                      height="12"
-                      rx="2"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      width="18"
-                      x="1"
-                      y="1"
-                    />
-                  </svg>
-                  Rect
-                </button>
-                <button
-                  class="shape-btn"
-                  :class="{ 'shape-btn--on': isRound(selectedEl) }"
-                  @click="setShape('round')"
-                >
-                  <svg height="14" viewBox="0 0 14 14" width="14">
-                    <circle
-                      cx="7"
-                      cy="7"
-                      fill="none"
-                      r="6"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                    />
-                  </svg>
-                  Round
-                </button>
-              </div>
-            </div>
-
-            <div class="prop-divider" />
-
-            <div class="prop-row">
-              <div class="prop-group prop-group--half">
-                <label class="prop-lbl">X</label>
-                <v-text-field
-                  v-model.number="selectedEl.x"
-                  class="prop-tf"
-                  density="compact"
-                  hide-details
-                  type="number"
-                  variant="outlined"
-                  @input="pushHistory"
-                />
-              </div>
-              <div class="prop-group prop-group--half">
-                <label class="prop-lbl">Y</label>
-                <v-text-field
-                  v-model.number="selectedEl.y"
-                  class="prop-tf"
-                  density="compact"
-                  hide-details
-                  type="number"
-                  variant="outlined"
-                  @input="pushHistory"
-                />
-              </div>
-            </div>
-
-            <div class="prop-group">
-              <label class="prop-lbl">Rotation — {{ selectedEl.rotation }}°</label>
-              <v-slider
-                v-model="selectedEl.rotation"
-                class="prop-slider"
-                color="#D4AF37"
-                hide-details
-                :max="315"
-                :min="0"
-                :step="45"
-                @end="pushHistory"
-              />
-            </div>
-
-            <div class="prop-divider" />
-
-            <div v-if="selectedEl.type.startsWith('table_')" class="prop-group">
-              <label class="prop-lbl">Status (preview)</label>
-              <div class="status-toggle">
-                <button
-                  class="status-btn status-btn--avail"
-                  :class="{
-                    'status-btn--on': selectedEl.status === 'available',
-                  }"
-                  @click="
-                    selectedEl.status = 'available';
-                    pushHistory();
-                  "
-                >
-                  Available
-                </button>
-                <button
-                  class="status-btn status-btn--rsvd"
-                  :class="{
-                    'status-btn--on': selectedEl.status === 'reserved',
-                  }"
-                  @click="
-                    selectedEl.status = 'reserved';
-                    pushHistory();
-                  "
-                >
-                  Reserved
-                </button>
-              </div>
-            </div>
-
-            <div class="prop-divider" />
-
-            <button class="delete-el-btn" @click="deleteSelected">
-              <v-icon class="mr-1" size="14">mdi-delete-outline</v-icon>Delete
-              Element
-            </button>
-          </template>
-
-          <template v-else-if="currentEnv">
-            <div class="env-settings-head">Environment</div>
-
-            <div class="prop-group">
-              <label class="prop-lbl">Name</label>
-              <v-text-field
-                v-model="currentEnv.name"
-                class="prop-tf"
-                density="compact"
-                hide-details
-                variant="outlined"
-              />
-            </div>
-
-            <div class="prop-divider" />
-
-            <div class="props-idle">
-              <v-icon
-                size="36"
-                style="color: rgba(212, 175, 55, 0.18); margin-bottom: 10px"
-              >mdi-cursor-default-click</v-icon>
-              <p>Click an element on the canvas to edit its properties</p>
-            </div>
-
-            <div class="prop-divider" />
-
+    <!-- Add environment dialog -->
+    <v-dialog v-model="showAddEnvDialog" max-width="360">
+      <v-card
+        flat
+        style="
+        background: var(--color-surface);
+        border: 1px solid rgba(212, 175, 55, 0.18);
+        border-radius: 16px;
+      "
+      >
+        <v-card-text class="pa-6">
+          <div class="dlg-heading mb-4">New Environment</div>
+          <v-text-field
+            v-model="newEnvName"
+            class="prop-tf mb-4"
+            density="compact"
+            hide-details
+            label="Name (e.g. Rooftop Bar)"
+            variant="outlined"
+            @keydown.enter="confirmAddEnv"
+          />
+          <div class="d-flex" style="gap: 8px">
             <button
-              class="danger-env-btn"
-              :disabled="environments.length <= 1"
-              @click="openDeleteEnv"
+              class="outline-btn flex-grow-1"
+              @click="showAddEnvDialog = false"
             >
-              <v-icon class="mr-1" size="14">mdi-trash-can-outline</v-icon>Delete Environment
+              Cancel
             </button>
-          </template>
+            <button class="gold-btn flex-grow-1" @click="confirmAddEnv">
+              Create
+            </button>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
-          <template v-else>
-            <div class="props-idle" style="padding-top: 32px">
-              <v-icon size="36" style="color: rgba(212, 175, 55, 0.18); margin-bottom: 10px">mdi-floor-plan</v-icon>
-              <p>No environments yet.<br>Add one using the + button above.</p>
-            </div>
-          </template>
-        </div>
-      </transition>
-    </div>
-  </v-main>
+    <!-- Delete constraint dialog -->
+    <DeleteConstraintDialog
+      v-model="showDeleteConstraintDialog"
+      :reservations="deleteConstraintReservations"
+      :table-name="deleteConstraintTableName"
+    />
 
-  <!-- Save Dialog -->
-  <v-dialog v-model="showSaveDialog" max-width="380">
-    <v-card
-      flat
-      style="
-        background: var(--color-surface);
-        border: 1px solid rgba(212, 175, 55, 0.18);
-        border-radius: 16px;
-      "
-    >
-      <v-card-text class="pa-7 text-center">
-        <div class="save-icon-ring">
-          <v-icon
-            size="44"
-            style="color: #2ebb57"
-          >mdi-check-circle-outline</v-icon>
-        </div>
-        <div class="save-dlg-title mt-4">Layout Saved</div>
-        <div class="save-dlg-sub mt-1">
-          {{ totalElements }} elements · {{ environments.length }} environment{{
-            environments.length !== 1 ? "s" : ""
-          }}
-        </div>
-        <pre class="json-preview mt-4">{{ jsonPreview }}</pre>
-        <button class="gold-btn w-100 mt-5" @click="showSaveDialog = false">
-          Done
-        </button>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
-
-  <!-- Add environment dialog -->
-  <v-dialog v-model="showAddEnvDialog" max-width="360">
-    <v-card
-      flat
-      style="
-        background: var(--color-surface);
-        border: 1px solid rgba(212, 175, 55, 0.18);
-        border-radius: 16px;
-      "
-    >
-      <v-card-text class="pa-6">
-        <div class="dlg-heading mb-4">New Environment</div>
-        <v-text-field
-          v-model="newEnvName"
-          class="prop-tf mb-4"
-          density="compact"
-          hide-details
-          label="Name (e.g. Rooftop Bar)"
-          variant="outlined"
-          @keydown.enter="confirmAddEnv"
-        />
-        <div class="d-flex" style="gap: 8px">
-          <button
-            class="outline-btn flex-grow-1"
-            @click="showAddEnvDialog = false"
-          >
-            Cancel
-          </button>
-          <button class="gold-btn flex-grow-1" @click="confirmAddEnv">
-            Create
-          </button>
-        </div>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
-
-  <!-- Delete constraint dialog -->
-  <DeleteConstraintDialog
-    v-model="showDeleteConstraintDialog"
-    :reservations="deleteConstraintReservations"
-    :table-name="deleteConstraintTableName"
-  />
-
-  <!-- Delete environment dialog -->
-  <v-dialog v-model="showDeleteEnvDialog" max-width="360">
-    <v-card
-      flat
-      style="
+    <!-- Delete environment dialog -->
+    <v-dialog v-model="showDeleteEnvDialog" max-width="360">
+      <v-card
+        flat
+        style="
         background: var(--color-surface);
         border: 1px solid rgba(199, 21, 133, 0.3);
         border-radius: 16px;
       "
-    >
-      <v-card-text class="pa-6 text-center">
-        <v-icon
-          size="40"
-          style="color: #c71585; margin-bottom: 12px"
-        >mdi-alert-outline</v-icon>
-        <div class="dlg-heading mb-2">Delete "{{ currentEnv?.name }}"?</div>
-        <div class="dlg-sub mb-5">
-          This removes {{ currentEnvElements.length }} elements and cannot be
-          undone.
-        </div>
-        <div class="d-flex" style="gap: 8px">
-          <button
-            class="outline-btn flex-grow-1"
-            @click="showDeleteEnvDialog = false"
-          >
-            Cancel
-          </button>
-          <button class="danger-btn flex-grow-1" @click="confirmDeleteEnv">
-            Delete
-          </button>
-        </div>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
+      >
+        <v-card-text class="pa-6 text-center">
+          <v-icon
+            size="40"
+            style="color: #c71585; margin-bottom: 12px"
+          >mdi-alert-outline</v-icon>
+          <div class="dlg-heading mb-2">Delete "{{ currentEnv?.name }}"?</div>
+          <div class="dlg-sub mb-5">
+            This removes {{ currentEnvElements.length }} elements and cannot be
+            undone.
+          </div>
+          <div class="d-flex" style="gap: 8px">
+            <button
+              class="outline-btn flex-grow-1"
+              @click="showDeleteEnvDialog = false"
+            >
+              Cancel
+            </button>
+            <button class="danger-btn flex-grow-1" @click="confirmDeleteEnv">
+              Delete
+            </button>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </template><!-- end desktop-only -->
 </template>
 
 <script setup>
-  import { computed, ref, watch } from 'vue'
+  import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
   import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
   import { useAdminNav } from '@/composables/useAdminNav'
@@ -795,6 +819,16 @@
   import { Environment, ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
   const router = useRouter()
+
+  // ─── Mobile gate ──────────────────────────────────────────────────────────────
+  const isMobile = ref(false)
+  function checkMobile () {
+    isMobile.value = window.innerWidth < 960
+  }
+  onMounted(() => {
+    checkMobile(); window.addEventListener('resize', checkMobile)
+  })
+  onUnmounted(() => window.removeEventListener('resize', checkMobile))
 
   // ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
   const { adminNavLinks, handleNav } = useAdminNav()
@@ -1245,6 +1279,51 @@
 </script>
 
 <style scoped>
+/* ── Mobile Gate ── */
+.mobile-gate {
+  min-height: 100dvh;
+  background: #0a0e14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.mobile-gate__card {
+  background: #13181f;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 20px;
+  padding: 48px 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(212, 175, 55, 0.06);
+}
+.mobile-gate__icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+.mobile-gate__title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #d4af37;
+  margin-bottom: 12px;
+}
+.mobile-gate__desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
 .bar-divider {
   width: 1px;
   height: 24px;

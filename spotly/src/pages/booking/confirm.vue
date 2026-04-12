@@ -15,10 +15,9 @@
         ]"
       />
       <v-btn
-        class="text-none px-4 ml-4"
+        class="text-none px-4 ml-4 nav-back-btn"
         :ripple="false"
         size="small"
-        style="color: rgba(255, 255, 255, 0.55); font-size: 0.78rem"
         variant="text"
         @click="goBack"
       >
@@ -29,13 +28,12 @@
 
   <!-- ── Main Content ── -->
   <v-main class="spotly-main">
-    <div class="spotly-container spotly-container--wide">
+    <div class="spotly-container spotly-container--wide confirm-page">
       <!-- Back Button -->
       <v-btn
-        class="text-none mb-5"
+        class="back-btn text-none mb-5"
         :ripple="false"
         size="small"
-        style="color: #d4af37; font-size: 0.85rem"
         variant="text"
         @click="goBack"
       >
@@ -48,7 +46,7 @@
         <!-- LEFT COLUMN: Form -->
         <v-col cols="12" md="8">
           <!-- Venue Header -->
-          <div class="mb-6">
+          <div class="venue-header mb-6">
             <h1 class="venue-title">Sunset Beach Club</h1>
             <div class="venue-location mt-1">
               <v-icon size="15" style="color: #6a7080">mdi-map-marker</v-icon>
@@ -56,20 +54,12 @@
             </div>
           </div>
 
-          <h2 class="page-subtitle mb-5">Complete your reservation</h2>
+          <h2 class="page-subtitle mb-6">Complete your reservation</h2>
 
           <!-- SECTION 1: Your Details -->
-          <v-card
-            class="form-section mb-4"
-            flat
-            style="
-              background: var(--color-surface-elevated);
-              border: 1px solid rgba(212, 175, 55, 0.18);
-              border-radius: 12px;
-            "
-          >
+          <v-card class="form-section mb-4" flat>
             <v-card-text class="pa-6">
-              <div class="d-flex align-center mb-5">
+              <div class="section-header mb-5">
                 <div class="section-number">1</div>
                 <span class="section-title ml-3">Your Details</span>
               </div>
@@ -77,7 +67,7 @@
               <v-row>
                 <v-col cols="12" md="6">
                   <label class="field-label mb-2 d-block">
-                    Name <span style="color: #c71585">*</span>
+                    Name <span class="required-star">*</span>
                   </label>
                   <v-text-field
                     v-model="form.name"
@@ -92,7 +82,7 @@
 
                 <v-col cols="12" md="6">
                   <label class="field-label mb-2 d-block">
-                    Email <span style="color: #c71585">*</span>
+                    Email <span class="required-star">*</span>
                   </label>
                   <v-text-field
                     v-model="form.email"
@@ -107,7 +97,7 @@
                 </v-col>
 
                 <v-col cols="12" md="6">
-                  <label class="field-label mb-2 d-block"> Phone Number </label>
+                  <label class="field-label mb-2 d-block">Phone Number</label>
                   <v-text-field
                     v-model="form.phone"
                     class="spotly-input"
@@ -123,17 +113,9 @@
           </v-card>
 
           <!-- SECTION 2: Booking Summary -->
-          <v-card
-            class="form-section mb-4"
-            flat
-            style="
-              background: var(--color-surface-elevated);
-              border: 1px solid rgba(212, 175, 55, 0.18);
-              border-radius: 12px;
-            "
-          >
+          <v-card class="form-section mb-4" flat>
             <v-card-text class="pa-6">
-              <div class="d-flex align-center mb-5">
+              <div class="section-header mb-5">
                 <div class="section-number">2</div>
                 <span class="section-title ml-3">Booking Summary</span>
               </div>
@@ -143,69 +125,37 @@
                 <div
                   v-for="(item, idx) in cart"
                   :key="item.id"
-                  :style="
-                    idx > 0
-                      ? 'margin-top:16px; padding-top:16px; border-top:1px solid rgba(212,175,55,0.08)'
-                      : ''
-                  "
+                  :class="{ 'cart-item-separator': idx > 0 }"
                 >
                   <div class="summary-row" style="margin-bottom: 6px">
-                    <span
-                      class="summary-label"
-                      style="color: #d4af37"
-                    >Table {{ idx + 1 }}</span>
-                    <span class="summary-value" style="color: #d4af37">{{
-                      item.label
-                    }}</span>
+                    <span class="summary-label summary-label--gold">Table {{ idx + 1 }}</span>
+                    <span class="summary-value summary-value--gold">{{ item.label }}</span>
                   </div>
                   <div class="summary-grid">
                     <div class="summary-row">
                       <span class="summary-label">Area</span>
                       <span class="summary-value">{{ item.env }}</span>
                     </div>
-                    <v-divider
-                      style="
-                        border-color: rgba(212, 175, 55, 0.08);
-                        margin: 8px 0;
-                      "
-                    />
+                    <v-divider class="summary-divider" />
                     <div class="summary-row">
                       <span class="summary-label">Date</span>
                       <span class="summary-value">{{ item.date }}</span>
                     </div>
-                    <v-divider
-                      style="
-                        border-color: rgba(212, 175, 55, 0.08);
-                        margin: 8px 0;
-                      "
-                    />
+                    <v-divider class="summary-divider" />
                     <div class="summary-row">
                       <span class="summary-label">Time</span>
                       <span class="summary-value">{{ item.time }}</span>
                     </div>
-                    <v-divider
-                      style="
-                        border-color: rgba(212, 175, 55, 0.08);
-                        margin: 8px 0;
-                      "
-                    />
+                    <v-divider class="summary-divider" />
                     <div class="summary-row">
                       <span class="summary-label">Guests</span>
                       <span class="summary-value">{{ item.guests }} / {{ item.cap }} capacity</span>
                     </div>
                     <template v-if="item.notes">
-                      <v-divider
-                        style="
-                          border-color: rgba(212, 175, 55, 0.08);
-                          margin: 8px 0;
-                        "
-                      />
+                      <v-divider class="summary-divider" />
                       <div class="summary-row">
                         <span class="summary-label">Notes</span>
-                        <span
-                          class="summary-value"
-                          style="font-style: italic; color: #8a8fa8"
-                        >{{ item.notes }}</span>
+                        <span class="summary-value summary-value--muted">{{ item.notes }}</span>
                       </div>
                     </template>
                   </div>
@@ -214,27 +164,16 @@
               <template v-else>
                 <div class="summary-row">
                   <span class="summary-label">Status</span>
-                  <span
-                    class="summary-value"
-                    style="color: #6a7080"
-                  >No tables selected</span>
+                  <span class="summary-value summary-value--dim">No tables selected</span>
                 </div>
               </template>
             </v-card-text>
           </v-card>
 
           <!-- SECTION 3: Special Request -->
-          <v-card
-            class="form-section mb-4"
-            flat
-            style="
-              background: var(--color-surface-elevated);
-              border: 1px solid rgba(212, 175, 55, 0.18);
-              border-radius: 12px;
-            "
-          >
+          <v-card class="form-section mb-4" flat>
             <v-card-text class="pa-6">
-              <div class="d-flex align-center mb-5">
+              <div class="section-header mb-5">
                 <div class="section-number">3</div>
                 <span class="section-title ml-3">Special Guest Request</span>
               </div>
@@ -257,32 +196,21 @@
 
         <!-- RIGHT COLUMN: Sidebar -->
         <v-col cols="12" md="4">
-          <v-card
-            class="sidebar-card sticky-card"
-            flat
-            style="
-              background: var(--color-surface-elevated);
-              border: 1px solid rgba(212, 175, 55, 0.18);
-              border-radius: 12px;
-            "
-          >
+          <v-card class="sidebar-card sticky-card" flat>
             <v-card-text class="pa-6">
               <!-- Reservation Preview -->
               <div class="preview-box mb-5">
                 <template v-if="firstItem">
                   <div class="d-flex align-start">
-                    <div class="preview-icon mr-4">🪑</div>
+                    <div class="preview-icon mr-4">
+                      <v-icon size="26" color="#d4af37">mdi-seat</v-icon>
+                    </div>
                     <div style="flex: 1">
                       <div class="preview-title">
                         {{ firstItem.label
                         }}<span
                           v-if="cart.length > 1"
-                          style="
-                            font-family: var(--font-body);
-                            font-size: 0.7rem;
-                            color: #d4af37;
-                            margin-left: 8px;
-                          "
+                          class="preview-more"
                         >+{{ cart.length - 1 }} more</span>
                       </div>
                       <div class="preview-meta">
@@ -292,17 +220,11 @@
                       </div>
                       <div class="preview-datetime">
                         <div class="d-flex align-center mt-3">
-                          <v-icon
-                            size="14"
-                            style="color: #6a7080"
-                          >mdi-calendar-blank</v-icon>
+                          <v-icon size="14" style="color: #6a7080">mdi-calendar-blank</v-icon>
                           <span class="ml-2">{{ firstItem.date }}</span>
                         </div>
                         <div class="d-flex align-center mt-1">
-                          <v-icon
-                            size="14"
-                            style="color: #6a7080"
-                          >mdi-clock-outline</v-icon>
+                          <v-icon size="14" style="color: #6a7080">mdi-clock-outline</v-icon>
                           <span class="ml-2">{{ firstItem.time }}</span>
                         </div>
                       </div>
@@ -310,31 +232,15 @@
                   </div>
                 </template>
                 <template v-else>
-                  <div
-                    style="
-                      font-family: var(--font-body);
-                      font-size: 0.8rem;
-                      color: #6a7080;
-                      text-align: center;
-                      padding: 12px 0;
-                    "
-                  >
-                    No tables added yet
-                  </div>
+                  <div class="preview-empty">No tables added yet</div>
                 </template>
               </div>
 
-              <v-divider
-                style="border-color: rgba(212, 175, 55, 0.12); margin: 20px 0"
-              />
+              <v-divider class="sidebar-divider mb-5" />
 
               <!-- Policy Alert -->
               <div class="policy-alert mb-5">
-                <v-icon
-                  class="mr-2"
-                  size="18"
-                  style="color: #d4af37"
-                >mdi-information-outline</v-icon>
+                <v-icon class="mr-2 policy-icon" size="18">mdi-information-outline</v-icon>
                 <div class="policy-text">
                   By confirming, you agree to our cancellation policy. Free
                   cancellation up to 24 hours before your reservation.
@@ -344,7 +250,7 @@
               <!-- Action Buttons -->
               <v-btn
                 block
-                class="mb-3 gold-btn"
+                class="gold-btn mb-3"
                 :disabled="!isFormValid || submitting"
                 flat
                 :loading="submitting"
@@ -372,7 +278,6 @@
       </v-row>
     </div>
   </v-main>
-
 </template>
 
 <script setup>
@@ -489,22 +394,25 @@
 </script>
 
 <style scoped>
-/* ═══ TYPOGRAPHY (Design System) ═══ */
-
-.step-label {
-  font-family: var(--font-heading);
-  font-size: 0.82rem;
-  color: #d4af37;
-  font-style: italic;
+/* ═══ PAGE ═══ */
+.confirm-page {
+  padding-top: 32px;
+  padding-bottom: 80px;
 }
 
-.step-title {
-  font-family: var(--font-body);
+.nav-back-btn {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.78rem;
+}
+
+.back-btn {
+  color: #d4af37;
   font-size: 0.85rem;
-  font-weight: 500;
-  color: #f0ead6;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+}
+
+/* ═══ VENUE HEADER ═══ */
+.venue-header {
+  padding-bottom: 4px;
 }
 
 .venue-title {
@@ -533,9 +441,21 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-style: italic;
+  margin: 0;
 }
 
 /* ═══ FORM SECTIONS ═══ */
+.form-section {
+  background: var(--color-surface-elevated) !important;
+  border: 1px solid rgba(212, 175, 55, 0.18) !important;
+  border-radius: 14px !important;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+}
+
 .section-number {
   width: 32px;
   height: 32px;
@@ -567,10 +487,18 @@
   letter-spacing: 0.02em;
 }
 
-/* ═══ BOOKING SUMMARY ═══ */
-.summary-grid {
-  width: 100%;
+.required-star {
+  color: #c71585;
 }
+
+/* ═══ BOOKING SUMMARY ═══ */
+.cart-item-separator {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(212, 175, 55, 0.08);
+}
+
+.summary-grid { width: 100%; }
 
 .summary-row {
   display: flex;
@@ -588,6 +516,8 @@
   letter-spacing: 0.08em;
 }
 
+.summary-label--gold { color: #d4af37; }
+
 .summary-value {
   font-family: var(--font-body);
   font-size: 0.9rem;
@@ -595,20 +525,35 @@
   color: #f0ead6;
 }
 
+.summary-value--gold { color: #d4af37; }
+.summary-value--muted { font-style: italic; color: #8a8fa8; }
+.summary-value--dim { color: #6a7080; }
+
+.summary-divider {
+  border-color: rgba(212, 175, 55, 0.08) !important;
+  margin: 8px 0 !important;
+}
+
 /* ═══ SIDEBAR ═══ */
+.sidebar-card {
+  background: var(--color-surface-elevated) !important;
+  border: 1px solid rgba(212, 175, 55, 0.18) !important;
+  border-radius: 14px !important;
+}
+
 .sticky-card {
   position: sticky;
   top: 84px;
 }
 
 .preview-icon {
-  font-size: 2.2rem;
   width: 56px;
   height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: 12px;
   flex-shrink: 0;
 }
@@ -619,6 +564,13 @@
   font-weight: 600;
   color: #f0ead6;
   margin-bottom: 4px;
+}
+
+.preview-more {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: #d4af37;
+  margin-left: 8px;
 }
 
 .preview-meta {
@@ -634,6 +586,19 @@
   color: #b8bcc8;
 }
 
+.preview-empty {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: #6a7080;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.sidebar-divider {
+  border-color: rgba(212, 175, 55, 0.12) !important;
+}
+
+/* ═══ POLICY ALERT ═══ */
 .policy-alert {
   display: flex;
   align-items: flex-start;
@@ -643,6 +608,11 @@
   border-radius: 6px;
 }
 
+.policy-icon {
+  color: #d4af37 !important;
+  flex-shrink: 0;
+}
+
 .policy-text {
   font-family: var(--font-body);
   font-size: 0.75rem;
@@ -650,48 +620,7 @@
   color: #b8bcc8;
 }
 
-/* ═══ SUCCESS DIALOG ═══ */
-.success-circle {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background: rgba(46, 187, 87, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-}
-
-.success-title {
-  font-family: var(--font-heading);
-  font-size: 1.65rem;
-  font-weight: 700;
-  color: #f0ead6;
-}
-
-.success-message {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #b8bcc8;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 18px;
-  background: rgba(199, 21, 133, 0.15);
-  border: 1px solid #c71585;
-  border-radius: 24px;
-  color: #c71585;
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-/* Input deep overrides handled by global .spotly-input */
+/* ═══ INPUT DEEP OVERRIDES ═══ */
 :deep(.spotly-input .v-field__outline) {
   display: none;
 }
@@ -712,8 +641,14 @@
   font-family: var(--font-body);
 }
 
-/* Textarea specific */
 :deep(.spotly-input textarea.v-field__input) {
   min-height: 120px;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 960px) {
+  .sticky-card {
+    position: static;
+  }
 }
 </style>

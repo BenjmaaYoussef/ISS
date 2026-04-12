@@ -15,10 +15,9 @@
         ]"
       />
       <v-btn
-        class="text-none px-4 ml-4"
+        class="text-none px-4 ml-4 nav-back-btn"
         :ripple="false"
         size="small"
-        style="color: rgba(255, 255, 255, 0.55); font-size: 0.78rem"
         variant="text"
         @click="$router.push('/booking/environment')"
       >
@@ -35,22 +34,22 @@
         <!-- Env tabs -->
         <div class="env-tab-bar">
           <div class="env-tabs">
-            <button
+            <v-btn
               v-for="env in ENVIRONMENT_LIST"
               :key="env.id"
-              class="env-tab"
-              :class="{ 'env-tab--active': currentEnvId === env.id }"
+              :class="['env-tab-btn', { 'env-tab-btn--active': currentEnvId === env.id }]"
+              :ripple="false"
+              size="small"
+              variant="text"
               @click="switchEnv(env.id)"
             >
               <v-icon
                 class="mr-1"
                 size="13"
-                :style="{
-                  color: currentEnvId === env.id ? '#D4AF37' : '#6A7080',
-                }"
+                :color="currentEnvId === env.id ? '#D4AF37' : '#6A7080'"
               >{{ env.icon }}</v-icon>
               {{ env.name }}
-            </button>
+            </v-btn>
           </div>
           <div class="legend">
             <span class="legend-dot legend-dot--avail" /><span class="legend-lbl">Available</span>
@@ -187,9 +186,16 @@
                 {{ currentEnv?.name }}
               </div>
             </div>
-            <button class="dp-close" @click="selectedTable = null">
+            <v-btn
+              class="dp-close-btn"
+              :ripple="false"
+              size="x-small"
+              variant="text"
+              icon
+              @click="selectedTable = null"
+            >
               <v-icon size="16">mdi-close</v-icon>
-            </button>
+            </v-btn>
           </div>
 
           <!-- Status -->
@@ -258,15 +264,23 @@
             <div class="dp-field">
               <label class="dp-lbl">Guests</label>
               <div class="guest-stepper">
-                <button
+                <v-btn
                   class="gs-btn"
+                  :ripple="false"
+                  size="x-small"
+                  variant="text"
+                  icon
                   @click="guestCount = Math.max(1, guestCount - 1)"
                 >
-                  −
-                </button>
+                  <v-icon size="16" color="#d4af37">mdi-minus</v-icon>
+                </v-btn>
                 <span class="gs-val">{{ guestCount }}</span>
-                <button
+                <v-btn
                   class="gs-btn"
+                  :ripple="false"
+                  size="x-small"
+                  variant="text"
+                  icon
                   @click="
                     guestCount = Math.min(
                       selectedTable.capacity,
@@ -274,8 +288,8 @@
                     )
                   "
                 >
-                  +
-                </button>
+                  <v-icon size="16" color="#d4af37">mdi-plus</v-icon>
+                </v-btn>
               </div>
             </div>
 
@@ -293,26 +307,31 @@
             <div class="dp-divider" />
 
             <!-- Add to cart -->
-            <button
+            <v-btn
               v-if="!isInCart(selectedTable.id)"
               class="add-cart-btn"
               :disabled="!bookingDate || !bookingTime"
+              flat
+              block
               @click="addToCart"
             >
               <v-icon class="mr-2" size="16">mdi-cart-plus</v-icon>
               Add to Cart
-            </button>
+            </v-btn>
             <div v-else class="in-cart-cta">
               <div class="in-cart-msg">
                 <v-icon class="mr-1" size="14" style="color: #d4af37">mdi-check-circle</v-icon>
                 Added · {{ bookingDate }}, {{ bookingTime }}, {{ guestCount }}p
               </div>
-              <button
+              <v-btn
                 class="remove-btn"
+                :ripple="false"
+                size="x-small"
+                variant="text"
                 @click="removeFromCart(selectedTable.id)"
               >
                 Remove
-              </button>
+              </v-btn>
             </div>
           </template>
 
@@ -357,34 +376,47 @@
         <span class="cart-bar-dot mx-2">·</span>
         <span class="cart-bar-date">{{ cart[0]?.date }}, {{ cart[0]?.time }}</span>
       </div>
-      <div class="d-flex gap-2">
-        <button class="cart-outline-btn" @click="showCartSheet = true">
+      <div class="cart-bar-actions">
+        <v-btn
+          class="cart-outline-btn"
+          :ripple="false"
+          size="small"
+          variant="outlined"
+          @click="showCartSheet = true"
+        >
           View Cart
-        </button>
-        <button class="cart-confirm-btn" @click="goToConfirm">
+        </v-btn>
+        <v-btn
+          class="cart-confirm-btn"
+          :ripple="false"
+          flat
+          size="small"
+          color="primary"
+          @click="goToConfirm"
+        >
           Continue to Confirmation
           <v-icon class="ml-1" size="14">mdi-arrow-right</v-icon>
-        </button>
+        </v-btn>
       </div>
     </div>
   </transition>
 
   <!-- CART SHEET -->
   <v-dialog v-model="showCartSheet" max-width="480" :scrim-opacity="0.6">
-    <v-card
-      flat
-      style="
-        background: var(--color-surface);
-        border: 1px solid rgba(212, 175, 55, 0.18);
-        border-radius: 16px;
-      "
-    >
+    <v-card flat class="cart-sheet-card">
       <v-card-text class="pa-0">
         <div class="cs-head">
           <div class="cs-title">Your Cart</div>
-          <button class="dp-close" @click="showCartSheet = false">
+          <v-btn
+            class="dp-close-btn"
+            :ripple="false"
+            size="x-small"
+            variant="text"
+            icon
+            @click="showCartSheet = false"
+          >
             <v-icon size="18">mdi-close</v-icon>
-          </button>
+          </v-btn>
         </div>
 
         <div class="cs-list">
@@ -408,9 +440,16 @@
                 "{{ item.notes }}"
               </div>
             </div>
-            <button class="cs-remove" @click="removeFromCart(item.id)">
+            <v-btn
+              class="cs-remove-btn"
+              :ripple="false"
+              size="x-small"
+              variant="text"
+              icon
+              @click="removeFromCart(item.id)"
+            >
               <v-icon size="16">mdi-delete-outline</v-icon>
-            </button>
+            </v-btn>
           </div>
         </div>
 
@@ -420,10 +459,16 @@
             <span class="cs-total-val">{{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }},
               {{ totalGuests }} guests</span>
           </div>
-          <button class="cart-confirm-btn w-100 mt-3" @click="goToConfirm">
+          <v-btn
+            class="cart-confirm-btn cs-confirm-btn"
+            flat
+            block
+            color="primary"
+            @click="goToConfirm"
+          >
             Continue to Confirmation
             <v-icon class="ml-1" size="14">mdi-arrow-right</v-icon>
-          </button>
+          </v-btn>
         </div>
       </v-card-text>
     </v-card>
@@ -827,78 +872,19 @@
 </script>
 
 <style scoped>
-/* Step indicator */
-.step-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-.step-pip {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(212, 175, 55, 0.18);
-  color: #6a7080;
-  flex-shrink: 0;
-}
-.step-pip--active {
-  background: rgba(212, 175, 55, 0.18) !important;
-  border-color: #d4af37 !important;
-  color: #d4af37 !important;
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
-}
-.step-pip--done {
-  background: rgba(46, 187, 87, 0.15) !important;
-  border-color: #2ebb57 !important;
-  color: #2ebb57 !important;
-}
-.step-line {
-  width: 28px;
-  height: 1px;
-  background: rgba(212, 175, 55, 0.18);
-  flex-shrink: 0;
-}
-.step-line--done {
-  background: #2ebb57;
-}
-.step-lbl {
-  font-family: var(--font-body);
+/* ═══ NAV ═══ */
+.nav-back-btn {
+  color: rgba(255, 255, 255, 0.55);
   font-size: 0.78rem;
-  font-weight: 600;
-  color: #f0ead6;
 }
 
-.cart-nav-btn {
-  display: flex;
-  align-items: center;
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #0a0e14;
-  background: #d4af37;
-  border: none;
-  border-radius: 20px;
-  padding: 5px 14px;
-  cursor: pointer;
-  transition: background 0.18s;
-}
-.cart-nav-btn:hover {
-  background: #e9c74a;
-}
-
-/* Layout */
+/* ═══ LAYOUT ═══ */
 .booking-layout {
   display: flex;
   height: calc(100vh - 58px);
   overflow: hidden;
 }
+
 .floor-col {
   flex: 1;
   display: flex;
@@ -906,7 +892,7 @@
   min-width: 0;
 }
 
-/* Env tabs */
+/* ═══ ENV TAB BAR ═══ */
 .env-tab-bar {
   display: flex;
   align-items: center;
@@ -918,75 +904,79 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
 .env-tabs {
   display: flex;
   gap: 3px;
 }
-.env-tab {
-  display: flex;
-  align-items: center;
-  font-family: var(--font-body);
-  font-size: 0.76rem;
-  font-weight: 500;
-  color: #6a7080;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  padding: 4px 12px;
-  cursor: pointer;
-  transition: all 0.18s;
-  white-space: nowrap;
+
+.env-tab-btn {
+  font-family: var(--font-body) !important;
+  font-size: 0.76rem !important;
+  font-weight: 500 !important;
+  color: #6a7080 !important;
+  border-radius: 6px !important;
+  padding: 4px 12px !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  min-height: unset !important;
+  height: auto !important;
+  transition: all 0.18s !important;
 }
-.env-tab:hover {
-  color: #f0ead6;
-  background: rgba(212, 175, 55, 0.06);
+
+.env-tab-btn:hover {
+  color: #f0ead6 !important;
+  background: rgba(212, 175, 55, 0.06) !important;
 }
-.env-tab--active {
+
+.env-tab-btn--active {
   color: #d4af37 !important;
   background: rgba(212, 175, 55, 0.12) !important;
-  border-color: rgba(212, 175, 55, 0.28) !important;
+  border: 1px solid rgba(212, 175, 55, 0.28) !important;
 }
+
+/* ═══ LEGEND ═══ */
 .legend {
   display: flex;
   align-items: center;
   gap: 4px;
 }
+
 .legend-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.legend-dot--avail {
-  background: #2ebb57;
-}
-.legend-dot--rsvd {
-  background: #c71585;
-  opacity: 0.5;
-}
-.legend-dot--cart {
-  background: #d4af37;
-}
+
+.legend-dot--avail { background: #2ebb57; }
+.legend-dot--rsvd  { background: #c71585; opacity: 0.5; }
+.legend-dot--cart  { background: #d4af37; }
+
 .legend-lbl {
   font-family: var(--font-body);
   font-size: 0.65rem;
   color: #6a7080;
 }
 
-/* Canvas */
+/* ═══ CANVAS ═══ */
 .canvas-scroll {
   flex: 1;
   overflow: auto;
   background: #0a0e14;
 }
+
 .canvas-scroll::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
 .canvas-scroll::-webkit-scrollbar-thumb {
   background: rgba(212, 175, 55, 0.18);
   border-radius: 3px;
 }
+
 .canvas-wrap {
   position: relative;
   background: #0d1219;
@@ -997,6 +987,7 @@
   width: 1000px;
   height: 660px;
 }
+
 .grid-svg {
   position: absolute;
   top: 0;
@@ -1004,7 +995,7 @@
   pointer-events: none;
 }
 
-/* Placed elements */
+/* ═══ PLACED ELEMENTS ═══ */
 .placed-el {
   display: inline-flex;
   flex-direction: column;
@@ -1013,28 +1004,31 @@
   user-select: none;
   transition: filter 0.18s;
 }
+
 .table-unit {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
 }
+
 .chair-row {
   display: flex;
   gap: 5px;
 }
+
 .chair {
   border-radius: 3px;
   background: rgba(200, 200, 200, 0.1);
   border: 1.5px solid rgba(200, 200, 200, 0.18);
-  transition:
-    background 0.2s,
-    border-color 0.2s;
+  transition: background 0.2s, border-color 0.2s;
 }
+
 .chair--h {
   width: 16px;
   height: 10px;
 }
+
 .table-surface {
   position: relative;
   background: rgba(255, 255, 255, 0.04);
@@ -1042,42 +1036,42 @@
   border-radius: 6px;
   width: 80px;
   height: 48px;
-  transition:
-    background 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
+
 .table-surface--round {
   width: 66px !important;
   height: 66px !important;
   border-radius: 50% !important;
 }
+
 .table-unit--round .table-surface {
   width: 66px;
   height: 66px;
   border-radius: 50%;
 }
+
 .el-label {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .el-name {
   font-family: var(--font-body);
   font-size: 0.66rem;
   font-weight: 700;
   color: #9a9fa8;
 }
+
 .el-seats {
   font-family: var(--font-body);
   font-size: 0.58rem;
   color: #5a6070;
 }
 
-/* Table states */
-.placed-el--available .table-unit {
-  color: #2ebb57;
-}
+/* ═══ TABLE STATES ═══ */
+.placed-el--available .table-unit { color: #2ebb57; }
 .placed-el--available .table-surface {
   background: rgba(46, 187, 87, 0.07) !important;
   border-color: rgba(46, 187, 87, 0.45) !important;
@@ -1091,9 +1085,7 @@
   border-color: #2ebb57 !important;
   box-shadow: 0 0 18px rgba(46, 187, 87, 0.2) !important;
 }
-.placed-el--available .el-name {
-  color: #b8f0c8;
-}
+.placed-el--available .el-name { color: #b8f0c8; }
 
 .placed-el--reserved {
   opacity: 0.55;
@@ -1107,9 +1099,7 @@
   background: rgba(199, 21, 133, 0.1) !important;
   border-color: rgba(199, 21, 133, 0.3) !important;
 }
-.placed-el--reserved .el-name {
-  color: #f0a0c8;
-}
+.placed-el--reserved .el-name { color: #f0a0c8; }
 
 .placed-el--selected .table-surface {
   background: rgba(212, 175, 55, 0.12) !important;
@@ -1120,9 +1110,7 @@
   background: rgba(212, 175, 55, 0.25) !important;
   border-color: rgba(212, 175, 55, 0.55) !important;
 }
-.placed-el--selected .el-name {
-  color: #d4af37;
-}
+.placed-el--selected .el-name { color: #d4af37; }
 
 .placed-el--cart .table-surface {
   background: rgba(212, 175, 55, 0.18) !important;
@@ -1133,14 +1121,11 @@
   background: rgba(212, 175, 55, 0.18) !important;
   border-color: rgba(212, 175, 55, 0.5) !important;
 }
-.placed-el--cart .el-name {
-  color: #d4af37;
-}
+.placed-el--cart .el-name { color: #d4af37; }
 
-/* Structure / decor */
-.placed-el--decor {
-  pointer-events: none;
-}
+/* ═══ STRUCTURE / DECOR ═══ */
+.placed-el--decor { pointer-events: none; }
+
 .struct-el {
   display: flex;
   align-items: center;
@@ -1152,9 +1137,9 @@
   min-width: 40px;
   min-height: 40px;
 }
-.struct-icon {
-  color: #6a7080 !important;
-}
+
+.struct-icon { color: #6a7080 !important; }
+
 .struct-label {
   font-family: var(--font-body);
   font-size: 0.62rem;
@@ -1162,6 +1147,7 @@
   white-space: nowrap;
   padding-right: 8px;
 }
+
 .struct-el--entrance {
   background: rgba(126, 200, 227, 0.06);
   border-color: rgba(126, 200, 227, 0.2);
@@ -1175,10 +1161,10 @@
   border-color: rgba(46, 187, 87, 0.2);
 }
 
-/* Detail panel */
+/* ═══ DETAIL PANEL ═══ */
 .detail-panel {
-  width: 280px;
-  min-width: 280px;
+  width: 290px;
+  min-width: 290px;
   background: #0d1219;
   border-left: 1px solid rgba(212, 175, 55, 0.12);
   display: flex;
@@ -1186,19 +1172,20 @@
   overflow-y: auto;
   flex-shrink: 0;
 }
-.detail-panel::-webkit-scrollbar {
-  width: 4px;
-}
+
+.detail-panel::-webkit-scrollbar { width: 4px; }
 .detail-panel::-webkit-scrollbar-thumb {
   background: rgba(212, 175, 55, 0.18);
   border-radius: 2px;
 }
+
 .detail-panel--idle {
   align-items: center;
   justify-content: center;
   padding: 32px 24px;
   text-align: center;
 }
+
 .idle-title {
   font-family: var(--font-heading);
   font-size: 1rem;
@@ -1207,6 +1194,7 @@
   margin-bottom: 8px;
   font-style: italic;
 }
+
 .idle-sub {
   font-family: var(--font-body);
   font-size: 0.75rem;
@@ -1214,6 +1202,7 @@
   line-height: 1.6;
 }
 
+/* Panel head */
 .dp-head {
   display: flex;
   align-items: flex-start;
@@ -1221,6 +1210,7 @@
   padding: 16px 14px 10px;
   border-bottom: 1px solid rgba(212, 175, 55, 0.1);
 }
+
 .dp-title {
   font-family: var(--font-heading);
   font-size: 1.05rem;
@@ -1228,6 +1218,7 @@
   color: #f0ead6;
   font-style: italic;
 }
+
 .dp-sub {
   display: flex;
   align-items: center;
@@ -1236,24 +1227,21 @@
   color: #6a7080;
   margin-top: 2px;
 }
-.dp-close {
-  background: none;
-  border: none;
-  color: #6a7080;
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 4px;
-  transition: color 0.15s;
+
+.dp-close-btn {
+  color: #6a7080 !important;
+  transition: color 0.15s !important;
 }
-.dp-close:hover {
-  color: #f0ead6;
-}
+.dp-close-btn:hover { color: #f0ead6 !important; }
+
+/* Panel status row */
 .dp-status-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 14px;
 }
+
 .status-chip {
   font-family: var(--font-body);
   font-size: 0.63rem;
@@ -1263,6 +1251,7 @@
   padding: 3px 9px;
   border-radius: 10px;
 }
+
 .status-chip--avail {
   background: rgba(46, 187, 87, 0.15);
   color: #2ebb57;
@@ -1278,6 +1267,7 @@
   color: #d4af37;
   border: 1px solid rgba(212, 175, 55, 0.3);
 }
+
 .dp-cap {
   display: flex;
   align-items: center;
@@ -1285,17 +1275,20 @@
   font-size: 0.65rem;
   color: #6a7080;
 }
+
 .dp-divider {
   height: 1px;
   background: rgba(212, 175, 55, 0.1);
   margin: 6px 14px;
 }
+
 .dp-field {
   padding: 8px 14px 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+
 .dp-lbl {
   font-family: var(--font-body);
   font-size: 0.62rem;
@@ -1311,6 +1304,7 @@
   gap: 4px;
   flex-wrap: wrap;
 }
+
 .date-pill {
   display: flex;
   flex-direction: column;
@@ -1323,31 +1317,31 @@
   transition: all 0.15s;
   min-width: 36px;
 }
-.date-pill:hover {
-  border-color: rgba(212, 175, 55, 0.35);
-}
+
+.date-pill:hover { border-color: rgba(212, 175, 55, 0.35); }
+
 .date-pill--on {
   background: rgba(212, 175, 55, 0.14) !important;
   border-color: #d4af37 !important;
 }
+
 .date-pill-day {
   font-family: var(--font-body);
   font-size: 0.55rem;
   color: #6a7080;
   text-transform: uppercase;
 }
-.date-pill--on .date-pill-day {
-  color: #d4af37;
-}
+
+.date-pill--on .date-pill-day { color: #d4af37; }
+
 .date-pill-num {
   font-family: var(--font-heading);
   font-size: 0.9rem;
   font-weight: 700;
   color: #f0ead6;
 }
-.date-pill--on .date-pill-num {
-  color: #d4af37;
-}
+
+.date-pill--on .date-pill-num { color: #d4af37; }
 
 /* Time pills */
 .time-pills {
@@ -1355,6 +1349,7 @@
   flex-wrap: wrap;
   gap: 4px;
 }
+
 .time-pill {
   font-family: var(--font-body);
   font-size: 0.65rem;
@@ -1367,10 +1362,12 @@
   cursor: pointer;
   transition: all 0.15s;
 }
+
 .time-pill:hover {
   border-color: rgba(212, 175, 55, 0.35);
   color: #f0ead6;
 }
+
 .time-pill--on {
   background: rgba(212, 175, 55, 0.14) !important;
   border-color: #d4af37 !important;
@@ -1384,24 +1381,24 @@
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 6px;
-  height: 32px;
+  height: 36px;
   overflow: hidden;
   width: fit-content;
 }
+
 .gs-btn {
-  width: 32px;
-  height: 100%;
-  background: rgba(212, 175, 55, 0.08);
-  border: none;
-  color: #d4af37;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.15s;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 0 !important;
+  background: rgba(212, 175, 55, 0.08) !important;
   flex-shrink: 0;
+  transition: background 0.15s !important;
 }
+
 .gs-btn:hover {
-  background: rgba(212, 175, 55, 0.18);
+  background: rgba(212, 175, 55, 0.18) !important;
 }
+
 .gs-val {
   padding: 0 14px;
   font-family: var(--font-heading);
@@ -1412,7 +1409,7 @@
   text-align: center;
 }
 
-/* Notes */
+/* Notes textarea */
 .dp-notes {
   width: 100%;
   background: rgba(0, 0, 0, 0.25);
@@ -1426,43 +1423,34 @@
   outline: none;
   transition: border-color 0.15s;
 }
-.dp-notes::placeholder {
-  color: #4a5060;
-}
-.dp-notes:focus {
-  border-color: rgba(212, 175, 55, 0.45);
+
+.dp-notes::placeholder { color: #4a5060; }
+.dp-notes:focus { border-color: rgba(212, 175, 55, 0.45); }
+
+/* Add to cart button */
+.add-cart-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: calc(100% - 28px) !important;
+  margin: 10px 14px 14px !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: #0a0e14 !important;
+  background: #d4af37 !important;
+  border-radius: 8px !important;
+  transition: background 0.18s, box-shadow 0.18s !important;
 }
 
-/* Add to cart */
-.add-cart-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: calc(100% - 28px);
-  margin: 10px 14px 14px;
-  padding: 9px;
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #0a0e14;
-  background: #d4af37;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition:
-    background 0.18s,
-    box-shadow 0.18s;
-}
 .add-cart-btn:hover:not(:disabled) {
-  background: #e9c74a;
-  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35);
+  background: #e9c74a !important;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35) !important;
 }
-.add-cart-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
+
+/* In-cart state */
 .in-cart-cta {
   margin: 10px 14px 14px;
   display: flex;
@@ -1473,6 +1461,7 @@
   border-radius: 8px;
   padding: 8px 12px;
 }
+
 .in-cart-msg {
   display: flex;
   align-items: center;
@@ -1480,15 +1469,16 @@
   font-size: 0.68rem;
   color: #d4af37;
 }
+
 .remove-btn {
-  background: none;
-  border: none;
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  color: #c71585;
-  cursor: pointer;
+  font-family: var(--font-body) !important;
+  font-size: 0.65rem !important;
+  color: #c71585 !important;
   text-decoration: underline;
+  text-transform: none !important;
+  padding: 0 4px !important;
 }
+
 .reserved-msg {
   display: flex;
   flex-direction: column;
@@ -1496,6 +1486,7 @@
   text-align: center;
   padding: 24px 16px;
 }
+
 .reserved-msg p {
   font-family: var(--font-body);
   font-size: 0.74rem;
@@ -1516,7 +1507,7 @@
   opacity: 0;
 }
 
-/* Cart bar */
+/* ═══ CART BAR ═══ */
 .cart-bar {
   position: fixed;
   bottom: 0;
@@ -1527,83 +1518,75 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  background: rgba(17, 23, 32, 0.97);
+  background: rgba(13, 18, 25, 0.97);
   backdrop-filter: blur(16px);
   border-top: 1px solid rgba(212, 175, 55, 0.22);
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
   flex-wrap: wrap;
   gap: 10px;
 }
+
 .cart-bar-in-enter-active,
 .cart-bar-in-leave-active {
-  transition:
-    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.22s;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s;
 }
 .cart-bar-in-enter-from,
 .cart-bar-in-leave-to {
   transform: translateY(100%);
   opacity: 0;
 }
+
 .cart-bar-info {
   display: flex;
   align-items: center;
   font-family: var(--font-body);
   font-size: 0.82rem;
 }
+
 .cart-bar-count {
   font-weight: 700;
   color: #d4af37;
 }
-.cart-bar-dot {
-  color: rgba(212, 175, 55, 0.4);
-}
-.cart-bar-guests {
-  color: #f0ead6;
-}
-.cart-bar-date {
-  color: #8a8fa8;
-}
-.cart-outline-btn {
-  font-family: var(--font-body);
-  font-size: 0.76rem;
-  font-weight: 500;
-  color: #d4af37;
-  background: transparent;
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  border-radius: 7px;
-  padding: 6px 16px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.cart-outline-btn:hover {
-  background: rgba(212, 175, 55, 0.08);
-}
-.cart-confirm-btn {
+.cart-bar-dot { color: rgba(212, 175, 55, 0.4); }
+.cart-bar-guests { color: #f0ead6; }
+.cart-bar-date { color: #8a8fa8; }
+
+.cart-bar-actions {
   display: flex;
+  gap: 8px;
   align-items: center;
-  justify-content: center;
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #0a0e14;
-  background: #d4af37;
-  border: none;
-  border-radius: 7px;
-  padding: 7px 18px;
-  cursor: pointer;
-  transition: background 0.18s;
-}
-.cart-confirm-btn:hover {
-  background: #e9c74a;
-}
-.cart-confirm-btn.w-100 {
-  width: 100%;
 }
 
-/* Cart sheet */
+.cart-outline-btn {
+  font-family: var(--font-body) !important;
+  font-size: 0.76rem !important;
+  font-weight: 500 !important;
+  color: #d4af37 !important;
+  border-color: rgba(212, 175, 55, 0.35) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+:deep(.cart-outline-btn:hover) {
+  background: rgba(212, 175, 55, 0.08) !important;
+}
+
+.cart-confirm-btn {
+  font-family: var(--font-body) !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: #0a0e14 !important;
+}
+
+/* ═══ CART SHEET DIALOG ═══ */
+.cart-sheet-card {
+  background: var(--color-surface) !important;
+  border: 1px solid rgba(212, 175, 55, 0.18) !important;
+  border-radius: 16px !important;
+}
+
 .cs-head {
   display: flex;
   align-items: center;
@@ -1611,6 +1594,7 @@
   padding: 18px 20px 14px;
   border-bottom: 1px solid rgba(212, 175, 55, 0.12);
 }
+
 .cs-title {
   font-family: var(--font-heading);
   font-size: 1.1rem;
@@ -1618,11 +1602,13 @@
   color: #f0ead6;
   font-style: italic;
 }
+
 .cs-list {
   padding: 8px 0;
   max-height: 340px;
   overflow-y: auto;
 }
+
 .cs-item {
   display: flex;
   align-items: flex-start;
@@ -1630,6 +1616,7 @@
   padding: 12px 20px;
   border-bottom: 1px solid rgba(212, 175, 55, 0.07);
 }
+
 .cs-item-name {
   font-family: var(--font-body);
   font-size: 0.82rem;
@@ -1637,6 +1624,7 @@
   color: #f0ead6;
   margin-bottom: 4px;
 }
+
 .cs-item-meta {
   display: flex;
   align-items: center;
@@ -1645,6 +1633,7 @@
   color: #6a7080;
   flex-wrap: wrap;
 }
+
 .cs-item-notes {
   font-family: var(--font-body);
   font-size: 0.65rem;
@@ -1652,27 +1641,26 @@
   font-style: italic;
   margin-top: 4px;
 }
-.cs-remove {
-  background: none;
-  border: none;
-  color: rgba(199, 21, 133, 0.5);
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 4px;
-  transition: color 0.15s;
+
+.cs-remove-btn {
+  color: rgba(199, 21, 133, 0.5) !important;
+  transition: color 0.15s !important;
 }
-.cs-remove:hover {
-  color: #c71585;
-}
+
+.cs-remove-btn:hover { color: #c71585 !important; }
+
 .cs-footer {
   padding: 14px 20px 20px;
   border-top: 1px solid rgba(212, 175, 55, 0.1);
 }
+
 .cs-total {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 12px;
 }
+
 .cs-total-lbl {
   font-family: var(--font-body);
   font-size: 0.68rem;
@@ -1681,6 +1669,7 @@
   letter-spacing: 0.1em;
   color: #6a7080;
 }
+
 .cs-total-val {
   font-family: var(--font-heading);
   font-size: 0.95rem;
@@ -1688,7 +1677,13 @@
   color: #f0ead6;
 }
 
-.gap-2 {
-  gap: 8px;
+.cs-confirm-btn {
+  color: #0a0e14 !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
 }
+
+.gap-2 { gap: 8px; }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <v-app-bar
-    flat
     color="background"
+    flat
     height="64"
     style="border-bottom: 1px solid rgba(212, 175, 55, 0.18)"
   >
@@ -31,11 +31,11 @@
           "
         >
           <img
-            src="@/assets/spotlyLogo.png"
-            :height="compact ? 18 : 22"
             alt="Spotly"
+            :height="compact ? 18 : 22"
+            src="@/assets/spotlyLogo.png"
             style="object-fit: contain; opacity: 0.65"
-          />
+          >
           <span
             class="powered-text"
             :class="compact ? 'd-none d-sm-inline' : ''"
@@ -59,33 +59,33 @@
 </template>
 
 <script setup>
-defineProps({
-  /** Primary venue name displayed as the main heading */
-  venueName: {
-    type: String,
-    required: true,
-  },
-  /** Optional secondary line below venue name (e.g. "Table #12 — Terrace") */
-  venueSubLabel: {
-    type: String,
-    default: null,
-  },
-  /** Show the "Powered by Spotly" logo badge */
-  showPoweredBy: {
-    type: Boolean,
-    default: true,
-  },
-  /** Show the default NavAvatarMenu dropdown */
-  showDefaultActions: {
-    type: Boolean,
-    default: true,
-  },
-  /** Reduce horizontal padding for dense layouts (e.g. mobile menu page) */
-  compact: {
-    type: Boolean,
-    default: false,
-  },
-});
+  defineProps({
+    /** Primary venue name displayed as the main heading */
+    venueName: {
+      type: String,
+      required: true,
+    },
+    /** Optional secondary line below venue name (e.g. "Table #12 — Terrace") */
+    venueSubLabel: {
+      type: String,
+      default: null,
+    },
+    /** Show the "Powered by Spotly" logo badge */
+    showPoweredBy: {
+      type: Boolean,
+      default: true,
+    },
+    /** Show the default NavAvatarMenu dropdown */
+    showDefaultActions: {
+      type: Boolean,
+      default: true,
+    },
+    /** Reduce horizontal padding for dense layouts (e.g. mobile menu page) */
+    compact: {
+      type: Boolean,
+      default: false,
+    },
+  })
 
 </script>
 

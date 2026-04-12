@@ -8,43 +8,43 @@
       <ReservationStatusChip status="occupied" size="x-small" />
   -->
   <v-chip
-    :color="vuetifyColor"
-    variant="tonal"
-    :size="size"
     class="status-chip"
+    :color="vuetifyColor"
+    :size="size"
+    variant="tonal"
   >
-    <v-icon v-if="showIcon" start :size="iconSize">{{ icon }}</v-icon>
+    <v-icon v-if="showIcon" :size="iconSize" start>{{ icon }}</v-icon>
     {{ label }}
   </v-chip>
 </template>
 
 <script setup>
-import { computed } from "vue";
-import {
-  statusLabel,
-  statusIcon,
-  statusVuetifyColor,
-} from "@/composables/useTableStatus";
+  import { computed } from 'vue'
+  import {
+    statusIcon,
+    statusLabel,
+    statusVuetifyColor,
+  } from '@/composables/useTableStatus'
 
-const props = defineProps({
-  status: {
-    type: String,
-    required: true,
-  },
-  size: {
-    type: String,
-    default: "small",
-  },
-  showIcon: {
-    type: Boolean,
-    default: true,
-  },
-});
+  const props = defineProps({
+    status: {
+      type: String,
+      required: true,
+    },
+    size: {
+      type: String,
+      default: 'small',
+    },
+    showIcon: {
+      type: Boolean,
+      default: true,
+    },
+  })
 
-const label = computed(() => statusLabel(props.status));
-const icon = computed(() => statusIcon(props.status));
-const vuetifyColor = computed(() => statusVuetifyColor(props.status));
-const iconSize = computed(() => (props.size === "x-small" ? 10 : 12));
+  const label = computed(() => statusLabel(props.status))
+  const icon = computed(() => statusIcon(props.status))
+  const vuetifyColor = computed(() => statusVuetifyColor(props.status))
+  const iconSize = computed(() => (props.size === 'x-small' ? 10 : 12))
 </script>
 
 <style scoped>

@@ -9,17 +9,17 @@
 
     <!-- ── App Bar ── -->
     <AppNavbarVenue
+      :show-default-actions="false"
+      :show-powered-by="false"
       venue-name="Sunset Beach Club"
       venue-sub-label="Awaiting Decision"
-      :show-powered-by="false"
-      :show-default-actions="false"
     >
       <template #actions>
         <v-btn
-          variant="outlined"
+          class="text-none secondary-btn"
           :ripple="false"
           size="small"
-          class="text-none secondary-btn"
+          variant="outlined"
           @click="router.push('/client/dashboard')"
         >
           My Reservations
@@ -36,9 +36,7 @@
           <div class="col-left">
             <!-- Venue Badge -->
             <div class="venue-badge mb-8">
-              <v-icon size="15" color="#D4AF37" class="mr-1"
-                >mdi-map-marker</v-icon
-              >
+              <v-icon class="mr-1" color="#D4AF37" size="15">mdi-map-marker</v-icon>
               <span>Sunset Beach Club · Sidi Bou Said</span>
             </div>
 
@@ -48,14 +46,14 @@
               <div class="pulse-ring pulse-ring--2" />
               <div class="pulse-ring pulse-ring--1" />
               <div class="pulse-center">
-                <v-icon size="28" color="#D4AF37">mdi-clock-outline</v-icon>
+                <v-icon color="#D4AF37" size="28">mdi-clock-outline</v-icon>
               </div>
             </div>
 
             <!-- Heading -->
             <h1 class="await-title mb-3">Your request is with us</h1>
             <p class="await-sub mb-10">
-              Our team is personally reviewing your reservation.<br />
+              Our team is personally reviewing your reservation.<br>
               You will be notified the moment a decision is made.
             </p>
 
@@ -65,7 +63,7 @@
               <div class="tl-step tl-step--done">
                 <div class="tl-icon-wrap">
                   <div class="tl-icon tl-icon--done">
-                    <v-icon size="16" color="#0A0E14">mdi-check</v-icon>
+                    <v-icon color="#0A0E14" size="16">mdi-check</v-icon>
                   </div>
                 </div>
                 <div class="tl-body">
@@ -97,9 +95,10 @@
               <div class="tl-step tl-step--pending">
                 <div class="tl-icon-wrap">
                   <div class="tl-icon tl-icon--pending">
-                    <v-icon size="14" color="#4a5568"
-                      >mdi-dots-horizontal</v-icon
-                    >
+                    <v-icon
+                      color="#4a5568"
+                      size="14"
+                    >mdi-dots-horizontal</v-icon>
                   </div>
                 </div>
                 <div class="tl-body">
@@ -127,7 +126,7 @@
               <div class="summary-card-body">
                 <div class="summary-row-item">
                   <div class="summary-row-icon">
-                    <v-icon size="15" color="#D4AF37">mdi-store</v-icon>
+                    <v-icon color="#D4AF37" size="15">mdi-store</v-icon>
                   </div>
                   <div>
                     <div class="summary-row-label">Venue</div>
@@ -136,9 +135,10 @@
                 </div>
                 <div class="summary-row-item">
                   <div class="summary-row-icon">
-                    <v-icon size="15" color="#D4AF37"
-                      >mdi-map-marker-outline</v-icon
-                    >
+                    <v-icon
+                      color="#D4AF37"
+                      size="15"
+                    >mdi-map-marker-outline</v-icon>
                   </div>
                   <div>
                     <div class="summary-row-label">Environment</div>
@@ -147,7 +147,7 @@
                 </div>
                 <div class="summary-row-item">
                   <div class="summary-row-icon">
-                    <v-icon size="15" color="#D4AF37">mdi-seat</v-icon>
+                    <v-icon color="#D4AF37" size="15">mdi-seat</v-icon>
                   </div>
                   <div>
                     <div class="summary-row-label">Table</div>
@@ -156,7 +156,7 @@
                 </div>
                 <div class="summary-row-item">
                   <div class="summary-row-icon">
-                    <v-icon size="15" color="#D4AF37">mdi-calendar</v-icon>
+                    <v-icon color="#D4AF37" size="15">mdi-calendar</v-icon>
                   </div>
                   <div>
                     <div class="summary-row-label">Date</div>
@@ -165,7 +165,7 @@
                 </div>
                 <div class="summary-row-item">
                   <div class="summary-row-icon">
-                    <v-icon size="15" color="#D4AF37">mdi-clock-outline</v-icon>
+                    <v-icon color="#D4AF37" size="15">mdi-clock-outline</v-icon>
                   </div>
                   <div>
                     <div class="summary-row-label">Time</div>
@@ -174,7 +174,7 @@
                 </div>
                 <div class="summary-row-item">
                   <div class="summary-row-icon">
-                    <v-icon size="15" color="#D4AF37">mdi-account-group</v-icon>
+                    <v-icon color="#D4AF37" size="15">mdi-account-group</v-icon>
                   </div>
                   <div>
                     <div class="summary-row-label">Guests</div>
@@ -185,7 +185,7 @@
                 </div>
                 <div class="summary-row-item">
                   <div class="summary-row-icon">
-                    <v-icon size="15" color="#D4AF37">mdi-account</v-icon>
+                    <v-icon color="#D4AF37" size="15">mdi-account</v-icon>
                   </div>
                   <div>
                     <div class="summary-row-label">Name</div>
@@ -197,9 +197,7 @@
 
             <!-- Leave notice -->
             <div class="leave-notice mb-6">
-              <v-icon size="17" color="#D4AF37" class="leave-notice-icon"
-                >mdi-shield-check-outline</v-icon
-              >
+              <v-icon class="leave-notice-icon" color="#D4AF37" size="17">mdi-shield-check-outline</v-icon>
               <div>
                 <div class="leave-notice-title">
                   You can safely leave this page
@@ -209,20 +207,19 @@
                   <span
                     class="leave-notice-link"
                     @click="router.push('/client/dashboard')"
-                    >Client Dashboard</span
-                  >.
+                  >Client Dashboard</span>.
                 </div>
               </div>
             </div>
 
             <!-- Cancel button (only while pending) -->
             <v-btn
-              variant="outlined"
-              size="small"
               class="secondary-btn mb-4"
+              size="small"
+              variant="outlined"
               @click="cancelReservation"
             >
-              <v-icon start size="14">mdi-close</v-icon>
+              <v-icon size="14" start>mdi-close</v-icon>
               Cancel this request
             </v-btn>
 
@@ -231,21 +228,21 @@
               <div class="demo-label mb-3">— Demo Controls —</div>
               <div class="d-flex gap-3">
                 <v-btn
+                  class="gold-btn flex-1"
                   flat
                   size="small"
-                  class="gold-btn flex-1"
                   @click="simulateDecision('approved')"
                 >
-                  <v-icon start size="14">mdi-check-circle</v-icon>
+                  <v-icon size="14" start>mdi-check-circle</v-icon>
                   Simulate Approval
                 </v-btn>
                 <v-btn
+                  class="reject-button flex-1"
                   flat
                   size="small"
-                  class="reject-button flex-1"
                   @click="simulateDecision('rejected')"
                 >
-                  <v-icon start size="14">mdi-close-circle</v-icon>
+                  <v-icon size="14" start>mdi-close-circle</v-icon>
                   Simulate Rejection
                 </v-btn>
               </div>
@@ -267,22 +264,22 @@
                 <div class="burst-ring burst-ring--2" />
                 <div class="burst-ring burst-ring--1" />
                 <div class="burst-center">
-                  <v-icon size="32" color="#0A0E14">mdi-check</v-icon>
+                  <v-icon color="#0A0E14" size="32">mdi-check</v-icon>
                 </div>
               </div>
 
               <div class="approved-tag mb-4">
-                <v-icon size="13" class="mr-1">mdi-star</v-icon>
+                <v-icon class="mr-1" size="13">mdi-star</v-icon>
                 CONFIRMED
               </div>
 
-              <h1 class="approved-title mb-4">Your evening<br />is reserved</h1>
+              <h1 class="approved-title mb-4">Your evening<br>is reserved</h1>
               <p class="approved-sub mb-6">
-                Welcome to Sunset Beach Club.<br />
+                Welcome to Sunset Beach Club.<br>
                 We look forward to hosting you.
               </p>
               <p class="approved-sub" style="font-size: 0.82rem">
-                A confirmation was sent to<br />
+                A confirmation was sent to<br>
                 <strong style="color: #d4af37">{{ guestEmail }}</strong>
               </p>
             </div>
@@ -325,10 +322,10 @@
               </div>
 
               <v-btn
-                flat
-                size="large"
                 block
                 class="gold-btn"
+                flat
+                size="large"
                 @click="router.push('/client/dashboard')"
               >
                 View My Dashboard
@@ -349,17 +346,17 @@
               <div class="decline-wrap mb-8">
                 <div class="decline-ring" />
                 <div class="decline-center">
-                  <v-icon size="28" color="#C71585">mdi-close</v-icon>
+                  <v-icon color="#C71585" size="28">mdi-close</v-icon>
                 </div>
               </div>
 
               <div class="rejected-tag mb-4">
-                <v-icon size="13" class="mr-1">mdi-information-outline</v-icon>
+                <v-icon class="mr-1" size="13">mdi-information-outline</v-icon>
                 NOT AVAILABLE
               </div>
 
               <h1 class="rejected-title mb-4">
-                This slot isn't<br />available
+                This slot isn't<br>available
               </h1>
               <p class="rejected-sub">
                 We weren't able to accommodate your request for this time slot.
@@ -370,9 +367,7 @@
             <!-- RIGHT -->
             <div class="col-right">
               <div class="decline-card mb-6">
-                <v-icon size="22" color="#D4AF37" class="mb-3"
-                  >mdi-calendar-search</v-icon
-                >
+                <v-icon class="mb-3" color="#D4AF37" size="22">mdi-calendar-search</v-icon>
                 <p class="decline-suggestion">
                   Try a different date, time, or environment — our team will do
                   their best to accommodate you.
@@ -381,9 +376,7 @@
 
               <!-- Leave notice (also shown on rejection) -->
               <div class="leave-notice mb-6">
-                <v-icon size="17" color="#D4AF37" class="leave-notice-icon"
-                  >mdi-history</v-icon
-                >
+                <v-icon class="leave-notice-icon" color="#D4AF37" size="17">mdi-history</v-icon>
                 <div>
                   <div class="leave-notice-title">Your history is saved</div>
                   <div class="leave-notice-sub">
@@ -391,8 +384,7 @@
                     <span
                       class="leave-notice-link"
                       @click="router.push('/client/dashboard')"
-                      >Client Dashboard</span
-                    >
+                    >Client Dashboard</span>
                     for your records.
                   </div>
                 </div>
@@ -400,18 +392,18 @@
 
               <div class="d-flex gap-3">
                 <v-btn
+                  class="gold-btn flex-1"
                   flat
                   size="large"
-                  class="gold-btn flex-1"
                   @click="router.push('/booking/environment')"
                 >
-                  <v-icon start size="16">mdi-refresh</v-icon>
+                  <v-icon size="16" start>mdi-refresh</v-icon>
                   Book Again
                 </v-btn>
                 <v-btn
-                  variant="outlined"
-                  size="large"
                   class="secondary-btn flex-1"
+                  size="large"
+                  variant="outlined"
                   @click="router.push('/client/dashboard')"
                 >
                   My Dashboard
@@ -426,102 +418,102 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
-import {
-  RESERVATION_LIST,
-  updateReservationStatus,
-} from "@/datamodel/Reservation.js";
-import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog.js";
-import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
+  import { computed, onMounted, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
+  import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import {
+    RESERVATION_LIST,
+    updateReservationStatus,
+  } from '@/datamodel/Reservation.js'
+  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
 
-const router = useRouter();
+  const router = useRouter()
 
-const pendingId = ref(null);
-const submittedAt = ref("");
+  const pendingId = ref(null)
+  const submittedAt = ref('')
 
-onMounted(() => {
-  const raw = sessionStorage.getItem("spotly_pending_reservation_id");
-  pendingId.value = raw ? Number(raw) : null;
-  submittedAt.value = new Date().toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-});
+  onMounted(() => {
+    const raw = sessionStorage.getItem('spotly_pending_reservation_id')
+    pendingId.value = raw ? Number(raw) : null
+    submittedAt.value = new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  })
 
-// ─── Reactive reservation from RESERVATION_LIST ───────────────────────────────
-const currentReservation = computed(() =>
-  pendingId.value !== null
-    ? RESERVATION_LIST.find((r) => r.id === pendingId.value) ?? null
-    : null,
-);
+  // ─── Reactive reservation from RESERVATION_LIST ───────────────────────────────
+  const currentReservation = computed(() =>
+    pendingId.value === null
+      ? null
+      : RESERVATION_LIST.find(r => r.id === pendingId.value) ?? null,
+  )
 
-// ─── Status — derived from canonical REQUESTED/APPROVED/REJECTED ─────────────
-const status = computed(() => {
-  const s = currentReservation.value?.status;
-  if (s === "APPROVED") return "approved";
-  if (s === "REJECTED") return "rejected";
-  return "pending";
-});
+  // ─── Status — derived from canonical REQUESTED/APPROVED/REJECTED ─────────────
+  const status = computed(() => {
+    const s = currentReservation.value?.status
+    if (s === 'APPROVED') return 'approved'
+    if (s === 'REJECTED') return 'rejected'
+    return 'pending'
+  })
 
-// ─── Display fields ───────────────────────────────────────────────────────────
-const reservationId = computed(() => currentReservation.value?.id ?? "");
-const reservationDate = computed(() => currentReservation.value?.date ?? "");
-const reservationTime = computed(() => currentReservation.value?.time ?? "");
-const reservationGuests = computed(() => currentReservation.value?.guests ?? 0);
-const guestName = computed(() => currentReservation.value?.name ?? "");
-const guestEmail = computed(() => currentReservation.value?.email ?? "");
+  // ─── Display fields ───────────────────────────────────────────────────────────
+  const reservationId = computed(() => currentReservation.value?.id ?? '')
+  const reservationDate = computed(() => currentReservation.value?.date ?? '')
+  const reservationTime = computed(() => currentReservation.value?.time ?? '')
+  const reservationGuests = computed(() => currentReservation.value?.guests ?? 0)
+  const guestName = computed(() => currentReservation.value?.name ?? '')
+  const guestEmail = computed(() => currentReservation.value?.email ?? '')
 
-const reservationEnv = computed(() => {
-  const envId = currentReservation.value?.environmentId;
-  return ENVIRONMENT_LIST.find((e) => e.id === envId)?.name ?? "";
-});
+  const reservationEnv = computed(() => {
+    const envId = currentReservation.value?.environmentId
+    return ENVIRONMENT_LIST.find(e => e.id === envId)?.name ?? ''
+  })
 
-const reservationTable = computed(() => {
-  const r = currentReservation.value;
-  if (!r) return "";
-  const env = ENVIRONMENT_LIST.find((e) => e.id === r.environmentId);
-  return env?.elements.find((el) => el.id === r.elementId)?.label ?? r.elementId;
-});
+  const reservationTable = computed(() => {
+    const r = currentReservation.value
+    if (!r) return ''
+    const env = ENVIRONMENT_LIST.find(e => e.id === r.environmentId)
+    return env?.elements.find(el => el.id === r.elementId)?.label ?? r.elementId
+  })
 
-const isDev = import.meta.env.DEV;
+  const isDev = import.meta.env.DEV
 
-// ─── Cancel reservation ───────────────────────────────────────────────────────
-const cancelReservation = () => {
-  if (!pendingId.value) return;
-  const prev = currentReservation.value?.status ?? "REQUESTED";
-  updateReservationStatus(pendingId.value, "CANCELLED");
-  addReservationLog(
-    new ReservationLog({
-      id: Date.now(),
-      reservationId: pendingId.value,
-      previousStatus: prev,
-      newStatus: "CANCELLED",
-      timestamp: new Date().toISOString(),
-      actorRole: "client",
-    }),
-  );
-  router.push("/client/dashboard");
-};
+  // ─── Cancel reservation ───────────────────────────────────────────────────────
+  function cancelReservation () {
+    if (!pendingId.value) return
+    const prev = currentReservation.value?.status ?? 'REQUESTED'
+    updateReservationStatus(pendingId.value, 'CANCELLED')
+    addReservationLog(
+      new ReservationLog({
+        id: Date.now(),
+        reservationId: pendingId.value,
+        previousStatus: prev,
+        newStatus: 'CANCELLED',
+        timestamp: new Date().toISOString(),
+        actorRole: 'client',
+      }),
+    )
+    router.push('/client/dashboard')
+  }
 
-// ─── Demo: simulate admin decision ───────────────────────────────────────────
-const simulateDecision = (decision) => {
-  if (!pendingId.value) return;
-  const newStatus = decision === "approved" ? "APPROVED" : "REJECTED";
-  const prev = currentReservation.value?.status ?? "REQUESTED";
-  updateReservationStatus(pendingId.value, newStatus);
-  addReservationLog(
-    new ReservationLog({
-      id: Date.now(),
-      reservationId: pendingId.value,
-      previousStatus: prev,
-      newStatus,
-      timestamp: new Date().toISOString(),
-      actorRole: "admin",
-    }),
-  );
-};
+  // ─── Demo: simulate admin decision ───────────────────────────────────────────
+  function simulateDecision (decision) {
+    if (!pendingId.value) return
+    const newStatus = decision === 'approved' ? 'APPROVED' : 'REJECTED'
+    const prev = currentReservation.value?.status ?? 'REQUESTED'
+    updateReservationStatus(pendingId.value, newStatus)
+    addReservationLog(
+      new ReservationLog({
+        id: Date.now(),
+        reservationId: pendingId.value,
+        previousStatus: prev,
+        newStatus,
+        timestamp: new Date().toISOString(),
+        actorRole: 'admin',
+      }),
+    )
+  }
 </script>
 
 <style scoped>

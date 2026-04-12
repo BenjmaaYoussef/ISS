@@ -6,40 +6,43 @@
     <div class="modal-backdrop-card">
       <div class="mbc-strip mbc-strip--error" />
       <div class="d-flex align-center gap-2 mb-2 mt-1">
-        <v-icon size="15" color="#e05252">mdi-alert-outline</v-icon>
+        <v-icon color="#e05252" size="15">mdi-alert-outline</v-icon>
         <span class="mbc-id">D1</span>
         <span class="mbc-title">Delete Constraint Warning</span>
-        <v-chip size="x-small" color="error" variant="tonal" class="ml-auto"
-          >F4</v-chip
-        >
+        <v-chip
+          class="ml-auto"
+          color="error"
+          size="x-small"
+          variant="tonal"
+        >F4</v-chip>
       </div>
       <p class="mbc-desc">
         Blocks an admin from deleting a table that has future reservations.
       </p>
       <v-btn class="mbc-reopen-btn mt-4" @click="open = true">
-        <v-icon start size="14">mdi-refresh</v-icon>
+        <v-icon size="14" start>mdi-refresh</v-icon>
         Reopen Dialog
       </v-btn>
     </div>
 
     <DeleteConstraintDialog
       v-model="open"
-      table-name="Table #3"
       :reservations="reservations"
+      table-name="Table #3"
     />
   </v-container>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import DeleteConstraintDialog from "@/components/dialogs/DeleteConstraintDialog.vue";
+  import { ref } from 'vue'
+  import DeleteConstraintDialog from '@/components/dialogs/DeleteConstraintDialog.vue'
 
-const open = ref(true);
+  const open = ref(true)
 
-const reservations = [
-  { id: 102, guest: "John Doe", datetime: "Feb 15, 19:00" },
-  { id: 105, guest: "Sarah Smith", datetime: "Feb 16, 20:00" },
-];
+  const reservations = [
+    { id: 102, guest: 'John Doe', datetime: 'Feb 15, 19:00' },
+    { id: 105, guest: 'Sarah Smith', datetime: 'Feb 16, 20:00' },
+  ]
 </script>
 
 <style scoped>

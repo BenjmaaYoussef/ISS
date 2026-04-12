@@ -1,28 +1,28 @@
 <template>
   <!-- ── App Bar ── -->
   <AppNavbarVenue
-    venue-name="Sunset Beach Club"
-    :show-powered-by="false"
     :show-default-actions="false"
+    :show-powered-by="false"
+    venue-name="Sunset Beach Club"
   >
     <template #actions>
       <BookingStepIndicator
+        :current-step="3"
         :steps="[
           { label: 'Environment' },
           { label: 'Select Table' },
           { label: 'Confirm' },
         ]"
-        :current-step="3"
       />
       <v-btn
-        variant="text"
-        :ripple="false"
         class="text-none px-4 ml-4"
+        :ripple="false"
         size="small"
         style="color: rgba(255, 255, 255, 0.55); font-size: 0.78rem"
+        variant="text"
         @click="goBack"
       >
-        <v-icon size="14" class="mr-1">mdi-arrow-left</v-icon>Back
+        <v-icon class="mr-1" size="14">mdi-arrow-left</v-icon>Back
       </v-btn>
     </template>
   </AppNavbarVenue>
@@ -32,14 +32,14 @@
     <div class="spotly-container spotly-container--wide">
       <!-- Back Button -->
       <v-btn
-        variant="text"
+        class="text-none mb-5"
         :ripple="false"
         size="small"
-        class="text-none mb-5"
         style="color: #d4af37; font-size: 0.85rem"
+        variant="text"
         @click="goBack"
       >
-        <v-icon start size="18">mdi-chevron-left</v-icon>
+        <v-icon size="18" start>mdi-chevron-left</v-icon>
         Back to Map
       </v-btn>
 
@@ -60,8 +60,8 @@
 
           <!-- SECTION 1: Your Details -->
           <v-card
-            flat
             class="form-section mb-4"
+            flat
             style="
               background: var(--color-surface-elevated);
               border: 1px solid rgba(212, 175, 55, 0.18);
@@ -81,13 +81,13 @@
                   </label>
                   <v-text-field
                     v-model="form.name"
-                    placeholder="Enter your full name"
-                    variant="outlined"
+                    class="spotly-input"
                     density="comfortable"
                     hide-details="auto"
+                    placeholder="Enter your full name"
                     :rules="[(v) => !!v || 'Name is required']"
-                    class="spotly-input"
-                  ></v-text-field>
+                    variant="outlined"
+                  />
                 </v-col>
 
                 <v-col cols="12" md="6">
@@ -96,27 +96,27 @@
                   </label>
                   <v-text-field
                     v-model="form.email"
-                    type="email"
-                    placeholder="your.email@example.com"
-                    variant="outlined"
+                    class="spotly-input"
                     density="comfortable"
                     hide-details="auto"
+                    placeholder="your.email@example.com"
                     :rules="emailRules"
-                    class="spotly-input"
-                  ></v-text-field>
+                    type="email"
+                    variant="outlined"
+                  />
                 </v-col>
 
                 <v-col cols="12" md="6">
                   <label class="field-label mb-2 d-block"> Phone Number </label>
                   <v-text-field
                     v-model="form.phone"
-                    type="tel"
-                    placeholder="+216 XX XXX XXX"
-                    variant="outlined"
+                    class="spotly-input"
                     density="comfortable"
                     hide-details
-                    class="spotly-input"
-                  ></v-text-field>
+                    placeholder="+216 XX XXX XXX"
+                    type="tel"
+                    variant="outlined"
+                  />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -124,8 +124,8 @@
 
           <!-- SECTION 2: Booking Summary -->
           <v-card
-            flat
             class="form-section mb-4"
+            flat
             style="
               background: var(--color-surface-elevated);
               border: 1px solid rgba(212, 175, 55, 0.18);
@@ -150,9 +150,10 @@
                   "
                 >
                   <div class="summary-row" style="margin-bottom: 6px">
-                    <span class="summary-label" style="color: #d4af37"
-                      >Table {{ idx + 1 }}</span
-                    >
+                    <span
+                      class="summary-label"
+                      style="color: #d4af37"
+                    >Table {{ idx + 1 }}</span>
                     <span class="summary-value" style="color: #d4af37">{{
                       item.label
                     }}</span>
@@ -167,7 +168,7 @@
                         border-color: rgba(212, 175, 55, 0.08);
                         margin: 8px 0;
                       "
-                    ></v-divider>
+                    />
                     <div class="summary-row">
                       <span class="summary-label">Date</span>
                       <span class="summary-value">{{ item.date }}</span>
@@ -177,7 +178,7 @@
                         border-color: rgba(212, 175, 55, 0.08);
                         margin: 8px 0;
                       "
-                    ></v-divider>
+                    />
                     <div class="summary-row">
                       <span class="summary-label">Time</span>
                       <span class="summary-value">{{ item.time }}</span>
@@ -187,12 +188,10 @@
                         border-color: rgba(212, 175, 55, 0.08);
                         margin: 8px 0;
                       "
-                    ></v-divider>
+                    />
                     <div class="summary-row">
                       <span class="summary-label">Guests</span>
-                      <span class="summary-value"
-                        >{{ item.guests }} / {{ item.cap }} capacity</span
-                      >
+                      <span class="summary-value">{{ item.guests }} / {{ item.cap }} capacity</span>
                     </div>
                     <template v-if="item.notes">
                       <v-divider
@@ -200,14 +199,13 @@
                           border-color: rgba(212, 175, 55, 0.08);
                           margin: 8px 0;
                         "
-                      ></v-divider>
+                      />
                       <div class="summary-row">
                         <span class="summary-label">Notes</span>
                         <span
                           class="summary-value"
                           style="font-style: italic; color: #8a8fa8"
-                          >{{ item.notes }}</span
-                        >
+                        >{{ item.notes }}</span>
                       </div>
                     </template>
                   </div>
@@ -216,9 +214,10 @@
               <template v-else>
                 <div class="summary-row">
                   <span class="summary-label">Status</span>
-                  <span class="summary-value" style="color: #6a7080"
-                    >No tables selected</span
-                  >
+                  <span
+                    class="summary-value"
+                    style="color: #6a7080"
+                  >No tables selected</span>
                 </div>
               </template>
             </v-card-text>
@@ -226,8 +225,8 @@
 
           <!-- SECTION 3: Special Request -->
           <v-card
-            flat
             class="form-section mb-4"
+            flat
             style="
               background: var(--color-surface-elevated);
               border: 1px solid rgba(212, 175, 55, 0.18);
@@ -243,15 +242,15 @@
               <label class="field-label mb-2 d-block">Notes (Optional)</label>
               <v-textarea
                 v-model="form.notes"
-                placeholder="e.g., It's our anniversary. Please ensure the table is clean."
-                variant="outlined"
-                rows="5"
-                no-resize
-                counter="500"
-                maxlength="500"
-                hide-details="auto"
                 class="spotly-input"
-              ></v-textarea>
+                counter="500"
+                hide-details="auto"
+                maxlength="500"
+                no-resize
+                placeholder="e.g., It's our anniversary. Please ensure the table is clean."
+                rows="5"
+                variant="outlined"
+              />
             </v-card-text>
           </v-card>
         </v-col>
@@ -259,8 +258,8 @@
         <!-- RIGHT COLUMN: Sidebar -->
         <v-col cols="12" md="4">
           <v-card
-            flat
             class="sidebar-card sticky-card"
+            flat
             style="
               background: var(--color-surface-elevated);
               border: 1px solid rgba(212, 175, 55, 0.18);
@@ -284,8 +283,7 @@
                             color: #d4af37;
                             margin-left: 8px;
                           "
-                          >+{{ cart.length - 1 }} more</span
-                        >
+                        >+{{ cart.length - 1 }} more</span>
                       </div>
                       <div class="preview-meta">
                         {{ firstItem.env }} · {{ totalGuests }} guest{{
@@ -294,15 +292,17 @@
                       </div>
                       <div class="preview-datetime">
                         <div class="d-flex align-center mt-3">
-                          <v-icon size="14" style="color: #6a7080"
-                            >mdi-calendar-blank</v-icon
-                          >
+                          <v-icon
+                            size="14"
+                            style="color: #6a7080"
+                          >mdi-calendar-blank</v-icon>
                           <span class="ml-2">{{ firstItem.date }}</span>
                         </div>
                         <div class="d-flex align-center mt-1">
-                          <v-icon size="14" style="color: #6a7080"
-                            >mdi-clock-outline</v-icon
-                          >
+                          <v-icon
+                            size="14"
+                            style="color: #6a7080"
+                          >mdi-clock-outline</v-icon>
                           <span class="ml-2">{{ firstItem.time }}</span>
                         </div>
                       </div>
@@ -326,13 +326,15 @@
 
               <v-divider
                 style="border-color: rgba(212, 175, 55, 0.12); margin: 20px 0"
-              ></v-divider>
+              />
 
               <!-- Policy Alert -->
               <div class="policy-alert mb-5">
-                <v-icon size="18" style="color: #d4af37" class="mr-2"
-                  >mdi-information-outline</v-icon
-                >
+                <v-icon
+                  class="mr-2"
+                  size="18"
+                  style="color: #d4af37"
+                >mdi-information-outline</v-icon>
                 <div class="policy-text">
                   By confirming, you agree to our cancellation policy. Free
                   cancellation up to 24 hours before your reservation.
@@ -342,12 +344,12 @@
               <!-- Action Buttons -->
               <v-btn
                 block
-                flat
-                size="large"
-                :ripple="false"
                 class="mb-3 gold-btn"
                 :disabled="!isFormValid || submitting"
+                flat
                 :loading="submitting"
+                :ripple="false"
+                size="large"
                 @click="requestReservation"
               >
                 Request Reservation
@@ -355,13 +357,13 @@
 
               <v-btn
                 block
-                variant="outlined"
-                size="large"
-                :ripple="false"
                 class="secondary-btn"
+                :ripple="false"
+                size="large"
+                variant="outlined"
                 @click="focusNotes"
               >
-                <v-icon start size="18">mdi-note-plus-outline</v-icon>
+                <v-icon size="18" start>mdi-note-plus-outline</v-icon>
                 Add Note
               </v-btn>
             </v-card-text>
@@ -374,104 +376,116 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
-import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
-import { Reservation, addReservation, RESERVATION_LIST } from "@/datamodel/Reservation.js";
-import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog.js";
+  import { computed, onMounted, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
+  import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
+  import { addReservation, Reservation, RESERVATION_LIST } from '@/datamodel/Reservation.js'
+  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
 
-const router = useRouter();
+  const router = useRouter()
 
-// Read cart passed from seats page via sessionStorage
-const cart = ref([]);
-try {
-  const raw = sessionStorage.getItem("spotly_cart");
-  if (raw) cart.value = JSON.parse(raw);
-} catch (_) {}
+  // Read cart passed from seats page via sessionStorage
+  const cart = ref([])
+  try {
+    const raw = sessionStorage.getItem('spotly_cart')
+    if (raw) cart.value = JSON.parse(raw)
+  } catch {}
 
-onMounted(() => {
-  if (cart.value.length === 0) {
-    router.replace("/booking/seats");
+  onMounted(() => {
+    if (cart.value.length === 0) {
+      router.replace('/booking/seats')
+    }
+  })
+
+  const firstItem = computed(() => cart.value[0] ?? null)
+  const totalGuests = computed(() =>
+    cart.value.reduce((s, c) => s + c.guests, 0),
+  )
+
+  const submitting = ref(false)
+
+  const form = ref({
+    name: '',
+    email: '',
+    phone: '',
+    notes: '',
+  })
+
+  const emailRules = [
+    v => !!v || 'Email is required',
+    v => /.+@.+\..+/.test(v) || 'Email must be valid',
+  ]
+
+  const isFormValid = computed(() => {
+    return (
+      form.value.name.trim()
+      && form.value.email.trim()
+      && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)
+    )
+  })
+
+  const goBack = () => router.push('/booking/seats')
+  function requestReservation () {
+    if (!isFormValid.value || submitting.value) return
+    submitting.value = true
+    const baseId
+      = RESERVATION_LIST.length > 0
+        ? Math.max(...RESERVATION_LIST.map(r => r.id)) + 1
+        : 1
+    for (const [idx, item] of cart.value.entries()) {
+      const resId = baseId + idx
+      addReservation(
+        new Reservation({
+          id: resId,
+          venueId: (() => {
+            try {
+              return JSON.parse(sessionStorage.getItem('spotly_booking') || '{}').venueId ?? null
+            } catch {
+              return null
+            }
+          })(),
+          environmentId: item.envId,
+          elementId: item.id,
+          userId: (() => {
+            try {
+              return JSON.parse(localStorage.getItem('spotly_session') || '{}').userId || ''
+            } catch {
+              return ''
+            }
+          })(),
+          name: form.value.name,
+          email: form.value.email,
+          phone: form.value.phone,
+          date: item.date,
+          time: item.time,
+          guests: item.guests,
+          notes: form.value.notes || item.notes,
+          status: 'REQUESTED',
+        }),
+      )
+      addReservationLog(
+        new ReservationLog({
+          id: Date.now() + idx,
+          reservationId: resId,
+          previousStatus: null,
+          newStatus: 'REQUESTED',
+          timestamp: new Date().toISOString(),
+          actorRole: 'client',
+        }),
+      )
+    }
+    if (cart.value.length > 0) {
+      sessionStorage.setItem('spotly_pending_reservation_id', String(baseId))
+    }
+    sessionStorage.removeItem('spotly_cart')
+    router.push('/booking/awaiting')
   }
-});
-
-const firstItem = computed(() => cart.value[0] ?? null);
-const totalGuests = computed(() =>
-  cart.value.reduce((s, c) => s + c.guests, 0),
-);
-
-const submitting = ref(false);
-
-const form = ref({
-  name: "",
-  email: "",
-  phone: "",
-  notes: "",
-});
-
-const emailRules = [
-  (v) => !!v || "Email is required",
-  (v) => /.+@.+\..+/.test(v) || "Email must be valid",
-];
-
-const isFormValid = computed(() => {
-  return (
-    form.value.name.trim() &&
-    form.value.email.trim() &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)
-  );
-});
-
-const goBack = () => router.push("/booking/seats");
-const requestReservation = () => {
-  if (!isFormValid.value || submitting.value) return;
-  submitting.value = true;
-  const baseId =
-    RESERVATION_LIST.length > 0
-      ? Math.max(...RESERVATION_LIST.map((r) => r.id)) + 1
-      : 1;
-  cart.value.forEach((item, idx) => {
-    const resId = baseId + idx;
-    addReservation(
-      new Reservation({
-        id: resId,
-        venueId: (() => { try { return JSON.parse(sessionStorage.getItem('spotly_booking') || '{}').venueId ?? null } catch { return null } })(),
-        environmentId: item.envId,
-        elementId: item.id,
-        userId: (() => { try { return JSON.parse(localStorage.getItem('spotly_session') || '{}').userId || '' } catch { return '' } })(),
-        name: form.value.name,
-        email: form.value.email,
-        phone: form.value.phone,
-        date: item.date,
-        time: item.time,
-        guests: item.guests,
-        notes: form.value.notes || item.notes,
-        status: "REQUESTED",
-      }),
-    );
-    addReservationLog(
-      new ReservationLog({
-        id: Date.now() + idx,
-        reservationId: resId,
-        previousStatus: null,
-        newStatus: "REQUESTED",
-        timestamp: new Date().toISOString(),
-        actorRole: "client",
-      }),
-    );
-  });
-  if (cart.value.length > 0) {
-    sessionStorage.setItem("spotly_pending_reservation_id", String(baseId));
+  function focusNotes () {
+    const textarea = document.querySelector('textarea')
+    if (textarea) textarea.focus()
   }
-  sessionStorage.removeItem("spotly_cart");
-  router.push("/booking/awaiting");
-};
-const focusNotes = () => {
-  const textarea = document.querySelector("textarea");
-  if (textarea) textarea.focus();
-};
-const goToReservations = () => router.push("/client/dashboard");
+  const goToReservations = () => router.push('/client/dashboard')
 </script>
 
 <style scoped>

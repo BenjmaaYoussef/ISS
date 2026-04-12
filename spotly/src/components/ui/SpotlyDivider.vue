@@ -14,9 +14,9 @@
 </template>
 
 <script setup>
-defineProps({
-  label: { type: String, default: null },
-});
+  defineProps({
+    label: { type: String, default: null },
+  })
 </script>
 
 <style scoped>

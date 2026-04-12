@@ -6,10 +6,12 @@
  * @returns {Promise<string>} The secure URL of the uploaded image
  * @throws {Error} On network failure or non-2xx response
  */
-export async function uploadImage(file) {
+export async function uploadImage (file) {
   const cloud = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-  if (!cloud || !preset) throw new Error('Cloudinary credentials missing — check .env.local')
+  if (!cloud || !preset) {
+    throw new Error('Cloudinary credentials missing — check .env.local')
+  }
 
   const fd = new FormData()
   fd.append('file', file)

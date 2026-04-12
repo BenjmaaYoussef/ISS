@@ -1,8 +1,8 @@
 <template>
   <!-- APP BAR -->
   <AppNavbarSpotly
-    :nav-links="adminNavLinks"
     active-link="builder"
+    :nav-links="adminNavLinks"
     @nav="handleNav"
   >
     <template #actions>
@@ -13,44 +13,44 @@
           :class="{ 'mode-seg-btn--active': !isPreviewMode }"
           @click="isPreviewMode = false"
         >
-          <v-icon size="13" class="mr-1">mdi-pencil-ruler</v-icon>Edit
+          <v-icon class="mr-1" size="13">mdi-pencil-ruler</v-icon>Edit
         </button>
         <button
           class="mode-seg-btn"
           :class="{ 'mode-seg-btn--active': isPreviewMode }"
           @click="isPreviewMode = true"
         >
-          <v-icon size="13" class="mr-1">mdi-eye-outline</v-icon>Preview
+          <v-icon class="mr-1" size="13">mdi-eye-outline</v-icon>Preview
         </button>
       </div>
       <v-btn
-        icon
-        size="x-small"
-        variant="text"
-        :ripple="false"
-        :disabled="historyIndex <= 0"
-        @click="undo"
-        style="color: #6a7080"
         class="mr-1"
+        :disabled="historyIndex <= 0"
+        icon
+        :ripple="false"
+        size="x-small"
+        style="color: #6a7080"
         title="Undo"
+        variant="text"
+        @click="undo"
       >
         <v-icon size="17">mdi-undo</v-icon>
       </v-btn>
       <v-btn
-        icon
-        size="x-small"
-        variant="text"
-        :ripple="false"
-        :disabled="historyIndex >= history.length - 1"
-        @click="redo"
-        style="color: #6a7080"
         class="mr-3"
+        :disabled="historyIndex >= history.length - 1"
+        icon
+        :ripple="false"
+        size="x-small"
+        style="color: #6a7080"
         title="Redo"
+        variant="text"
+        @click="redo"
       >
         <v-icon size="17">mdi-redo</v-icon>
       </v-btn>
       <button class="gold-btn" @click="saveLayout">
-        <v-icon size="14" class="mr-1">mdi-content-save-outline</v-icon>Save
+        <v-icon class="mr-1" size="14">mdi-content-save-outline</v-icon>Save
         Layout
       </button>
     </template>
@@ -73,13 +73,12 @@
       <div class="d-flex align-center" style="height: 44px; gap: 4px">
         <button
           class="dash-back-btn"
-          @click="router.push('/admin/dashboard')"
           title="Admin Dashboard"
+          @click="router.push('/admin/dashboard')"
         >
-          <v-icon size="12" class="mr-1">mdi-view-dashboard-outline</v-icon
-          >Dashboard
+          <v-icon class="mr-1" size="12">mdi-view-dashboard-outline</v-icon>Dashboard
         </button>
-        <div class="bar-divider mx-4"></div>
+        <div class="bar-divider mx-4" />
         <div class="env-tabs">
           <button
             v-for="env in environments"
@@ -89,19 +88,18 @@
             @click="switchEnv(env.id)"
           >
             <v-icon
-              size="13"
               class="mr-1"
+              size="13"
               :style="{
                 color: currentEnvId === env.id ? '#D4AF37' : '#6A7080',
               }"
-              >{{ env.icon }}</v-icon
-            >
+            >{{ env.icon }}</v-icon>
             {{ env.name }}
           </button>
           <button
             class="env-tab env-tab--add"
-            @click="openAddEnv"
             title="Add environment"
+            @click="openAddEnv"
           >
             <v-icon size="14">mdi-plus</v-icon>
           </button>
@@ -126,10 +124,10 @@
                 :key="el.type"
                 class="pal-card"
                 :class="{ 'pal-card--armed': armedType === el.type }"
-                @click="armElement(el.type)"
                 :title="el.name"
+                @click="armElement(el.type)"
               >
-                <div class="pal-preview" v-if="el.type.startsWith('table_')">
+                <div v-if="el.type.startsWith('table_')" class="pal-preview">
                   <div
                     class="pal-table-mini"
                     :class="{
@@ -143,7 +141,7 @@
                         v-for="i in getMiniChairs(el.type).top"
                         :key="i"
                         class="mini-chair mini-chair--h"
-                      ></div>
+                      />
                     </div>
                     <div class="mini-mid">
                       <div class="mini-chairs-side">
@@ -151,7 +149,7 @@
                           v-for="i in getMiniChairs(el.type).left"
                           :key="i"
                           class="mini-chair mini-chair--v"
-                        ></div>
+                        />
                       </div>
                       <div
                         class="mini-surface"
@@ -160,13 +158,13 @@
                             el.type === 'table_round_2' ||
                             el.type === 'table_large_8',
                         }"
-                      ></div>
+                      />
                       <div class="mini-chairs-side">
                         <div
                           v-for="i in getMiniChairs(el.type).right"
                           :key="i"
                           class="mini-chair mini-chair--v"
-                        ></div>
+                        />
                       </div>
                     </div>
                     <div class="mini-chairs-top">
@@ -174,21 +172,20 @@
                         v-for="i in getMiniChairs(el.type).bottom"
                         :key="i"
                         class="mini-chair mini-chair--h"
-                      ></div>
+                      />
                     </div>
                   </div>
                 </div>
-                <div class="pal-preview" v-else>
+                <div v-else class="pal-preview">
                   <v-icon
                     size="24"
                     :style="{
                       color: armedType === el.type ? '#D4AF37' : '#6A7080',
                     }"
-                    >{{ el.icon }}</v-icon
-                  >
+                  >{{ el.icon }}</v-icon>
                 </div>
                 <div class="pal-name">{{ el.name }}</div>
-                <div v-if="armedType === el.type" class="armed-pip"></div>
+                <div v-if="armedType === el.type" class="armed-pip" />
               </div>
             </div>
           </div>
@@ -205,7 +202,7 @@
               {{ currentEnvElements.length }} elements
             </div>
             <div v-if="armedType && !isPreviewMode" class="armed-indicator">
-              <v-icon size="11" class="mr-1">mdi-cursor-default-click</v-icon>
+              <v-icon class="mr-1" size="11">mdi-cursor-default-click</v-icon>
               Placing: {{ getElementDef(armedType)?.name }}
               <button class="armed-cancel" @click="armedType = null">✕</button>
             </div>
@@ -213,24 +210,24 @@
           <div class="d-flex align-center" style="gap: 4px">
             <button
               class="zoom-btn"
-              @click="zoom = Math.max(0.4, zoom - 0.25)"
               title="Zoom out"
+              @click="zoom = Math.max(0.4, zoom - 0.25)"
             >
               <v-icon size="15">mdi-magnify-minus-outline</v-icon>
             </button>
             <span class="zoom-val">{{ Math.round(zoom * 100) }}%</span>
             <button
               class="zoom-btn"
-              @click="zoom = Math.min(2, zoom + 0.25)"
               title="Zoom in"
+              @click="zoom = Math.min(2, zoom + 0.25)"
             >
               <v-icon size="15">mdi-magnify-plus-outline</v-icon>
             </button>
             <button
               class="zoom-btn"
-              @click="zoom = 1"
-              title="Reset zoom"
               style="margin-left: 2px"
+              title="Reset zoom"
+              @click="zoom = 1"
             >
               <v-icon size="15">mdi-fullscreen</v-icon>
             </button>
@@ -239,19 +236,19 @@
 
         <!-- Canvas viewport -->
         <div
-          class="canvas-viewport"
           ref="canvasViewport"
+          class="canvas-viewport"
           tabindex="0"
           @click="onCanvasClick"
-          @mousemove="onCanvasMouseMove"
-          @mouseup="onMouseUp"
-          @mouseleave="onMouseUp"
-          @keydown.delete.prevent="deleteSelected"
           @keydown.backspace.prevent="deleteSelected"
+          @keydown.delete.prevent="deleteSelected"
           @keydown.escape="
             armedType = null;
             selectedId = null;
           "
+          @mouseleave="onMouseUp"
+          @mousemove="onCanvasMouseMove"
+          @mouseup="onMouseUp"
         >
           <div
             class="canvas-scaler"
@@ -265,15 +262,15 @@
             <!-- Grid SVG -->
             <svg
               class="grid-svg"
-              :width="currentEnv?.canvas.width ?? 1000"
               :height="currentEnv?.canvas.height ?? 660"
+              :width="currentEnv?.canvas.width ?? 1000"
             >
               <defs>
                 <pattern
                   id="g40"
-                  width="40"
                   height="40"
                   patternUnits="userSpaceOnUse"
+                  width="40"
                 >
                   <path
                     d="M 40 0 L 0 0 0 40"
@@ -284,9 +281,9 @@
                 </pattern>
                 <pattern
                   id="g200"
-                  width="200"
                   height="200"
                   patternUnits="userSpaceOnUse"
+                  width="200"
                 >
                   <path
                     d="M 200 0 L 0 0 0 200"
@@ -296,8 +293,8 @@
                   />
                 </pattern>
               </defs>
-              <rect width="100%" height="100%" fill="url(#g40)" />
-              <rect width="100%" height="100%" fill="url(#g200)" />
+              <rect fill="url(#g40)" height="100%" width="100%" />
+              <rect fill="url(#g200)" height="100%" width="100%" />
             </svg>
 
             <!-- Placed elements -->
@@ -338,18 +335,18 @@
                       v-for="i in getChairs(el).top"
                       :key="'t' + i"
                       class="chair chair--h"
-                    ></div>
+                    />
                   </div>
                   <div
                     class="table-surface"
                     :class="{ 'table-surface--round': isRound(el) }"
-                  ></div>
+                  />
                   <div class="chair-row">
                     <div
                       v-for="i in getChairs(el).bottom"
                       :key="'b' + i"
                       class="chair chair--h"
-                    ></div>
+                    />
                   </div>
                 </div>
                 <div class="el-label">
@@ -365,7 +362,7 @@
                   :class="'struct-el--' + el.type"
                   :style="getStructStyle(el)"
                 >
-                  <v-icon size="20" class="struct-icon">{{
+                  <v-icon class="struct-icon" size="20">{{
                     getElementDef(el.type)?.icon
                   }}</v-icon>
                 </div>
@@ -377,18 +374,18 @@
                 v-if="selectedId === el.id && !isPreviewMode"
                 class="sel-ring"
               >
-                <div class="sel-handle sel-h--tl"></div>
-                <div class="sel-handle sel-h--tr"></div>
-                <div class="sel-handle sel-h--bl"></div>
+                <div class="sel-handle sel-h--tl" />
+                <div class="sel-handle sel-h--tr" />
+                <div class="sel-handle sel-h--bl" />
                 <div
                   class="sel-handle sel-h--br sel-h--resize"
-                  @mousedown.stop.prevent="startResize($event, el)"
                   :title="
                     el.type.startsWith('table_')
                       ? 'Drag to resize capacity'
                       : 'Drag to resize'
                   "
-                ></div>
+                  @mousedown.stop.prevent="startResize($event, el)"
+                />
               </div>
             </div>
 
@@ -402,7 +399,7 @@
                 pointerEvents: 'none',
               }"
             >
-              <div class="place-cursor-ring"></div>
+              <div class="place-cursor-ring" />
               <v-icon
                 size="12"
                 style="
@@ -412,8 +409,7 @@
                   left: 50%;
                   transform: translate(-50%, -50%);
                 "
-                >mdi-plus</v-icon
-              >
+              >mdi-plus</v-icon>
             </div>
 
             <!-- Empty hint -->
@@ -424,10 +420,9 @@
               <v-icon
                 size="40"
                 style="color: rgba(212, 175, 55, 0.18); margin-bottom: 12px"
-                >mdi-floor-plan</v-icon
-              >
+              >mdi-floor-plan</v-icon>
               <p>
-                Select an element from the palette<br />and click the grid to
+                Select an element from the palette<br>and click the grid to
                 place it
               </p>
             </div>
@@ -444,7 +439,7 @@
 
           <template v-if="selectedEl">
             <div class="prop-type-row">
-              <v-icon size="13" class="mr-1" style="color: #d4af37">{{
+              <v-icon class="mr-1" size="13" style="color: #d4af37">{{
                 getElementDef(selectedEl.type)?.icon
               }}</v-icon>
               <span>{{ getElementDef(selectedEl.type)?.name }}</span>
@@ -454,15 +449,15 @@
               <label class="prop-lbl">Label</label>
               <v-text-field
                 v-model="selectedEl.label"
-                variant="outlined"
+                class="prop-tf"
                 density="compact"
                 hide-details
-                class="prop-tf"
+                variant="outlined"
                 @input="pushHistory"
               />
             </div>
 
-            <div class="prop-group" v-if="selectedEl.type.startsWith('table_')">
+            <div v-if="selectedEl.type.startsWith('table_')" class="prop-group">
               <label class="prop-lbl">Capacity</label>
               <div class="cap-stepper">
                 <button class="cap-step-btn" @click="adjustCapacity(-1)">
@@ -476,8 +471,8 @@
             </div>
 
             <div
-              class="prop-group"
               v-if="!selectedEl.type.startsWith('table_')"
+              class="prop-group"
             >
               <label class="prop-lbl">Size (grid units)</label>
               <div class="size-steppers">
@@ -510,7 +505,7 @@
               </div>
             </div>
 
-            <div class="prop-group" v-if="selectedEl.type.startsWith('table_')">
+            <div v-if="selectedEl.type.startsWith('table_')" class="prop-group">
               <label class="prop-lbl">Shape</label>
               <div class="shape-toggle">
                 <button
@@ -518,16 +513,16 @@
                   :class="{ 'shape-btn--on': !isRound(selectedEl) }"
                   @click="setShape('rect')"
                 >
-                  <svg width="20" height="14" viewBox="0 0 20 14">
+                  <svg height="14" viewBox="0 0 20 14" width="20">
                     <rect
-                      x="1"
-                      y="1"
-                      width="18"
+                      fill="none"
                       height="12"
                       rx="2"
                       stroke="currentColor"
                       stroke-width="1.5"
-                      fill="none"
+                      width="18"
+                      x="1"
+                      y="1"
                     />
                   </svg>
                   Rect
@@ -537,14 +532,14 @@
                   :class="{ 'shape-btn--on': isRound(selectedEl) }"
                   @click="setShape('round')"
                 >
-                  <svg width="14" height="14" viewBox="0 0 14 14">
+                  <svg height="14" viewBox="0 0 14 14" width="14">
                     <circle
                       cx="7"
                       cy="7"
+                      fill="none"
                       r="6"
                       stroke="currentColor"
                       stroke-width="1.5"
-                      fill="none"
                     />
                   </svg>
                   Round
@@ -552,18 +547,18 @@
               </div>
             </div>
 
-            <div class="prop-divider"></div>
+            <div class="prop-divider" />
 
             <div class="prop-row">
               <div class="prop-group prop-group--half">
                 <label class="prop-lbl">X</label>
                 <v-text-field
                   v-model.number="selectedEl.x"
-                  type="number"
-                  variant="outlined"
+                  class="prop-tf"
                   density="compact"
                   hide-details
-                  class="prop-tf"
+                  type="number"
+                  variant="outlined"
                   @input="pushHistory"
                 />
               </div>
@@ -571,35 +566,33 @@
                 <label class="prop-lbl">Y</label>
                 <v-text-field
                   v-model.number="selectedEl.y"
-                  type="number"
-                  variant="outlined"
+                  class="prop-tf"
                   density="compact"
                   hide-details
-                  class="prop-tf"
+                  type="number"
+                  variant="outlined"
                   @input="pushHistory"
                 />
               </div>
             </div>
 
             <div class="prop-group">
-              <label class="prop-lbl"
-                >Rotation — {{ selectedEl.rotation }}°</label
-              >
+              <label class="prop-lbl">Rotation — {{ selectedEl.rotation }}°</label>
               <v-slider
                 v-model="selectedEl.rotation"
-                :min="0"
-                :max="315"
-                :step="45"
-                hide-details
-                color="#D4AF37"
                 class="prop-slider"
+                color="#D4AF37"
+                hide-details
+                :max="315"
+                :min="0"
+                :step="45"
                 @end="pushHistory"
               />
             </div>
 
-            <div class="prop-divider"></div>
+            <div class="prop-divider" />
 
-            <div class="prop-group" v-if="selectedEl.type.startsWith('table_')">
+            <div v-if="selectedEl.type.startsWith('table_')" class="prop-group">
               <label class="prop-lbl">Status (preview)</label>
               <div class="status-toggle">
                 <button
@@ -629,10 +622,10 @@
               </div>
             </div>
 
-            <div class="prop-divider"></div>
+            <div class="prop-divider" />
 
             <button class="delete-el-btn" @click="deleteSelected">
-              <v-icon size="14" class="mr-1">mdi-delete-outline</v-icon>Delete
+              <v-icon class="mr-1" size="14">mdi-delete-outline</v-icon>Delete
               Element
             </button>
           </template>
@@ -644,33 +637,31 @@
               <label class="prop-lbl">Name</label>
               <v-text-field
                 v-model="currentEnv.name"
-                variant="outlined"
+                class="prop-tf"
                 density="compact"
                 hide-details
-                class="prop-tf"
+                variant="outlined"
               />
             </div>
 
-            <div class="prop-divider"></div>
+            <div class="prop-divider" />
 
             <div class="props-idle">
               <v-icon
                 size="36"
                 style="color: rgba(212, 175, 55, 0.18); margin-bottom: 10px"
-                >mdi-cursor-default-click</v-icon
-              >
+              >mdi-cursor-default-click</v-icon>
               <p>Click an element on the canvas to edit its properties</p>
             </div>
 
-            <div class="prop-divider"></div>
+            <div class="prop-divider" />
 
             <button
               class="danger-env-btn"
-              @click="openDeleteEnv"
               :disabled="environments.length <= 1"
+              @click="openDeleteEnv"
             >
-              <v-icon size="14" class="mr-1">mdi-trash-can-outline</v-icon
-              >Delete Environment
+              <v-icon class="mr-1" size="14">mdi-trash-can-outline</v-icon>Delete Environment
             </button>
           </template>
 
@@ -697,9 +688,10 @@
     >
       <v-card-text class="pa-7 text-center">
         <div class="save-icon-ring">
-          <v-icon size="44" style="color: #2ebb57"
-            >mdi-check-circle-outline</v-icon
-          >
+          <v-icon
+            size="44"
+            style="color: #2ebb57"
+          >mdi-check-circle-outline</v-icon>
         </div>
         <div class="save-dlg-title mt-4">Layout Saved</div>
         <div class="save-dlg-sub mt-1">
@@ -729,11 +721,11 @@
         <div class="dlg-heading mb-4">New Environment</div>
         <v-text-field
           v-model="newEnvName"
-          variant="outlined"
+          class="prop-tf mb-4"
           density="compact"
           hide-details
           label="Name (e.g. Rooftop Bar)"
-          class="prop-tf mb-4"
+          variant="outlined"
           @keydown.enter="confirmAddEnv"
         />
         <div class="d-flex" style="gap: 8px">
@@ -754,8 +746,8 @@
   <!-- Delete constraint dialog -->
   <DeleteConstraintDialog
     v-model="showDeleteConstraintDialog"
-    :table-name="deleteConstraintTableName"
     :reservations="deleteConstraintReservations"
+    :table-name="deleteConstraintTableName"
   />
 
   <!-- Delete environment dialog -->
@@ -769,9 +761,10 @@
       "
     >
       <v-card-text class="pa-6 text-center">
-        <v-icon size="40" style="color: #c71585; margin-bottom: 12px"
-          >mdi-alert-outline</v-icon
-        >
+        <v-icon
+          size="40"
+          style="color: #c71585; margin-bottom: 12px"
+        >mdi-alert-outline</v-icon>
         <div class="dlg-heading mb-2">Delete "{{ currentEnv?.name }}"?</div>
         <div class="dlg-sub mb-5">
           This removes {{ currentEnvElements.length }} elements and cannot be
@@ -794,456 +787,461 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
-import { useRouter } from "vue-router";
-import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
-import { useAdminNav } from "@/composables/useAdminNav";
-import { useAuth } from "@/composables/useAuth";
-import { ENVIRONMENT_LIST, Environment } from "@/datamodel/Environment.js";
-import { RESERVATION_LIST } from "@/datamodel/Reservation.js";
-const router = useRouter();
+  import { computed, ref, watch } from 'vue'
+  import { useRouter } from 'vue-router'
+  import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
+  import { useAdminNav } from '@/composables/useAdminNav'
+  import { useAuth } from '@/composables/useAuth'
+  import { Environment, ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
+  const router = useRouter()
 
-// ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
-const { adminNavLinks, handleNav } = useAdminNav();
-const { getSession } = useAuth();
-const session = getSession();
+  // ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
+  const { adminNavLinks, handleNav } = useAdminNav()
+  const { getSession } = useAuth()
+  const session = getSession()
 
-// ── Element catalog ──────────────────────────────────────────────────────────
-const elementDefs = {
-  table_round_2: {
-    type: "table_round_2",
-    name: "Round 2",
-    icon: "mdi-circle-outline",
-    defaultCapacity: 2,
-  },
-  table_rect_4: {
-    type: "table_rect_4",
-    name: "Square 4",
-    icon: "mdi-square-outline",
-    defaultCapacity: 4,
-  },
-  table_rect_6: {
-    type: "table_rect_6",
-    name: "Rect 6",
-    icon: "mdi-rectangle-outline",
-    defaultCapacity: 6,
-  },
-  table_large_8: {
-    type: "table_large_8",
-    name: "Round 8",
-    icon: "mdi-circle-double",
-    defaultCapacity: 8,
-  },
-  entrance: {
-    type: "entrance",
-    name: "Entrance",
-    icon: "mdi-location-enter",
-    defaultCapacity: 0,
-  },
-  bar_counter: {
-    type: "bar_counter",
-    name: "Bar",
-    icon: "mdi-glass-cocktail",
-    defaultCapacity: 0,
-  },
-  stage: {
-    type: "stage",
-    name: "Stage",
-    icon: "mdi-microphone-outline",
-    defaultCapacity: 0,
-  },
-  plant: {
-    type: "plant",
-    name: "Plant",
-    icon: "mdi-flower-tulip-outline",
-    defaultCapacity: 0,
-  },
-  pillar: {
-    type: "pillar",
-    name: "Pillar",
-    icon: "mdi-pillar",
-    defaultCapacity: 0,
-  },
-};
-const getElementDef = (type) => elementDefs[type] ?? null;
-
-const paletteCategories = [
-  {
-    id: "tables",
-    name: "Tables",
-    items: [
-      elementDefs.table_round_2,
-      elementDefs.table_rect_4,
-      elementDefs.table_rect_6,
-      elementDefs.table_large_8,
-    ],
-  },
-  {
-    id: "structure",
-    name: "Structure",
-    items: [elementDefs.entrance, elementDefs.bar_counter, elementDefs.stage],
-  },
-  {
-    id: "decor",
-    name: "Decor",
-    items: [elementDefs.plant, elementDefs.pillar],
-  },
-];
-
-// ── Data model — initialized from ENVIRONMENT_LIST (local working copy, this venue only) ──────
-const environments = ref(
-  JSON.parse(JSON.stringify(ENVIRONMENT_LIST.filter(e => e.venueId === session?.venueId)))
-);
-
-// ── Environment state ─────────────────────────────────────────────────────────
-const currentEnvId = ref(environments.value[0]?.id ?? '');
-const currentEnv = computed(() =>
-  environments.value.find((e) => e.id === currentEnvId.value),
-);
-const currentEnvElements = computed(() => currentEnv.value?.elements ?? []);
-const totalElements = computed(() =>
-  environments.value.reduce((s, e) => s + e.elements.length, 0),
-);
-
-const switchEnv = (id) => {
-  currentEnvId.value = id;
-  selectedId.value = null;
-  armedType.value = null;
-};
-
-// ── Palette / arming ──────────────────────────────────────────────────────────
-const armedType = ref(null);
-const cursorSnap = ref({ x: null, y: null });
-
-const armElement = (type) => {
-  armedType.value = armedType.value === type ? null : type;
-  selectedId.value = null;
-};
-
-// ── Canvas interaction ────────────────────────────────────────────────────────
-const GRID = 40;
-const zoom = ref(1);
-const canvasViewport = ref(null);
-let idCounter = 200;
-
-const getCanvasCoords = (e) => {
-  const vp = canvasViewport.value;
-  const rect = vp.getBoundingClientRect();
-  const rawX = (e.clientX - rect.left + vp.scrollLeft) / zoom.value;
-  const rawY = (e.clientY - rect.top + vp.scrollTop) / zoom.value;
-  return {
-    x: Math.round(rawX / GRID) * GRID,
-    y: Math.round(rawY / GRID) * GRID,
-    rawX,
-    rawY,
-  };
-};
-
-const onCanvasClick = (e) => {
-  if (!armedType.value) {
-    selectedId.value = null;
-    return;
+  // ── Element catalog ──────────────────────────────────────────────────────────
+  const elementDefs = {
+    table_round_2: {
+      type: 'table_round_2',
+      name: 'Round 2',
+      icon: 'mdi-circle-outline',
+      defaultCapacity: 2,
+    },
+    table_rect_4: {
+      type: 'table_rect_4',
+      name: 'Square 4',
+      icon: 'mdi-square-outline',
+      defaultCapacity: 4,
+    },
+    table_rect_6: {
+      type: 'table_rect_6',
+      name: 'Rect 6',
+      icon: 'mdi-rectangle-outline',
+      defaultCapacity: 6,
+    },
+    table_large_8: {
+      type: 'table_large_8',
+      name: 'Round 8',
+      icon: 'mdi-circle-double',
+      defaultCapacity: 8,
+    },
+    entrance: {
+      type: 'entrance',
+      name: 'Entrance',
+      icon: 'mdi-location-enter',
+      defaultCapacity: 0,
+    },
+    bar_counter: {
+      type: 'bar_counter',
+      name: 'Bar',
+      icon: 'mdi-glass-cocktail',
+      defaultCapacity: 0,
+    },
+    stage: {
+      type: 'stage',
+      name: 'Stage',
+      icon: 'mdi-microphone-outline',
+      defaultCapacity: 0,
+    },
+    plant: {
+      type: 'plant',
+      name: 'Plant',
+      icon: 'mdi-flower-tulip-outline',
+      defaultCapacity: 0,
+    },
+    pillar: {
+      type: 'pillar',
+      name: 'Pillar',
+      icon: 'mdi-pillar',
+      defaultCapacity: 0,
+    },
   }
-  const { x, y } = getCanvasCoords(e);
-  const def = getElementDef(armedType.value);
-  const isTableType = armedType.value.startsWith("table_");
-  const newEl = {
-    id: `${currentEnvId.value}_el_${++idCounter}`,
-    type: armedType.value,
-    label:
-      def.name +
-      " " +
-      (currentEnvElements.value.filter((el) => el.type === armedType.value)
-        .length +
-        1),
-    capacity: def.defaultCapacity,
-    ...(isTableType
-      ? {
+  const getElementDef = type => elementDefs[type] ?? null
+
+  const paletteCategories = [
+    {
+      id: 'tables',
+      name: 'Tables',
+      items: [
+        elementDefs.table_round_2,
+        elementDefs.table_rect_4,
+        elementDefs.table_rect_6,
+        elementDefs.table_large_8,
+      ],
+    },
+    {
+      id: 'structure',
+      name: 'Structure',
+      items: [elementDefs.entrance, elementDefs.bar_counter, elementDefs.stage],
+    },
+    {
+      id: 'decor',
+      name: 'Decor',
+      items: [elementDefs.plant, elementDefs.pillar],
+    },
+  ]
+
+  // ── Data model — initialized from ENVIRONMENT_LIST (local working copy, this venue only) ──────
+  const environments = ref(
+    JSON.parse(JSON.stringify(ENVIRONMENT_LIST.filter(e => e.venueId === session?.venueId))),
+  )
+
+  // ── Environment state ─────────────────────────────────────────────────────────
+  const currentEnvId = ref(environments.value[0]?.id ?? '')
+  const currentEnv = computed(() =>
+    environments.value.find(e => e.id === currentEnvId.value),
+  )
+  const currentEnvElements = computed(() => currentEnv.value?.elements ?? [])
+  const totalElements = computed(() =>
+    environments.value.reduce((s, e) => s + e.elements.length, 0),
+  )
+
+  function switchEnv (id) {
+    currentEnvId.value = id
+    selectedId.value = null
+    armedType.value = null
+  }
+
+  // ── Palette / arming ──────────────────────────────────────────────────────────
+  const armedType = ref(null)
+  const cursorSnap = ref({ x: null, y: null })
+
+  function armElement (type) {
+    armedType.value = armedType.value === type ? null : type
+    selectedId.value = null
+  }
+
+  // ── Canvas interaction ────────────────────────────────────────────────────────
+  const GRID = 40
+  const zoom = ref(1)
+  const canvasViewport = ref(null)
+  let idCounter = 200
+
+  function getCanvasCoords (e) {
+    const vp = canvasViewport.value
+    const rect = vp.getBoundingClientRect()
+    const rawX = (e.clientX - rect.left + vp.scrollLeft) / zoom.value
+    const rawY = (e.clientY - rect.top + vp.scrollTop) / zoom.value
+    return {
+      x: Math.round(rawX / GRID) * GRID,
+      y: Math.round(rawY / GRID) * GRID,
+      rawX,
+      rawY,
+    }
+  }
+
+  function onCanvasClick (e) {
+    if (!armedType.value) {
+      selectedId.value = null
+      return
+    }
+    const { x, y } = getCanvasCoords(e)
+    const def = getElementDef(armedType.value)
+    const isTableType = armedType.value.startsWith('table_')
+    const newEl = {
+      id: `${currentEnvId.value}_el_${++idCounter}`,
+      type: armedType.value,
+      label:
+        def.name
+        + ' '
+        + (currentEnvElements.value.filter(el => el.type === armedType.value)
+          .length
+          + 1),
+      capacity: def.defaultCapacity,
+      ...(isTableType
+        ? {
           shape:
-            armedType.value === "table_round_2" ||
-            armedType.value === "table_large_8"
-              ? "round"
-              : "rect",
+            armedType.value === 'table_round_2'
+            || armedType.value === 'table_large_8'
+              ? 'round'
+              : 'rect',
         }
-      : { w: 1, h: 1 }),
-    x,
-    y,
-    rotation: 0,
-    status: "available",
-  };
-  if (!currentEnv.value) return;
-  currentEnv.value.elements.push(newEl);
-  selectedId.value = newEl.id;
-  pushHistory();
-};
-
-const onCanvasMouseMove = (e) => {
-  if (!armedType.value && !isDragging.value) return;
-  const { x, y, rawX, rawY } = getCanvasCoords(e);
-  if (armedType.value) cursorSnap.value = { x, y };
-  if (isDragging.value && dragTarget.value) {
-    const dx = rawX - dragOrigin.rawX;
-    const dy = rawY - dragOrigin.rawY;
-    dragTarget.value.x = Math.round((dragOrigin.elX + dx) / GRID) * GRID;
-    dragTarget.value.y = Math.round((dragOrigin.elY + dy) / GRID) * GRID;
-  }
-};
-
-const onMouseUp = () => {
-  if (isDragging.value) {
-    pushHistory();
-    isDragging.value = false;
-    dragTarget.value = null;
-  }
-};
-
-// ── Selection — mousedown sets it; canvas click clears it ────────────────────
-const selectedId = ref(null);
-const selectedEl = computed(
-  () =>
-    currentEnvElements.value.find((el) => el.id === selectedId.value) ?? null,
-);
-
-// ── Drag to move ───────────────────────────────────────────────────────────────
-const isDragging = ref(false);
-const dragTarget = ref(null);
-const dragOrigin = { rawX: 0, rawY: 0, elX: 0, elY: 0 };
-
-const startDrag = (e, el) => {
-  if (armedType.value || isPreviewMode.value) return;
-  // Select immediately on mousedown — no toggle
-  selectedId.value = el.id;
-  e.preventDefault();
-  const { rawX, rawY } = getCanvasCoords(e);
-  dragOrigin.rawX = rawX;
-  dragOrigin.rawY = rawY;
-  dragOrigin.elX = el.x;
-  dragOrigin.elY = el.y;
-  dragTarget.value = el;
-  isDragging.value = true;
-};
-
-// ── Resize (drag BR handle) — document-level capture for reliability ─────────
-const isResizing = ref(false);
-const resizeTarget = ref(null);
-const resizeOrigin = { clientX: 0, clientY: 0, origCap: 0, origW: 1, origH: 1 };
-
-const onResizeMove = (e) => {
-  if (!isResizing.value || !resizeTarget.value) return;
-  const dx = (e.clientX - resizeOrigin.clientX) / zoom.value;
-  const dy = (e.clientY - resizeOrigin.clientY) / zoom.value;
-  const el = resizeTarget.value;
-  if (el.type.startsWith("table_")) {
-    const delta = Math.round((dx + dy) / GRID);
-    el.capacity = Math.max(1, resizeOrigin.origCap + delta);
-  } else {
-    el.w = Math.max(1, Math.round(resizeOrigin.origW + dx / GRID));
-    el.h = Math.max(1, Math.round(resizeOrigin.origH + dy / GRID));
-  }
-};
-
-const onResizeEnd = () => {
-  if (!isResizing.value) return;
-  pushHistory();
-  isResizing.value = false;
-  resizeTarget.value = null;
-  document.removeEventListener("mousemove", onResizeMove);
-  document.removeEventListener("mouseup", onResizeEnd);
-};
-
-const startResize = (e, el) => {
-  if (isPreviewMode.value) return;
-  isResizing.value = true;
-  resizeTarget.value = el;
-  resizeOrigin.clientX = e.clientX;
-  resizeOrigin.clientY = e.clientY;
-  resizeOrigin.origCap = el.capacity;
-  resizeOrigin.origW = el.w ?? 1;
-  resizeOrigin.origH = el.h ?? 1;
-  document.addEventListener("mousemove", onResizeMove);
-  document.addEventListener("mouseup", onResizeEnd, { once: true });
-};
-
-// ── Undo / Redo ───────────────────────────────────────────────────────────────
-const history = ref([]);
-const historyIndex = ref(-1);
-
-const pushHistory = () => {
-  const snap = JSON.stringify(environments.value);
-  history.value = history.value.slice(0, historyIndex.value + 1);
-  history.value.push(snap);
-  historyIndex.value = history.value.length - 1;
-};
-const undo = () => {
-  if (historyIndex.value <= 0) return;
-  historyIndex.value--;
-  environments.value = JSON.parse(history.value[historyIndex.value]);
-};
-const redo = () => {
-  if (historyIndex.value >= history.value.length - 1) return;
-  historyIndex.value++;
-  environments.value = JSON.parse(history.value[historyIndex.value]);
-};
-pushHistory();
-
-// ── Delete constraint dialog ──────────────────────────────────────────────────
-const showDeleteConstraintDialog = ref(false);
-const deleteConstraintTableName = ref("");
-const deleteConstraintReservations = ref([]);
-
-// ── Delete ────────────────────────────────────────────────────────────────────
-const deleteSelected = () => {
-  if (!selectedId.value) return;
-
-  const today = new Date().toISOString().slice(0, 10);
-  const blockingRes = RESERVATION_LIST.filter(
-    (r) =>
-      r.elementId === selectedId.value &&
-      r.environmentId === currentEnvId.value &&
-      (r.status === "APPROVED" || r.status === "REQUESTED") &&
-      r.date >= today,
-  );
-
-  if (blockingRes.length > 0) {
-    const el = currentEnvElements.value.find(
-      (el) => el.id === selectedId.value,
-    );
-    deleteConstraintTableName.value = el?.label ?? selectedId.value;
-    deleteConstraintReservations.value = blockingRes.map((r) => ({
-      id: r.id,
-      guest: r.name,
-      datetime: `${r.date}, ${r.time}`,
-    }));
-    showDeleteConstraintDialog.value = true;
-    return;
+        : { w: 1, h: 1 }),
+      x,
+      y,
+      rotation: 0,
+      status: 'available',
+    }
+    if (!currentEnv.value) return
+    currentEnv.value.elements.push(newEl)
+    selectedId.value = newEl.id
+    pushHistory()
   }
 
-  if (!currentEnv.value) return;
-  const idx = currentEnv.value.elements.findIndex(
-    (el) => el.id === selectedId.value,
-  );
-  if (idx >= 0) {
-    currentEnv.value.elements.splice(idx, 1);
-    selectedId.value = null;
-    pushHistory();
+  function onCanvasMouseMove (e) {
+    if (!armedType.value && !isDragging.value) return
+    const { x, y, rawX, rawY } = getCanvasCoords(e)
+    if (armedType.value) cursorSnap.value = { x, y }
+    if (isDragging.value && dragTarget.value) {
+      const dx = rawX - dragOrigin.rawX
+      const dy = rawY - dragOrigin.rawY
+      dragTarget.value.x = Math.round((dragOrigin.elX + dx) / GRID) * GRID
+      dragTarget.value.y = Math.round((dragOrigin.elY + dy) / GRID) * GRID
+    }
   }
-};
 
-// ── Chair layout — always driven by el.capacity, 1 seat per increment ─────────
-const getChairs = (el) => {
-  const cap = el.capacity;
-  if (!cap || cap <= 0) return { top: 0, bottom: 0 };
-  return { top: Math.ceil(cap / 2), bottom: Math.floor(cap / 2) };
-};
-const getMiniChairs = (type) =>
-  getChairs({ capacity: elementDefs[type]?.defaultCapacity ?? 2 });
-const isRound = (el) => el?.shape === "round";
-const getStructStyle = (el) => ({
-  width: (el.w ?? 1) * GRID + "px",
-  height: (el.h ?? 1) * GRID + "px",
-});
-
-// ── Element styles ────────────────────────────────────────────────────────────
-const getElementStyle = (el) => ({
-  position: "absolute",
-  left: el.x + "px",
-  top: el.y + "px",
-  transform: "rotate(" + el.rotation + "deg)",
-  transformOrigin: "center center",
-  cursor: isPreviewMode.value
-    ? el.type.startsWith("table_")
-      ? "pointer"
-      : "default"
-    : isDragging.value && dragTarget.value?.id === el.id
-      ? "grabbing"
-      : "grab",
-});
-
-// ── Properties panel helpers ──────────────────────────────────────────────────
-const adjustCapacity = (delta) => {
-  if (!selectedEl.value) return;
-  selectedEl.value.capacity = Math.max(1, selectedEl.value.capacity + delta);
-  pushHistory();
-};
-const adjustW = (delta) => {
-  if (!selectedEl.value) return;
-  selectedEl.value.w = Math.max(1, (selectedEl.value.w ?? 1) + delta);
-  pushHistory();
-};
-const adjustH = (delta) => {
-  if (!selectedEl.value) return;
-  selectedEl.value.h = Math.max(1, (selectedEl.value.h ?? 1) + delta);
-  pushHistory();
-};
-const setShape = (shape) => {
-  if (!selectedEl.value) return;
-  selectedEl.value.shape = shape;
-  pushHistory();
-};
-
-// ── Mode ──────────────────────────────────────────────────────────────────────
-const isPreviewMode = ref(false);
-watch(isPreviewMode, (v) => {
-  if (v) {
-    armedType.value = null;
-    selectedId.value = null;
+  function onMouseUp () {
+    if (isDragging.value) {
+      pushHistory()
+      isDragging.value = false
+      dragTarget.value = null
+    }
   }
-});
 
-// ── Environment management ────────────────────────────────────────────────────
-const showAddEnvDialog = ref(false);
-const showDeleteEnvDialog = ref(false);
-const newEnvName = ref("");
+  // ── Selection — mousedown sets it; canvas click clears it ────────────────────
+  const selectedId = ref(null)
+  const selectedEl = computed(
+    () =>
+      currentEnvElements.value.find(el => el.id === selectedId.value) ?? null,
+  )
 
-const openAddEnv = () => {
-  newEnvName.value = "";
-  showAddEnvDialog.value = true;
-};
-const openDeleteEnv = () => {
-  if (environments.value.length <= 1) return;
-  showDeleteEnvDialog.value = true;
-};
-const confirmAddEnv = () => {
-  const name = newEnvName.value.trim();
-  if (!name) return;
-  const id = "env_" + Date.now();
-  environments.value.push({
-    id,
-    venueId: session?.venueId ?? null,
-    name,
-    icon: "mdi-map-outline",
-    canvas: { width: 1000, height: 660 },
-    elements: [],
-  });
-  currentEnvId.value = id;
-  showAddEnvDialog.value = false;
-  pushHistory();
-};
-const confirmDeleteEnv = () => {
-  const idx = environments.value.findIndex((e) => e.id === currentEnvId.value);
-  environments.value.splice(idx, 1);
-  currentEnvId.value = environments.value[0]?.id ?? null;
-  selectedId.value = null;
-  showDeleteEnvDialog.value = false;
-  pushHistory();
-};
+  // ── Drag to move ───────────────────────────────────────────────────────────────
+  const isDragging = ref(false)
+  const dragTarget = ref(null)
+  const dragOrigin = { rawX: 0, rawY: 0, elX: 0, elY: 0 }
 
-// ── Save ──────────────────────────────────────────────────────────────────────
-const showSaveDialog = ref(false);
-const jsonPreview = ref("");
-const saveLayout = () => {
-  // Persist local working copy back to ENVIRONMENT_LIST — preserve other venues' environments
-  const others = ENVIRONMENT_LIST.filter(e => e.venueId !== session?.venueId);
-  ENVIRONMENT_LIST.splice(
-    0,
-    ENVIRONMENT_LIST.length,
-    ...others,
-    ...environments.value.map((e) => new Environment(e)),
-  );
-  jsonPreview.value =
-    JSON.stringify(environments.value, null, 2).slice(0, 280) + "\n  …";
-  showSaveDialog.value = true;
-};
+  function startDrag (e, el) {
+    if (armedType.value || isPreviewMode.value) return
+    // Select immediately on mousedown — no toggle
+    selectedId.value = el.id
+    e.preventDefault()
+    const { rawX, rawY } = getCanvasCoords(e)
+    dragOrigin.rawX = rawX
+    dragOrigin.rawY = rawY
+    dragOrigin.elX = el.x
+    dragOrigin.elY = el.y
+    dragTarget.value = el
+    isDragging.value = true
+  }
+
+  // ── Resize (drag BR handle) — document-level capture for reliability ─────────
+  const isResizing = ref(false)
+  const resizeTarget = ref(null)
+  const resizeOrigin = { clientX: 0, clientY: 0, origCap: 0, origW: 1, origH: 1 }
+
+  function onResizeMove (e) {
+    if (!isResizing.value || !resizeTarget.value) return
+    const dx = (e.clientX - resizeOrigin.clientX) / zoom.value
+    const dy = (e.clientY - resizeOrigin.clientY) / zoom.value
+    const el = resizeTarget.value
+    if (el.type.startsWith('table_')) {
+      const delta = Math.round((dx + dy) / GRID)
+      el.capacity = Math.max(1, resizeOrigin.origCap + delta)
+    } else {
+      el.w = Math.max(1, Math.round(resizeOrigin.origW + dx / GRID))
+      el.h = Math.max(1, Math.round(resizeOrigin.origH + dy / GRID))
+    }
+  }
+
+  function onResizeEnd () {
+    if (!isResizing.value) return
+    pushHistory()
+    isResizing.value = false
+    resizeTarget.value = null
+    document.removeEventListener('mousemove', onResizeMove)
+    document.removeEventListener('mouseup', onResizeEnd)
+  }
+
+  function startResize (e, el) {
+    if (isPreviewMode.value) return
+    isResizing.value = true
+    resizeTarget.value = el
+    resizeOrigin.clientX = e.clientX
+    resizeOrigin.clientY = e.clientY
+    resizeOrigin.origCap = el.capacity
+    resizeOrigin.origW = el.w ?? 1
+    resizeOrigin.origH = el.h ?? 1
+    document.addEventListener('mousemove', onResizeMove)
+    document.addEventListener('mouseup', onResizeEnd, { once: true })
+  }
+
+  // ── Undo / Redo ───────────────────────────────────────────────────────────────
+  const history = ref([])
+  const historyIndex = ref(-1)
+
+  function pushHistory () {
+    const snap = JSON.stringify(environments.value)
+    history.value = history.value.slice(0, historyIndex.value + 1)
+    history.value.push(snap)
+    historyIndex.value = history.value.length - 1
+  }
+  function undo () {
+    if (historyIndex.value <= 0) return
+    historyIndex.value--
+    environments.value = JSON.parse(history.value[historyIndex.value])
+  }
+  function redo () {
+    if (historyIndex.value >= history.value.length - 1) return
+    historyIndex.value++
+    environments.value = JSON.parse(history.value[historyIndex.value])
+  }
+  pushHistory()
+
+  // ── Delete constraint dialog ──────────────────────────────────────────────────
+  const showDeleteConstraintDialog = ref(false)
+  const deleteConstraintTableName = ref('')
+  const deleteConstraintReservations = ref([])
+
+  // ── Delete ────────────────────────────────────────────────────────────────────
+  function deleteSelected () {
+    if (!selectedId.value) return
+
+    const today = new Date().toISOString().slice(0, 10)
+    const blockingRes = RESERVATION_LIST.filter(
+      r =>
+        r.elementId === selectedId.value
+        && r.environmentId === currentEnvId.value
+        && (r.status === 'APPROVED' || r.status === 'REQUESTED')
+        && r.date >= today,
+    )
+
+    if (blockingRes.length > 0) {
+      const el = currentEnvElements.value.find(
+        el => el.id === selectedId.value,
+      )
+      deleteConstraintTableName.value = el?.label ?? selectedId.value
+      deleteConstraintReservations.value = blockingRes.map(r => ({
+        id: r.id,
+        guest: r.name,
+        datetime: `${r.date}, ${r.time}`,
+      }))
+      showDeleteConstraintDialog.value = true
+      return
+    }
+
+    if (!currentEnv.value) return
+    const idx = currentEnv.value.elements.findIndex(
+      el => el.id === selectedId.value,
+    )
+    if (idx !== -1) {
+      currentEnv.value.elements.splice(idx, 1)
+      selectedId.value = null
+      pushHistory()
+    }
+  }
+
+  // ── Chair layout — always driven by el.capacity, 1 seat per increment ─────────
+  function getChairs (el) {
+    const cap = el.capacity
+    if (!cap || cap <= 0) return { top: 0, bottom: 0 }
+    return { top: Math.ceil(cap / 2), bottom: Math.floor(cap / 2) }
+  }
+  function getMiniChairs (type) {
+    return getChairs({ capacity: elementDefs[type]?.defaultCapacity ?? 2 })
+  }
+  const isRound = el => el?.shape === 'round'
+  function getStructStyle (el) {
+    return {
+      width: (el.w ?? 1) * GRID + 'px',
+      height: (el.h ?? 1) * GRID + 'px',
+    }
+  }
+
+  // ── Element styles ────────────────────────────────────────────────────────────
+  function getElementStyle (el) {
+    return {
+      position: 'absolute',
+      left: el.x + 'px',
+      top: el.y + 'px',
+      transform: 'rotate(' + el.rotation + 'deg)',
+      transformOrigin: 'center center',
+      cursor: isPreviewMode.value
+        ? (el.type.startsWith('table_')
+          ? 'pointer'
+          : 'default')
+        : (isDragging.value && dragTarget.value?.id === el.id
+          ? 'grabbing'
+          : 'grab'),
+    }
+  }
+
+  // ── Properties panel helpers ──────────────────────────────────────────────────
+  function adjustCapacity (delta) {
+    if (!selectedEl.value) return
+    selectedEl.value.capacity = Math.max(1, selectedEl.value.capacity + delta)
+    pushHistory()
+  }
+  function adjustW (delta) {
+    if (!selectedEl.value) return
+    selectedEl.value.w = Math.max(1, (selectedEl.value.w ?? 1) + delta)
+    pushHistory()
+  }
+  function adjustH (delta) {
+    if (!selectedEl.value) return
+    selectedEl.value.h = Math.max(1, (selectedEl.value.h ?? 1) + delta)
+    pushHistory()
+  }
+  function setShape (shape) {
+    if (!selectedEl.value) return
+    selectedEl.value.shape = shape
+    pushHistory()
+  }
+
+  // ── Mode ──────────────────────────────────────────────────────────────────────
+  const isPreviewMode = ref(false)
+  watch(isPreviewMode, v => {
+    if (v) {
+      armedType.value = null
+      selectedId.value = null
+    }
+  })
+
+  // ── Environment management ────────────────────────────────────────────────────
+  const showAddEnvDialog = ref(false)
+  const showDeleteEnvDialog = ref(false)
+  const newEnvName = ref('')
+
+  function openAddEnv () {
+    newEnvName.value = ''
+    showAddEnvDialog.value = true
+  }
+  function openDeleteEnv () {
+    if (environments.value.length <= 1) return
+    showDeleteEnvDialog.value = true
+  }
+  function confirmAddEnv () {
+    const name = newEnvName.value.trim()
+    if (!name) return
+    const id = 'env_' + Date.now()
+    environments.value.push({
+      id,
+      venueId: session?.venueId ?? null,
+      name,
+      icon: 'mdi-map-outline',
+      canvas: { width: 1000, height: 660 },
+      elements: [],
+    })
+    currentEnvId.value = id
+    showAddEnvDialog.value = false
+    pushHistory()
+  }
+  function confirmDeleteEnv () {
+    const idx = environments.value.findIndex(e => e.id === currentEnvId.value)
+    environments.value.splice(idx, 1)
+    currentEnvId.value = environments.value[0]?.id ?? null
+    selectedId.value = null
+    showDeleteEnvDialog.value = false
+    pushHistory()
+  }
+
+  // ── Save ──────────────────────────────────────────────────────────────────────
+  const showSaveDialog = ref(false)
+  const jsonPreview = ref('')
+  function saveLayout () {
+    // Persist local working copy back to ENVIRONMENT_LIST — preserve other venues' environments
+    const others = ENVIRONMENT_LIST.filter(e => e.venueId !== session?.venueId)
+    ENVIRONMENT_LIST.splice(
+      0,
+      ENVIRONMENT_LIST.length,
+      ...others,
+      ...environments.value.map(e => new Environment(e)),
+    )
+    jsonPreview.value
+      = JSON.stringify(environments.value, null, 2).slice(0, 280) + '\n  …'
+    showSaveDialog.value = true
+  }
 </script>
 
 <style scoped>

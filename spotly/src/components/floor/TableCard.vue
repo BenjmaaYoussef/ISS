@@ -24,7 +24,7 @@
     <div class="table-card-header">
       <span class="table-id">{{ table.id }}</span>
       <span class="table-seats">
-        <v-icon size="11" class="mr-1">mdi-account</v-icon>{{ table.seats }}
+        <v-icon class="mr-1" size="11">mdi-account</v-icon>{{ table.seats }}
       </span>
     </div>
 
@@ -38,7 +38,7 @@
       <div class="table-guest mt-2">{{ table.guest }}</div>
       <div class="table-time">{{ table.time }}</div>
       <div v-if="table.note" class="table-note mt-1">
-        <v-icon size="10" class="mr-1">mdi-note-outline</v-icon>{{ table.note }}
+        <v-icon class="mr-1" size="10">mdi-note-outline</v-icon>{{ table.note }}
       </div>
     </template>
     <template v-else>
@@ -49,49 +49,46 @@
     <div v-if="!readonly" class="table-action mt-3">
       <v-btn
         v-if="table.status === 'occupied'"
-        size="x-small"
         class="action-chip action-chip--checkout"
+        size="x-small"
         @click.stop="$emit('check-out', table)"
-        >Check Out</v-btn
-      >
+      >Check Out</v-btn>
       <v-btn
         v-else-if="table.status === 'reserved'"
-        size="x-small"
         class="action-chip action-chip--checkin"
+        size="x-small"
         @click.stop="$emit('check-in', table)"
-        >Check In</v-btn
-      >
+      >Check In</v-btn>
       <v-btn
         v-else-if="table.status === 'call'"
-        size="x-small"
         class="action-chip action-chip--details"
+        size="x-small"
         @click.stop="$emit('details', table)"
-        >Details</v-btn
-      >
+      >Details</v-btn>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { statusLabel } from "@/composables/useTableStatus";
+  import { computed } from 'vue'
+  import { statusLabel } from '@/composables/useTableStatus'
 
-const props = defineProps({
-  table: {
-    type: Object,
-    required: true,
+  const props = defineProps({
+    table: {
+      type: Object,
+      required: true,
     // shape: { id, env, seats, status, guest, time, note }
-  },
-  /** When true, action buttons (Check In/Out/Details) are hidden */
-  readonly: {
-    type: Boolean,
-    default: false,
-  },
-});
+    },
+    /** When true, action buttons (Check In/Out/Details) are hidden */
+    readonly: {
+      type: Boolean,
+      default: false,
+    },
+  })
 
-defineEmits(["click", "check-in", "check-out", "details"]);
+  defineEmits(['click', 'check-in', 'check-out', 'details'])
 
-const label = computed(() => statusLabel(props.table.status));
+  const label = computed(() => statusLabel(props.table.status))
 </script>
 
 <style scoped>

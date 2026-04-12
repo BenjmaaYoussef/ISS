@@ -1,26 +1,26 @@
 <template>
-  <v-menu v-if="session" offset="8" min-width="200">
+  <v-menu v-if="session" min-width="200" offset="8">
     <template #activator="{ props: menuProps }">
       <div class="avatar-trigger" v-bind="menuProps">
         <div class="avatar-ring">{{ initials }}</div>
         <span class="avatar-name">{{ session.name }}</span>
-        <v-icon size="16" color="#6b7a8d">mdi-chevron-down</v-icon>
+        <v-icon color="#6b7a8d" size="16">mdi-chevron-down</v-icon>
       </div>
     </template>
     <v-list class="switcher-menu" density="compact">
       <v-list-item
         v-for="item in menuItems"
         :key="item.to"
+        class="switcher-item"
         :prepend-icon="item.icon"
         :title="item.label"
-        class="switcher-item"
         @click="router.push(item.to)"
       />
       <v-divider class="my-1" style="border-color: rgba(255,255,255,0.08)" />
       <v-list-item
+        class="switcher-item switcher-item--danger"
         prepend-icon="mdi-logout"
         title="Logout"
-        class="switcher-item switcher-item--danger"
         @click="logout"
       />
     </v-list>
@@ -28,38 +28,40 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
-import { isVenueStaff } from '@/datamodel/VenueStaff.js'
+  import { computed } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
+  import { isVenueStaff } from '@/datamodel/VenueStaff.js'
 
-const router = useRouter()
+  const router = useRouter()
 
-let session = null
-try { session = JSON.parse(localStorage.getItem('spotly_session') || 'null') } catch {}
+  let session = null
+  try {
+    session = JSON.parse(localStorage.getItem('spotly_session') || 'null')
+  } catch {}
 
-const initials = computed(() => {
-  if (!session?.name) return '?'
-  return session.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
-})
+  const initials = computed(() => {
+    if (!session?.name) return '?'
+    return session.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+  })
 
-const isOwner = computed(() => !!session && !!getVenueByAdminEmail(session.email))
-const isStaff = computed(() => !!session && isVenueStaff(session.email))
+  const isOwner = computed(() => !!session && !!getVenueByAdminEmail(session.email))
+  const isStaff = computed(() => !!session && isVenueStaff(session.email))
 
-const menuItems = computed(() => {
-  const items = []
-  if (isOwner.value)
-    items.push({ label: 'Manage My Venue', icon: 'mdi-storefront-outline', to: '/admin/dashboard' })
-  if (isStaff.value)
-    items.push({ label: 'Staff Dashboard', icon: 'mdi-view-dashboard-outline', to: '/staff/dashboard' })
-  items.push({ label: 'My Bookings', icon: 'mdi-calendar-heart-outline', to: '/client/dashboard' })
-  return items
-})
+  const menuItems = computed(() => {
+    const items = []
+    if (isOwner.value)
+      items.push({ label: 'Manage My Venue', icon: 'mdi-storefront-outline', to: '/admin/dashboard' })
+    if (isStaff.value)
+      items.push({ label: 'Staff Dashboard', icon: 'mdi-view-dashboard-outline', to: '/staff/dashboard' })
+    items.push({ label: 'My Bookings', icon: 'mdi-calendar-heart-outline', to: '/client/dashboard' })
+    return items
+  })
 
-function logout() {
-  localStorage.removeItem('spotly_session')
-  router.push('/auth')
-}
+  function logout () {
+    localStorage.removeItem('spotly_session')
+    router.push('/auth')
+  }
 </script>
 
 <style scoped>

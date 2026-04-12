@@ -18,12 +18,12 @@
 </template>
 
 <script setup>
-defineProps({
-  value: { type: [String, Number], required: true },
-  label: { type: String, required: true },
-  /** Hex color for the value number */
-  color: { type: String, default: "#D4AF37" },
-});
+  defineProps({
+    value: { type: [String, Number], required: true },
+    label: { type: String, required: true },
+    /** Hex color for the value number */
+    color: { type: String, default: '#D4AF37' },
+  })
 </script>
 
 <style scoped>

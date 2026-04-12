@@ -1,7 +1,7 @@
 <template>
   <AppNavbarSpotly
-    :nav-links="adminNavLinks"
     active-link="qr-codes"
+    :nav-links="adminNavLinks"
     @nav="handleNav"
   />
 
@@ -21,15 +21,15 @@
           variant="outlined"
           @click="printSelected"
         >
-          <v-icon start size="16">mdi-printer-outline</v-icon>
+          <v-icon size="16" start>mdi-printer-outline</v-icon>
           Print Selected ({{ selectedIds.length }})
         </v-btn>
         <v-btn
           class="print-btn print-btn--primary"
-          @click="printAll"
           :disabled="allTableElements.length === 0"
+          @click="printAll"
         >
-          <v-icon start size="16">mdi-printer</v-icon>
+          <v-icon size="16" start>mdi-printer</v-icon>
           Print All
         </v-btn>
       </div>
@@ -37,11 +37,11 @@
       <!-- ── Empty state ── -->
       <div v-if="allTableElements.length === 0" class="empty-state">
         <div class="empty-glow" />
-        <v-icon size="64" color="rgba(212,175,55,0.2)">mdi-qrcode</v-icon>
+        <v-icon color="rgba(212,175,55,0.2)" size="64">mdi-qrcode</v-icon>
         <p class="empty-title">No table elements found</p>
         <p class="empty-sub">Add tables to your floor plan environments first, then return here to generate QR codes.</p>
-        <v-btn variant="outlined" color="#D4AF37" rounded="xl" to="/admin/floor-plan">
-          <v-icon start size="16">mdi-floor-plan</v-icon>
+        <v-btn color="#D4AF37" rounded="xl" to="/admin/floor-plan" variant="outlined">
+          <v-icon size="16" start>mdi-floor-plan</v-icon>
           Open Floor Plan Builder
         </v-btn>
       </div>
@@ -53,7 +53,7 @@
         <div class="selection-bar mb-5 d-flex align-center ga-3 flex-wrap">
           <span class="sel-count">{{ selectedIds.length }} of {{ allTableElements.length }} selected</span>
           <button class="sel-btn" @click="selectAll">Select All</button>
-          <button class="sel-btn" @click="clearAll" v-if="selectedIds.length > 0">Clear</button>
+          <button v-if="selectedIds.length > 0" class="sel-btn" @click="clearAll">Clear</button>
         </div>
 
         <!-- Per-environment section -->
@@ -74,7 +74,7 @@
             >
               <!-- Selection checkbox overlay -->
               <div class="card-checkbox">
-                <v-icon size="16" :color="selectedIds.includes(table.elementId) ? '#D4AF37' : 'rgba(255,255,255,0.2)'">
+                <v-icon :color="selectedIds.includes(table.elementId) ? '#D4AF37' : 'rgba(255,255,255,0.2)'" size="16">
                   {{ selectedIds.includes(table.elementId) ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline' }}
                 </v-icon>
               </div>
@@ -86,19 +86,19 @@
                 <div class="qr-card-env">{{ env.name }}</div>
                 <div class="qr-code-area">
                   <div v-if="table.svgLoading" class="qr-placeholder">
-                    <v-progress-circular size="24" width="2" color="#D4AF37" indeterminate />
+                    <v-progress-circular color="#D4AF37" indeterminate size="24" width="2" />
                   </div>
                   <div v-else-if="table.svg" class="qr-svg-wrap" v-html="table.svg" />
                   <div v-else class="qr-placeholder">
-                    <v-icon size="32" color="rgba(212,175,55,0.3)">mdi-qrcode</v-icon>
+                    <v-icon color="rgba(212,175,55,0.3)" size="32">mdi-qrcode</v-icon>
                   </div>
                 </div>
                 <div class="qr-card-tagline">Scan to view menu</div>
                 <div class="qr-card-brand">Spotly</div>
                 <a
+                  class="qr-dev-link"
                   :href="`/menu/${table.elementId}`"
                   target="_blank"
-                  class="qr-dev-link"
                   @click.stop
                 >dev: open menu</a>
               </div>
@@ -114,129 +114,132 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import QRCode from 'qrcode'
-import { useAuth } from '@/composables/useAuth'
-import { useAdminNav, adminNavLinks } from '@/composables/useAdminNav'
-import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
-import { getEnvironmentsByVenue } from '@/datamodel/Environment.js'
-import { useSnackbar } from '@/composables/useSnackbar'
-import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
+  import QRCode from 'qrcode'
+  import { computed, onMounted, ref, watch } from 'vue'
+  import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
+  import { adminNavLinks, useAdminNav } from '@/composables/useAdminNav'
+  import { useAuth } from '@/composables/useAuth'
+  import { useSnackbar } from '@/composables/useSnackbar'
+  import { getEnvironmentsByVenue } from '@/datamodel/Environment.js'
+  import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
 
-const { getSession } = useAuth()
-const { handleNav } = useAdminNav()
-const { snackbar, notify } = useSnackbar()
-const session = getSession()
+  const { getSession } = useAuth()
+  const { handleNav } = useAdminNav()
+  const { snackbar, notify } = useSnackbar()
+  const session = getSession()
 
-// ── Resolve admin's venue ─────────────────────────────────────────────────────
-const venue = session?.email ? getVenueByAdminEmail(session.email) : null
-const venueName = venue?.name || 'Venue'
-const venueId = venue?.id ?? null
+  // ── Resolve admin's venue ─────────────────────────────────────────────────────
+  const venue = session?.email ? getVenueByAdminEmail(session.email) : null
+  const venueName = venue?.name || 'Venue'
+  const venueId = venue?.id ?? null
 
-// ── Build table elements list ─────────────────────────────────────────────────
-const envs = computed(() =>
-  venueId != null ? getEnvironmentsByVenue(venueId) : []
-)
+  // ── Build table elements list ─────────────────────────────────────────────────
+  const envs = computed(() =>
+    venueId == null ? [] : getEnvironmentsByVenue(venueId),
+  )
 
-// Flat list of all seat-type elements across all environments
-const allTableElements = computed(() => {
-  const out = []
-  for (const env of envs.value) {
-    for (const el of env.elements) {
-      if (el.type?.startsWith('table_')) {
-        out.push({ ...el, envName: env.name, envId: env.id })
+  // Flat list of all seat-type elements across all environments
+  const allTableElements = computed(() => {
+    const out = []
+    for (const env of envs.value) {
+      for (const el of env.elements) {
+        if (el.type?.startsWith('table_')) {
+          out.push({ ...el, envName: env.name, envId: env.id })
+        }
       }
     }
+    return out
+  })
+
+  // ── QR SVG generation ─────────────────────────────────────────────────────────
+  const svgCache = ref({}) // elementId -> svg string
+
+  async function generateSvg (elementId) {
+    const url = `${window.location.origin}/menu/${elementId}`
+    try {
+      return await QRCode.toString(url, {
+        type: 'svg',
+        margin: 1,
+        color: { dark: '#0a0e14', light: '#ffffff' },
+        width: 160,
+      })
+    } catch {
+      return null
+    }
   }
-  return out
-})
 
-// ── QR SVG generation ─────────────────────────────────────────────────────────
-const svgCache = ref({}) // elementId -> svg string
-
-async function generateSvg(elementId) {
-  const url = `${window.location.origin}/menu/${elementId}`
-  try {
-    return await QRCode.toString(url, {
-      type: 'svg',
-      margin: 1,
-      color: { dark: '#0a0e14', light: '#ffffff' },
-      width: 160,
-    })
-  } catch {
-    return null
-  }
-}
-
-onMounted(async () => {
-  // Generate QR codes for all table elements
-  for (const el of allTableElements.value) {
-    const svg = await generateSvg(el.id)
-    if (svg) svgCache.value[el.id] = svg
-  }
-})
-
-// Re-generate if environments change
-watch(allTableElements, async (newEls) => {
-  for (const el of newEls) {
-    if (!svgCache.value[el.id]) {
+  onMounted(async () => {
+    // Generate QR codes for all table elements
+    for (const el of allTableElements.value) {
       const svg = await generateSvg(el.id)
       if (svg) svgCache.value[el.id] = svg
     }
+  })
+
+  // Re-generate if environments change
+  watch(allTableElements, async newEls => {
+    for (const el of newEls) {
+      if (!svgCache.value[el.id]) {
+        const svg = await generateSvg(el.id)
+        if (svg) svgCache.value[el.id] = svg
+      }
+    }
+  })
+
+  // ── Section view model ────────────────────────────────────────────────────────
+  const envSections = computed(() =>
+    envs.value
+      .map(env => ({
+        id: env.id,
+        name: env.name,
+        icon: env.icon,
+        tables: env.elements
+          .filter(el => el.type?.startsWith('table_'))
+          .map(el => ({
+            elementId: el.id,
+            label: el.label || el.id,
+            svg: svgCache.value[el.id] || null,
+            svgLoading: !svgCache.value[el.id],
+            envName: env.name,
+          })),
+      }))
+      .filter(s => s.tables.length > 0),
+  )
+
+  // ── Selection ─────────────────────────────────────────────────────────────────
+  const selectedIds = ref([])
+
+  function toggleSelect (id) {
+    const idx = selectedIds.value.indexOf(id)
+    if (idx === -1) {
+      selectedIds.value.push(id)
+    } else {
+      selectedIds.value.splice(idx, 1)
+    }
   }
-})
 
-// ── Section view model ────────────────────────────────────────────────────────
-const envSections = computed(() =>
-  envs.value
-    .map(env => ({
-      id: env.id,
-      name: env.name,
-      icon: env.icon,
-      tables: env.elements
-        .filter(el => el.type?.startsWith('table_'))
-        .map(el => ({
-          elementId: el.id,
-          label: el.label || el.id,
-          svg: svgCache.value[el.id] || null,
-          svgLoading: !svgCache.value[el.id],
-          envName: env.name,
-        })),
-    }))
-    .filter(s => s.tables.length > 0)
-)
-
-// ── Selection ─────────────────────────────────────────────────────────────────
-const selectedIds = ref([])
-
-const toggleSelect = (id) => {
-  const idx = selectedIds.value.indexOf(id)
-  if (idx >= 0) selectedIds.value.splice(idx, 1)
-  else selectedIds.value.push(id)
-}
-
-const selectAll = () => {
-  selectedIds.value = allTableElements.value.map(el => el.id)
-}
-
-const clearAll = () => {
-  selectedIds.value = []
-}
-
-// ── Print ─────────────────────────────────────────────────────────────────────
-async function buildCards(ids) {
-  const out = []
-  for (const el of allTableElements.value) {
-    if (!ids.includes(el.id)) continue
-    let svg = svgCache.value[el.id]
-    if (!svg) svg = await generateSvg(el.id)
-    out.push({ ...el, label: el.label || el.id, svg })
+  function selectAll () {
+    selectedIds.value = allTableElements.value.map(el => el.id)
   }
-  return out
-}
 
-function openPrintWindow(cards) {
-  const cardsHtml = cards.map(c => `
+  function clearAll () {
+    selectedIds.value = []
+  }
+
+  // ── Print ─────────────────────────────────────────────────────────────────────
+  async function buildCards (ids) {
+    const out = []
+    for (const el of allTableElements.value) {
+      if (!ids.includes(el.id)) continue
+      let svg = svgCache.value[el.id]
+      if (!svg) svg = await generateSvg(el.id)
+      out.push({ ...el, label: el.label || el.id, svg })
+    }
+    return out
+  }
+
+  function openPrintWindow (cards) {
+    const cardsHtml = cards.map(c => `
     <div class="card">
       <div class="venue">${escapeHtml(venueName)}</div>
       <div class="table">${escapeHtml(c.label)}</div>
@@ -247,7 +250,7 @@ function openPrintWindow(cards) {
     </div>
   `).join('')
 
-  const html = `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -324,40 +327,40 @@ function openPrintWindow(cards) {
 <body>${cardsHtml}</body>
 </html>`
 
-  const popup = window.open('', '_blank', 'width=900,height=700,scrollbars=yes')
-  if (!popup) {
-    notify('Pop-up blocked — please allow pop-ups for this site', '#C71585', 'mdi-alert')
-    return
+    const popup = window.open('', '_blank', 'width=900,height=700,scrollbars=yes')
+    if (!popup) {
+      notify('Pop-up blocked — please allow pop-ups for this site', '#C71585', 'mdi-alert')
+      return
+    }
+    popup.document.write(html)
+    popup.document.close()
+    popup.addEventListener('load', () => {
+      popup.focus()
+      popup.print()
+    })
   }
-  popup.document.write(html)
-  popup.document.close()
-  popup.onload = () => {
-    popup.focus()
-    popup.print()
+
+  function escapeHtml (str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
   }
-}
 
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
-
-async function printAll() {
-  const cards = await buildCards(allTableElements.value.map(e => e.id))
-  openPrintWindow(cards)
-}
-
-async function printSelected() {
-  if (selectedIds.value.length === 0) {
-    notify('No cards selected', '#6b7a8d', 'mdi-alert-circle-outline')
-    return
+  async function printAll () {
+    const cards = await buildCards(allTableElements.value.map(e => e.id))
+    openPrintWindow(cards)
   }
-  const cards = await buildCards(selectedIds.value)
-  openPrintWindow(cards)
-}
+
+  async function printSelected () {
+    if (selectedIds.value.length === 0) {
+      notify('No cards selected', '#6b7a8d', 'mdi-alert-circle-outline')
+      return
+    }
+    const cards = await buildCards(selectedIds.value)
+    openPrintWindow(cards)
+  }
 </script>
 
 <style scoped>

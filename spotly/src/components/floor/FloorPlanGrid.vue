@@ -51,11 +51,11 @@
       <TableCard
         v-for="table in filteredTables"
         :key="table.id"
-        :table="table"
         :readonly="readonly"
-        @click="$emit('table-click', table)"
+        :table="table"
         @check-in="$emit('check-in', table)"
         @check-out="$emit('check-out', table)"
+        @click="$emit('table-click', table)"
         @details="$emit('table-click', table)"
       />
     </div>
@@ -63,46 +63,46 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import TableCard from "./TableCard.vue";
+  import { computed } from 'vue'
+  import TableCard from './TableCard.vue'
 
-const props = defineProps({
-  /**
-   * Full list of table objects.
-   * Shape: { id, env, seats, status, guest, time, note }
-   */
-  tables: {
-    type: Array,
-    required: true,
-  },
-  /** List of environment names for the selector chips */
-  environments: {
-    type: Array,
-    required: true,
-  },
-  /** Currently selected environment (v-model:activeEnv) */
-  activeEnv: {
-    type: String,
-    required: true,
-  },
-  /** When true, disable all action buttons on cards (preview / builder mode) */
-  readonly: {
-    type: Boolean,
-    default: false,
-  },
-});
+  const props = defineProps({
+    /**
+     * Full list of table objects.
+     * Shape: { id, env, seats, status, guest, time, note }
+     */
+    tables: {
+      type: Array,
+      required: true,
+    },
+    /** List of environment names for the selector chips */
+    environments: {
+      type: Array,
+      required: true,
+    },
+    /** Currently selected environment (v-model:activeEnv) */
+    activeEnv: {
+      type: String,
+      required: true,
+    },
+    /** When true, disable all action buttons on cards (preview / builder mode) */
+    readonly: {
+      type: Boolean,
+      default: false,
+    },
+  })
 
-defineEmits([
-  "update:activeEnv",
-  "table-click",
-  "check-in",
-  "check-out",
-  "resolve-call",
-]);
+  defineEmits([
+    'update:activeEnv',
+    'table-click',
+    'check-in',
+    'check-out',
+    'resolve-call',
+  ])
 
-const filteredTables = computed(() =>
-  props.tables.filter((t) => t.env === props.activeEnv),
-);
+  const filteredTables = computed(() =>
+    props.tables.filter(t => t.env === props.activeEnv),
+  )
 </script>
 
 <style scoped>

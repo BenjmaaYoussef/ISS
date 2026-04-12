@@ -6,19 +6,22 @@
     <div class="modal-backdrop-card">
       <div class="mbc-strip mbc-strip--gold" />
       <div class="d-flex align-center gap-2 mb-2 mt-1">
-        <v-icon size="15" color="#d4af37">mdi-account-check-outline</v-icon>
+        <v-icon color="#d4af37" size="15">mdi-account-check-outline</v-icon>
         <span class="mbc-id">D2</span>
         <span class="mbc-title">Guest Check-In & Operational Notes</span>
-        <v-chip size="x-small" color="warning" variant="tonal" class="ml-auto"
-          >F14</v-chip
-        >
+        <v-chip
+          class="ml-auto"
+          color="warning"
+          size="x-small"
+          variant="tonal"
+        >F14</v-chip>
       </div>
       <p class="mbc-desc">
         Staff dialog to mark a guest as arrived or a no-show and log internal
         operational notes against the reservation.
       </p>
       <v-btn class="mbc-reopen-btn mt-4" @click="open = true">
-        <v-icon start size="14">mdi-refresh</v-icon>
+        <v-icon size="14" start>mdi-refresh</v-icon>
         Reopen Dialog
       </v-btn>
     </div>
@@ -33,27 +36,27 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import GuestCheckInDialog from "@/components/dialogs/GuestCheckInDialog.vue";
+  import { ref } from 'vue'
+  import GuestCheckInDialog from '@/components/dialogs/GuestCheckInDialog.vue'
 
-const open = ref(true);
+  const open = ref(true)
 
-const reservation = {
-  id: 104,
-  guest: "Epon M.",
-  partySize: 2,
-  tableId: "T-12",
-  environment: "Indoor",
-  clientNote: "It's my birthday",
-  staffNote: "Guest arrived early. Seated at bar first.",
-};
+  const reservation = {
+    id: 104,
+    guest: 'Epon M.',
+    partySize: 2,
+    tableId: 'T-12',
+    environment: 'Indoor',
+    clientNote: 'It\'s my birthday',
+    staffNote: 'Guest arrived early. Seated at bar first.',
+  }
 
-function onArrived(payload) {
-  console.log("[D2] Marked as arrived:", payload);
-}
-function onNoShow(payload) {
-  console.log("[D2] Marked as no-show:", payload);
-}
+  function onArrived (payload) {
+    console.log('[D2] Marked as arrived:', payload)
+  }
+  function onNoShow (payload) {
+    console.log('[D2] Marked as no-show:', payload)
+  }
 </script>
 
 <style scoped>

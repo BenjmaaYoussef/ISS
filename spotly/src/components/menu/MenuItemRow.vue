@@ -14,11 +14,23 @@
   <div class="menu-card" :style="{ animationDelay: animDelay }">
     <!-- Admin action buttons — top right -->
     <div v-if="editable" class="card-actions">
-      <v-btn icon size="x-small" variant="text" class="edit-btn" @click="$emit('edit', item)">
-        <v-icon size="14" color="#D4AF37">mdi-pencil-outline</v-icon>
+      <v-btn
+        class="edit-btn"
+        icon
+        size="x-small"
+        variant="text"
+        @click="$emit('edit', item)"
+      >
+        <v-icon color="#D4AF37" size="14">mdi-pencil-outline</v-icon>
       </v-btn>
-      <v-btn icon size="x-small" variant="text" class="delete-btn" @click="$emit('delete', item)">
-        <v-icon size="14" color="#C71585">mdi-trash-can-outline</v-icon>
+      <v-btn
+        class="delete-btn"
+        icon
+        size="x-small"
+        variant="text"
+        @click="$emit('delete', item)"
+      >
+        <v-icon color="#C71585" size="14">mdi-trash-can-outline</v-icon>
       </v-btn>
     </div>
 
@@ -50,22 +62,22 @@
 </template>
 
 <script setup>
-defineProps({
-  item: {
-    type: Object,
-    required: true,
-  },
-  editable: {
-    type: Boolean,
-    default: false,
-  },
-  animDelay: {
-    type: String,
-    default: "0ms",
-  },
-});
+  defineProps({
+    item: {
+      type: Object,
+      required: true,
+    },
+    editable: {
+      type: Boolean,
+      default: false,
+    },
+    animDelay: {
+      type: String,
+      default: '0ms',
+    },
+  })
 
-defineEmits(["edit", "delete"]);
+  defineEmits(['edit', 'delete'])
 </script>
 
 <style scoped>

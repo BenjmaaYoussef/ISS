@@ -16,10 +16,10 @@
     <button
       v-for="cat in categories"
       :key="cat.key"
+      :aria-selected="modelValue === cat.key"
       class="cat-pill"
       :class="{ 'cat-pill--active': modelValue === cat.key }"
       role="tab"
-      :aria-selected="modelValue === cat.key"
       @click="$emit('update:modelValue', cat.key)"
     >
       <!-- Icon -->
@@ -37,18 +37,18 @@
 </template>
 
 <script setup>
-defineProps({
-  categories: {
-    type: Array,
-    required: true,
-  },
-  modelValue: {
-    type: String,
-    required: true,
-  },
-});
+  defineProps({
+    categories: {
+      type: Array,
+      required: true,
+    },
+    modelValue: {
+      type: String,
+      required: true,
+    },
+  })
 
-defineEmits(["update:modelValue"]);
+  defineEmits(['update:modelValue'])
 </script>
 
 <style scoped>

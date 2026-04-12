@@ -3,8 +3,8 @@
 
   <!-- ── Top Navigation Bar ── -->
   <AppNavbarSpotly
-    :nav-links="adminNavLinks"
     active-link="venue-settings"
+    :nav-links="adminNavLinks"
     @nav="handleNav"
   />
 
@@ -14,9 +14,7 @@
       <div class="page-header">
         <div>
           <div class="page-eyebrow">
-            <v-icon size="13" color="#D4AF37" class="mr-1"
-              >mdi-pencil-ruler</v-icon
-            >
+            <v-icon class="mr-1" color="#D4AF37" size="13">mdi-pencil-ruler</v-icon>
             Admin · Venue Management
           </div>
           <h1 class="page-title">Venue Identity Studio</h1>
@@ -27,22 +25,22 @@
         </div>
         <div class="header-actions">
           <v-btn
-            variant="outlined"
-            :ripple="false"
             class="secondary-btn mr-3"
+            :ripple="false"
+            variant="outlined"
             @click="resetForm"
           >
-            <v-icon start size="15">mdi-refresh</v-icon>
+            <v-icon size="15" start>mdi-refresh</v-icon>
             Reset
           </v-btn>
           <v-btn
-            flat
-            :ripple="false"
             class="gold-btn"
+            flat
             :loading="saving"
+            :ripple="false"
             @click="saveChanges"
           >
-            <v-icon start size="15">mdi-content-save-outline</v-icon>
+            <v-icon size="15" start>mdi-content-save-outline</v-icon>
             Save Changes
           </v-btn>
         </div>
@@ -66,16 +64,14 @@
 
             <div class="fields-wrap">
               <div class="field-group">
-                <label class="field-label"
-                  >Venue Name <span class="req">*</span></label
-                >
+                <label class="field-label">Venue Name <span class="req">*</span></label>
                 <v-text-field
                   v-model="form.name"
-                  placeholder="e.g. Sunset Beach Club"
-                  variant="outlined"
+                  class="spotly-input"
                   density="comfortable"
                   hide-details
-                  class="spotly-input"
+                  placeholder="e.g. Sunset Beach Club"
+                  variant="outlined"
                 />
               </div>
 
@@ -83,11 +79,11 @@
                 <label class="field-label">Tagline / Signature Quote</label>
                 <v-text-field
                   v-model="form.tagline"
-                  placeholder="e.g. Where every sunset tells a story"
-                  variant="outlined"
+                  class="spotly-input"
                   density="comfortable"
                   hide-details
-                  class="spotly-input"
+                  placeholder="e.g. Where every sunset tells a story"
+                  variant="outlined"
                 />
                 <div class="field-hint">
                   Appears as an italic quote on the venue landing page
@@ -98,14 +94,14 @@
                 <label class="field-label">About the Venue</label>
                 <v-textarea
                   v-model="form.description"
-                  placeholder="Describe the atmosphere, history, and soul of your venue…"
-                  variant="outlined"
-                  rows="4"
-                  counter="300"
-                  maxlength="300"
-                  hide-details="auto"
-                  no-resize
                   class="spotly-input"
+                  counter="300"
+                  hide-details="auto"
+                  maxlength="300"
+                  no-resize
+                  placeholder="Describe the atmosphere, history, and soul of your venue…"
+                  rows="4"
+                  variant="outlined"
                 />
               </div>
 
@@ -115,12 +111,12 @@
                     <label class="field-label">City / Location</label>
                     <v-text-field
                       v-model="form.location"
-                      placeholder="e.g. Sidi Bou Said, Tunisia"
-                      variant="outlined"
+                      class="spotly-input"
                       density="comfortable"
                       hide-details
-                      class="spotly-input"
+                      placeholder="e.g. Sidi Bou Said, Tunisia"
                       prepend-inner-icon="mdi-map-marker-outline"
+                      variant="outlined"
                     />
                   </div>
                 </v-col>
@@ -129,11 +125,11 @@
                     <label class="field-label">Venue Type</label>
                     <v-select
                       v-model="form.venueType"
-                      :items="venueTypes"
-                      variant="outlined"
+                      class="spotly-input"
                       density="comfortable"
                       hide-details
-                      class="spotly-input"
+                      :items="venueTypes"
+                      variant="outlined"
                     />
                   </div>
                 </v-col>
@@ -183,11 +179,11 @@
                     @click="form.dressCode = dc.value"
                   >
                     <v-icon
-                      size="18"
                       class="mb-1"
                       :color="
                         form.dressCode === dc.value ? '#D4AF37' : '#6a7080'
                       "
+                      size="18"
                     >
                       {{ dc.icon }}
                     </v-icon>
@@ -246,7 +242,7 @@
                 class="env-hours-row"
               >
                 <div class="env-hours-label">
-                  <v-icon size="14" color="#D4AF37" class="mr-1">{{
+                  <v-icon class="mr-1" color="#D4AF37" size="14">{{
                     env.icon
                   }}</v-icon>
                   {{ env.name }}
@@ -254,22 +250,22 @@
                 <div class="env-hours-fields">
                   <v-text-field
                     v-model="env.open"
-                    placeholder="12:00"
-                    variant="outlined"
+                    class="spotly-input hours-input"
                     density="compact"
                     hide-details
-                    class="spotly-input hours-input"
+                    placeholder="12:00"
                     prefix="Opens"
+                    variant="outlined"
                   />
                   <div class="hours-dash">—</div>
                   <v-text-field
                     v-model="env.close"
-                    placeholder="23:00"
-                    variant="outlined"
+                    class="spotly-input hours-input"
                     density="compact"
                     hide-details
-                    class="spotly-input hours-input"
+                    placeholder="23:00"
                     prefix="Closes"
+                    variant="outlined"
                   />
                   <div
                     class="env-toggle"
@@ -315,11 +311,11 @@
                   >
                     <!-- Loading overlay -->
                     <div v-if="slide.uploading" class="slide-thumb-loading">
-                      <v-progress-circular indeterminate color="#D4AF37" size="22" width="2" />
+                      <v-progress-circular color="#D4AF37" indeterminate size="22" width="2" />
                     </div>
                     <!-- Hover overlay -->
                     <div v-if="!slide.uploading" class="slide-thumb-hover">
-                      <v-icon size="18" color="#D4AF37">mdi-camera-plus</v-icon>
+                      <v-icon color="#D4AF37" size="18">mdi-camera-plus</v-icon>
                       <span>{{ slide.imageUrl ? 'Change' : 'Add photo' }}</span>
                     </div>
                     <!-- Slide number -->
@@ -330,16 +326,16 @@
                       class="slide-remove-btn"
                       @click.stop="slide.imageUrl = ''"
                     >
-                      <v-icon size="12" color="white">mdi-close</v-icon>
+                      <v-icon color="white" size="12">mdi-close</v-icon>
                     </button>
                     <!-- Hidden file input -->
                     <input
                       :ref="el => fileInputs[i] = el"
-                      type="file"
                       accept="image/*"
                       style="display: none"
+                      type="file"
                       @change="onFileChange(i, $event)"
-                    />
+                    >
                   </div>
 
                   <!-- Text fields -->
@@ -347,43 +343,49 @@
                     <label class="slide-field-label">Scene name</label>
                     <v-text-field
                       v-model="slide.title"
-                      placeholder="e.g. Beachfront Terrace"
-                      variant="outlined"
+                      class="spotly-input mb-2"
                       density="compact"
                       hide-details
-                      class="spotly-input mb-2"
+                      placeholder="e.g. Beachfront Terrace"
+                      variant="outlined"
                     />
                     <label class="slide-field-label">Caption</label>
                     <v-text-field
                       v-model="slide.sub"
-                      placeholder="Short description shown on the slide"
-                      variant="outlined"
+                      class="spotly-input"
                       density="compact"
                       hide-details
-                      class="spotly-input"
+                      placeholder="Short description shown on the slide"
+                      variant="outlined"
                     />
                   </div>
 
                   <!-- Reorder + delete -->
                   <div class="slide-order">
                     <v-btn
-                      icon size="x-small" variant="text"
                       :disabled="i === 0"
+                      icon
+                      size="x-small"
+                      variant="text"
                       @click="moveSlide(i, -1)"
                     >
                       <v-icon size="16">mdi-chevron-up</v-icon>
                     </v-btn>
                     <v-btn
-                      icon size="x-small" variant="text"
                       :disabled="i === form.slides.length - 1"
+                      icon
+                      size="x-small"
+                      variant="text"
                       @click="moveSlide(i, 1)"
                     >
                       <v-icon size="16">mdi-chevron-down</v-icon>
                     </v-btn>
                     <v-btn
-                      icon size="x-small" variant="text"
-                      :disabled="form.slides.length <= 1"
                       class="slide-delete-btn"
+                      :disabled="form.slides.length <= 1"
+                      icon
+                      size="x-small"
+                      variant="text"
                       @click="removeSlide(i)"
                     >
                       <v-icon size="15">mdi-trash-can-outline</v-icon>
@@ -394,18 +396,18 @@
 
               <!-- Add slide -->
               <v-btn
-                variant="outlined"
-                size="small"
                 class="add-slide-btn mt-3"
                 :ripple="false"
+                size="small"
+                variant="outlined"
                 @click="addSlide"
               >
-                <v-icon start size="14">mdi-plus</v-icon>
+                <v-icon size="14" start>mdi-plus</v-icon>
                 Add slide
               </v-btn>
 
               <div class="field-hint mt-3">
-                <v-icon size="12" color="#4a5568" class="mr-1">mdi-information-outline</v-icon>
+                <v-icon class="mr-1" color="#4a5568" size="12">mdi-information-outline</v-icon>
                 Click a thumbnail to upload a photo. Slides play in order on your venue page.
               </div>
             </div>
@@ -427,17 +429,17 @@
                 <label class="field-label">Search users by name or email</label>
                 <v-text-field
                   v-model="staffQuery"
-                  placeholder="Type at least 2 characters..."
-                  variant="outlined"
+                  class="spotly-input"
                   density="comfortable"
                   hide-details
+                  placeholder="Type at least 2 characters..."
                   prepend-inner-icon="mdi-account-search-outline"
-                  class="spotly-input"
+                  variant="outlined"
                 />
               </div>
 
               <!-- Search results -->
-              <div v-if="staffSearchResults.length" class="staff-list mt-2">
+              <div v-if="staffSearchResults.length > 0" class="staff-list mt-2">
                 <div
                   v-for="user in staffSearchResults"
                   :key="user.email"
@@ -448,11 +450,11 @@
                     <span class="staff-email ml-2">{{ user.email }}</span>
                   </div>
                   <v-chip
-                    size="small"
-                    color="primary"
-                    variant="outlined"
                     class="ml-2"
+                    color="primary"
+                    size="small"
                     style="cursor: pointer"
+                    variant="outlined"
                     @click="addStaffMember(user)"
                   >
                     Add
@@ -476,11 +478,11 @@
                     <span class="staff-email ml-2">{{ s.user.email }}</span>
                   </div>
                   <v-chip
-                    size="small"
-                    color="error"
-                    variant="outlined"
                     class="ml-2"
+                    color="error"
+                    size="small"
                     style="cursor: pointer"
+                    variant="outlined"
                     @click="removeStaffMember(s.record.id)"
                   >
                     Remove
@@ -540,7 +542,7 @@
                 <!-- Name + location -->
                 <div class="vp-name">{{ form.name || "Your Venue Name" }}</div>
                 <div class="vp-location mb-3">
-                  <v-icon size="12" color="#6a7080">mdi-map-marker</v-icon>
+                  <v-icon color="#6a7080" size="12">mdi-map-marker</v-icon>
                   <span>{{ form.location || "City, Country" }}</span>
                 </div>
 
@@ -556,25 +558,25 @@
                 </div>
 
                 <!-- Tags -->
-                <div class="vp-tags mb-4" v-if="form.tags.length">
+                <div v-if="form.tags.length > 0" class="vp-tags mb-4">
                   <span
                     v-for="tag in form.tags.slice(0, 4)"
                     :key="tag"
                     class="vp-tag"
-                    ># {{ tag }}</span
-                  >
+                  ># {{ tag }}</span>
                 </div>
 
                 <!-- Dress code + languages row -->
                 <div class="vp-meta-row mb-4">
-                  <div class="vp-meta-item" v-if="form.dressCode">
-                    <v-icon size="12" color="#D4AF37"
-                      >mdi-tshirt-crew-outline</v-icon
-                    >
+                  <div v-if="form.dressCode" class="vp-meta-item">
+                    <v-icon
+                      color="#D4AF37"
+                      size="12"
+                    >mdi-tshirt-crew-outline</v-icon>
                     <span>{{ form.dressCode }}</span>
                   </div>
-                  <div class="vp-meta-item" v-if="form.languages.length">
-                    <v-icon size="12" color="#D4AF37">mdi-translate</v-icon>
+                  <div v-if="form.languages.length > 0" class="vp-meta-item">
+                    <v-icon color="#D4AF37" size="12">mdi-translate</v-icon>
                     <span>{{
                       form.languages
                         .map(
@@ -586,31 +588,31 @@
                 </div>
 
                 <!-- Hours snippet -->
-                <div class="vp-hours" v-if="activeEnvs.length">
+                <div v-if="activeEnvs.length > 0" class="vp-hours">
                   <div
                     v-for="env in activeEnvs.slice(0, 3)"
                     :key="env.name"
                     class="vp-hours-row"
                   >
                     <span class="vp-env-name">{{ env.name }}</span>
-                    <span class="vp-env-hours"
-                      >{{ env.open }} – {{ env.close }}</span
-                    >
+                    <span class="vp-env-hours">{{ env.open }} – {{ env.close }}</span>
                   </div>
                 </div>
 
                 <!-- CTA buttons -->
                 <div class="vp-actions mt-4">
                   <div class="vp-cta-primary">
-                    <v-icon size="13" color="#0A0E14"
-                      >mdi-calendar-check</v-icon
-                    >
+                    <v-icon
+                      color="#0A0E14"
+                      size="13"
+                    >mdi-calendar-check</v-icon>
                     <span>Make Reservation</span>
                   </div>
                   <div class="vp-cta-secondary">
-                    <v-icon size="13" color="#D4AF37"
-                      >mdi-silverware-fork-knife</v-icon
-                    >
+                    <v-icon
+                      color="#D4AF37"
+                      size="13"
+                    >mdi-silverware-fork-knife</v-icon>
                     <span>Explore Menu</span>
                   </div>
                 </div>
@@ -619,9 +621,7 @@
 
             <!-- Preview note -->
             <div class="preview-note">
-              <v-icon size="13" color="#4a5568" class="mr-1"
-                >mdi-information-outline</v-icon
-              >
+              <v-icon class="mr-1" color="#4a5568" size="13">mdi-information-outline</v-icon>
               This preview updates as you type
             </div>
           </div>
@@ -636,274 +636,276 @@
 
 <script setup>
 // P16 — Venue Identity Studio
-import { ref, computed, reactive } from "vue";
-import { useRouter } from "vue-router";
-import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
-import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
-import { useSnackbar } from "@/composables/useSnackbar";
-import { useAdminNav } from "@/composables/useAdminNav";
-import { useAuth } from "@/composables/useAuth";
-import { updateVenue, getVenueByAdminEmail } from "@/datamodel/Venue.js";
-import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
-import { uploadImage } from "@/utils/uploadImage.js";
-import { VenueStaff, VENUE_STAFF_LIST, addVenueStaff, removeVenueStaff, getStaffByVenue } from "@/datamodel/VenueStaff.js";
-import { USER_LIST } from "@/datamodel/User.js";
+  import { computed, reactive, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import SpotlySnackbar from '@/components/feedback/SpotlySnackbar.vue'
+  import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
+  import { useAdminNav } from '@/composables/useAdminNav'
+  import { useAuth } from '@/composables/useAuth'
+  import { useSnackbar } from '@/composables/useSnackbar'
+  import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import { USER_LIST } from '@/datamodel/User.js'
+  import { getVenueByAdminEmail, updateVenue } from '@/datamodel/Venue.js'
+  import { addVenueStaff, getStaffByVenue, removeVenueStaff, VENUE_STAFF_LIST, VenueStaff } from '@/datamodel/VenueStaff.js'
+  import { uploadImage } from '@/utils/uploadImage.js'
 
-const router = useRouter();
-const { snackbar, notifySuccess, notifyError } = useSnackbar();
-const { getSession } = useAuth();
-const session = getSession();
+  const router = useRouter()
+  const { snackbar, notifySuccess, notifyError } = useSnackbar()
+  const { getSession } = useAuth()
+  const session = getSession()
 
-// ─── Image Upload ──────────────────────────────────────────────────────────────
-const fileInputs = ref([]);
+  // ─── Image Upload ──────────────────────────────────────────────────────────────
+  const fileInputs = ref([])
 
-function triggerUpload(i) {
-  fileInputs.value[i]?.click();
-}
-
-async function onFileChange(i, event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  event.target.value = "";
-  form.slides[i].uploading = true;
-  try {
-    const url = await uploadImage(file);
-    form.slides[i].imageUrl = url;
-  } catch (e) {
-    notifyError("Upload failed — " + e.message);
-  } finally {
-    form.slides[i].uploading = false;
+  function triggerUpload (i) {
+    fileInputs.value[i]?.click()
   }
-}
 
-// ─── Navbar ───────────────────────────────────────────────────────────────────
-const { adminNavLinks, handleNav } = useAdminNav();
+  async function onFileChange (i, event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    event.target.value = ''
+    form.slides[i].uploading = true
+    try {
+      const url = await uploadImage(file)
+      form.slides[i].imageUrl = url
+    } catch (error) {
+      notifyError('Upload failed — ' + error.message)
+    } finally {
+      form.slides[i].uploading = false
+    }
+  }
 
-// ─── Static options ───────────────────────────────────────────────────────────
-const venueTypes = [
-  "Beach Club",
-  "Restaurant",
-  "Lounge",
-  "Rooftop Bar",
-  "Beach Bar",
-  "Café",
-  "Private Club",
-  "Event Space",
-];
+  // ─── Navbar ───────────────────────────────────────────────────────────────────
+  const { adminNavLinks, handleNav } = useAdminNav()
 
-const availableTags = [
-  "Beach",
-  "Luxury",
-  "Sunset",
-  "Rooftop",
-  "Sea View",
-  "VIP",
-  "Romantic",
-  "Family Friendly",
-  "Live Music",
-  "Cocktails",
-  "Fine Dining",
-  "Outdoor",
-  "Private Events",
-];
+  // ─── Static options ───────────────────────────────────────────────────────────
+  const venueTypes = [
+    'Beach Club',
+    'Restaurant',
+    'Lounge',
+    'Rooftop Bar',
+    'Beach Bar',
+    'Café',
+    'Private Club',
+    'Event Space',
+  ]
 
-const dressCodes = [
-  { value: "Casual", label: "Casual", icon: "mdi-tshirt-crew-outline" },
-  { value: "Smart Casual", label: "Smart Casual", icon: "mdi-polo" },
-  { value: "Formal", label: "Formal", icon: "mdi-tie" },
-  { value: "Black Tie", label: "Black Tie", icon: "mdi-bow-tie" },
-];
+  const availableTags = [
+    'Beach',
+    'Luxury',
+    'Sunset',
+    'Rooftop',
+    'Sea View',
+    'VIP',
+    'Romantic',
+    'Family Friendly',
+    'Live Music',
+    'Cocktails',
+    'Fine Dining',
+    'Outdoor',
+    'Private Events',
+  ]
 
-const availableLangs = [
-  { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "fr", label: "French", flag: "🇫🇷" },
-  { code: "ar", label: "Arabic", flag: "🇹🇳" },
-  { code: "de", label: "German", flag: "🇩🇪" },
-  { code: "it", label: "Italian", flag: "🇮🇹" },
-  { code: "es", label: "Spanish", flag: "🇪🇸" },
-  { code: "ru", label: "Russian", flag: "🇷🇺" },
-  { code: "zh", label: "Chinese", flag: "🇨🇳" },
-];
+  const dressCodes = [
+    { value: 'Casual', label: 'Casual', icon: 'mdi-tshirt-crew-outline' },
+    { value: 'Smart Casual', label: 'Smart Casual', icon: 'mdi-polo' },
+    { value: 'Formal', label: 'Formal', icon: 'mdi-tie' },
+    { value: 'Black Tie', label: 'Black Tie', icon: 'mdi-bow-tie' },
+  ]
 
-// ─── Defaults (pre-populated from datamodel) ──────────────────────────────────
-const defaultForm = () => {
-  const v = session?.email ? getVenueByAdminEmail(session.email) : null;
-  if (!v) return { name: '', tagline: '', description: '', location: '', venueType: '', tags: [], dressCode: '', languages: [], environments: [], slides: [] };
-  return {
-    name: v.name ?? "Sunset Beach Club",
-    tagline: v.tagline || "Where every sunset tells a story",
-    description:
-      v.description ??
-      "A premier beachfront destination offering an unparalleled dining and lounge experience. Nestled along the azure coast of Sidi Bou Said, our venue blends Mediterranean elegance with modern luxury.",
-    location: v.location || "Sidi Bou Said, Tunisia",
-    venueType: v.venueType || "Beach Club",
-    tags: v.ambienceTags?.length ? [...v.ambienceTags] : ["Beach", "Luxury", "Sunset", "Sea View"],
-    dressCode: v.dressCode ?? "Smart Casual",
-    languages: v.supportedLanguages?.length ? [...v.supportedLanguages] : ["en", "fr", "ar"],
-    environments: ENVIRONMENT_LIST
-      .filter(e => e.venueId === v.id)
-      .map(e => {
-        const saved = (v.hours || []).find(h => h.envId === e.id)
-        return {
-          id: e.id,
-          name: e.name,
-          icon: e.icon,
-          open: saved?.open ?? '12:00',
-          close: saved?.close ?? '23:00',
-          active: saved?.active ?? true,
-        }
-      }),
-    slides: v.slides?.length
-      ? v.slides.map(s => ({
+  const availableLangs = [
+    { code: 'en', label: 'English', flag: '🇬🇧' },
+    { code: 'fr', label: 'French', flag: '🇫🇷' },
+    { code: 'ar', label: 'Arabic', flag: '🇹🇳' },
+    { code: 'de', label: 'German', flag: '🇩🇪' },
+    { code: 'it', label: 'Italian', flag: '🇮🇹' },
+    { code: 'es', label: 'Spanish', flag: '🇪🇸' },
+    { code: 'ru', label: 'Russian', flag: '🇷🇺' },
+    { code: 'zh', label: 'Chinese', flag: '🇨🇳' },
+  ]
+
+  // ─── Defaults (pre-populated from datamodel) ──────────────────────────────────
+  function defaultForm () {
+    const v = session?.email ? getVenueByAdminEmail(session.email) : null
+    if (!v) return { name: '', tagline: '', description: '', location: '', venueType: '', tags: [], dressCode: '', languages: [], environments: [], slides: [] }
+    return {
+      name: v.name ?? 'Sunset Beach Club',
+      tagline: v.tagline || 'Where every sunset tells a story',
+      description:
+        v.description
+        ?? 'A premier beachfront destination offering an unparalleled dining and lounge experience. Nestled along the azure coast of Sidi Bou Said, our venue blends Mediterranean elegance with modern luxury.',
+      location: v.location || 'Sidi Bou Said, Tunisia',
+      venueType: v.venueType || 'Beach Club',
+      tags: v.ambienceTags?.length ? [...v.ambienceTags] : ['Beach', 'Luxury', 'Sunset', 'Sea View'],
+      dressCode: v.dressCode ?? 'Smart Casual',
+      languages: v.supportedLanguages?.length ? [...v.supportedLanguages] : ['en', 'fr', 'ar'],
+      environments: ENVIRONMENT_LIST
+        .filter(e => e.venueId === v.id)
+        .map(e => {
+          const saved = (v.hours || []).find(h => h.envId === e.id)
+          return {
+            id: e.id,
+            name: e.name,
+            icon: e.icon,
+            open: saved?.open ?? '12:00',
+            close: saved?.close ?? '23:00',
+            active: saved?.active ?? true,
+          }
+        }),
+      slides: v.slides?.length
+        ? v.slides.map(s => ({
           title: s.title ?? '',
           sub: s.subtitle ?? '',
           bg: s.bgColor || 'linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)',
           imageUrl: s.imageUrl ?? '',
           uploading: false,
         }))
-      : [
+        : [
           {
-            title: "Beachfront Terrace",
-            sub: "Open-air seating with panoramic ocean views",
-            bg: "linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)",
+            title: 'Beachfront Terrace',
+            sub: 'Open-air seating with panoramic ocean views',
+            bg: 'linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)',
             imageUrl: '',
             uploading: false,
           },
           {
-            title: "Sunset Lounge",
-            sub: "Premium indoor seating for exclusive events",
-            bg: "linear-gradient(135deg, #2a1a0a 0%, #1f0d00 50%, #0a0a0a 100%)",
+            title: 'Sunset Lounge',
+            sub: 'Premium indoor seating for exclusive events',
+            bg: 'linear-gradient(135deg, #2a1a0a 0%, #1f0d00 50%, #0a0a0a 100%)',
             imageUrl: '',
             uploading: false,
           },
           {
-            title: "Beach Club",
-            sub: "Sunbeds, cocktails and the Mediterranean",
-            bg: "linear-gradient(135deg, #0a1a2a 0%, #0d2030 50%, #0a1420 100%)",
+            title: 'Beach Club',
+            sub: 'Sunbeds, cocktails and the Mediterranean',
+            bg: 'linear-gradient(135deg, #0a1a2a 0%, #0d2030 50%, #0a1420 100%)',
             imageUrl: '',
             uploading: false,
           },
         ],
-  };
-};
-
-const form = reactive(defaultForm());
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const toggleTag = (tag) =>
-  form.tags.includes(tag)
-    ? form.tags.splice(form.tags.indexOf(tag), 1)
-    : form.tags.push(tag);
-const toggleLang = (code) =>
-  form.languages.includes(code)
-    ? form.languages.splice(form.languages.indexOf(code), 1)
-    : form.languages.push(code);
-
-const moveSlide = (i, dir) => {
-  const j = i + dir;
-  if (j < 0 || j >= form.slides.length) return;
-  [form.slides[i], form.slides[j]] = [form.slides[j], form.slides[i]];
-  if (previewSlide.value === i) previewSlide.value = j;
-  else if (previewSlide.value === j) previewSlide.value = i;
-};
-
-const gradients = [
-  'linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)',
-  'linear-gradient(135deg, #2a1a0a 0%, #1f0d00 50%, #0a0a0a 100%)',
-  'linear-gradient(135deg, #0a1a2a 0%, #0d2030 50%, #0a1420 100%)',
-  'linear-gradient(135deg, #1a0a2a 0%, #110020 50%, #0a0010 100%)',
-  'linear-gradient(135deg, #0a2a1a 0%, #002010 50%, #001408 100%)',
-];
-
-const addSlide = () => {
-  const bg = gradients[form.slides.length % gradients.length];
-  form.slides.push({ title: '', sub: '', bg, imageUrl: '', uploading: false });
-};
-
-const removeSlide = (i) => {
-  if (form.slides.length <= 1) return;
-  form.slides.splice(i, 1);
-  if (previewSlide.value >= form.slides.length) previewSlide.value = form.slides.length - 1;
-};
-
-const activeEnvs = computed(() => form.environments.filter((e) => e.active));
-
-// ─── Preview ──────────────────────────────────────────────────────────────────
-const previewSlide = ref(0);
-
-// ─── Save / Reset ─────────────────────────────────────────────────────────────
-const saving = ref(false);
-
-const saveChanges = () => {
-  const v = session?.email ? getVenueByAdminEmail(session.email) : null;
-  if (!v) return;
-  const invalidSlide = form.slides.findIndex(s => !s.imageUrl || !s.title.trim() || !s.sub.trim());
-  if (invalidSlide !== -1) {
-    previewSlide.value = invalidSlide;
-    notifyError(`Slide ${invalidSlide + 1} is missing ${!form.slides[invalidSlide].imageUrl ? 'a photo' : !form.slides[invalidSlide].title.trim() ? 'a scene name' : 'a caption'}`);
-    return;
+    }
   }
-  saving.value = true;
-  updateVenue(v.id, {
-    name: form.name,
-    description: form.description,
-    ambienceTags: [...form.tags],
-    dressCode: form.dressCode,
-    supportedLanguages: [...form.languages],
-    tagline: form.tagline,
-    location: form.location,
-    venueType: form.venueType,
-    hours: form.environments.map(e => ({ envId: e.id ?? null, open: e.open, close: e.close, active: e.active })),
-    slides: form.slides.map(s => ({ title: s.title, subtitle: s.sub, bgColor: s.bg, imageUrl: s.imageUrl || '' })),
-  });
-  setTimeout(() => {
-    saving.value = false;
-    notifySuccess("Venue identity saved successfully");
-  }, 700);
-};
 
-const resetForm = () => {
-  Object.assign(form, defaultForm());
-  notifySuccess("Form reset to defaults");
-};
+  const form = reactive(defaultForm())
 
-// ─── Staff Management ──────────────────────────────────────────────────────────
-const staffQuery = ref('');
-const venue = computed(() => session?.email ? getVenueByAdminEmail(session.email) : null);
+  // ─── Helpers ──────────────────────────────────────────────────────────────────
+  function toggleTag (tag) {
+    return form.tags.includes(tag)
+      ? form.tags.splice(form.tags.indexOf(tag), 1)
+      : form.tags.push(tag)
+  }
+  function toggleLang (code) {
+    return form.languages.includes(code)
+      ? form.languages.splice(form.languages.indexOf(code), 1)
+      : form.languages.push(code)
+  }
 
-const currentStaff = computed(() => {
-  if (!venue.value) return [];
-  return getStaffByVenue(venue.value.id).map(record => ({
-    record,
-    user: USER_LIST.find(u => u.email === record.userEmail),
-  })).filter(s => s.user);
-});
+  function moveSlide (i, dir) {
+    const j = i + dir
+    if (j < 0 || j >= form.slides.length) return;
+    [form.slides[i], form.slides[j]] = [form.slides[j], form.slides[i]]
+    if (previewSlide.value === i) previewSlide.value = j
+    else if (previewSlide.value === j) previewSlide.value = i
+  }
 
-const staffSearchResults = computed(() => {
-  const q = staffQuery.value.trim().toLowerCase();
-  if (q.length < 2 || !venue.value) return [];
-  const ownerEmail = venue.value.adminEmail;
-  const assignedEmails = new Set(getStaffByVenue(venue.value.id).map(r => r.userEmail));
-  return USER_LIST.filter(u => {
-    if (u.email === ownerEmail) return false;
-    if (assignedEmails.has(u.email)) return false;
-    const full = (u.first_name + ' ' + u.last_name + ' ' + u.email).toLowerCase();
-    return full.includes(q);
-  });
-});
+  const gradients = [
+    'linear-gradient(135deg, #1a2a3a 0%, #0d1f2d 40%, #0a1a25 100%)',
+    'linear-gradient(135deg, #2a1a0a 0%, #1f0d00 50%, #0a0a0a 100%)',
+    'linear-gradient(135deg, #0a1a2a 0%, #0d2030 50%, #0a1420 100%)',
+    'linear-gradient(135deg, #1a0a2a 0%, #110020 50%, #0a0010 100%)',
+    'linear-gradient(135deg, #0a2a1a 0%, #002010 50%, #001408 100%)',
+  ]
 
-function addStaffMember(user) {
-  if (!venue.value) return;
-  const ok = addVenueStaff(new VenueStaff({ id: Date.now(), venueId: venue.value.id, userEmail: user.email }));
-  staffQuery.value = '';
-  if (ok) notifySuccess('Staff member added');
-  else notifyError(`${user.first_name} ${user.last_name} is already staff at another venue`);
-}
+  function addSlide () {
+    const bg = gradients[form.slides.length % gradients.length]
+    form.slides.push({ title: '', sub: '', bg, imageUrl: '', uploading: false })
+  }
 
-function removeStaffMember(id) {
-  removeVenueStaff(id);
-  notifySuccess('Staff member removed');
-}
+  function removeSlide (i) {
+    if (form.slides.length <= 1) return
+    form.slides.splice(i, 1)
+    if (previewSlide.value >= form.slides.length) previewSlide.value = form.slides.length - 1
+  }
+
+  const activeEnvs = computed(() => form.environments.filter(e => e.active))
+
+  // ─── Preview ──────────────────────────────────────────────────────────────────
+  const previewSlide = ref(0)
+
+  // ─── Save / Reset ─────────────────────────────────────────────────────────────
+  const saving = ref(false)
+
+  function saveChanges () {
+    const v = session?.email ? getVenueByAdminEmail(session.email) : null
+    if (!v) return
+    const invalidSlide = form.slides.findIndex(s => !s.imageUrl || !s.title.trim() || !s.sub.trim())
+    if (invalidSlide !== -1) {
+      previewSlide.value = invalidSlide
+      notifyError(`Slide ${invalidSlide + 1} is missing ${form.slides[invalidSlide].imageUrl ? (form.slides[invalidSlide].title.trim() ? 'a caption' : 'a scene name') : 'a photo'}`)
+      return
+    }
+    saving.value = true
+    updateVenue(v.id, {
+      name: form.name,
+      description: form.description,
+      ambienceTags: [...form.tags],
+      dressCode: form.dressCode,
+      supportedLanguages: [...form.languages],
+      tagline: form.tagline,
+      location: form.location,
+      venueType: form.venueType,
+      hours: form.environments.map(e => ({ envId: e.id ?? null, open: e.open, close: e.close, active: e.active })),
+      slides: form.slides.map(s => ({ title: s.title, subtitle: s.sub, bgColor: s.bg, imageUrl: s.imageUrl || '' })),
+    })
+    setTimeout(() => {
+      saving.value = false
+      notifySuccess('Venue identity saved successfully')
+    }, 700)
+  }
+
+  function resetForm () {
+    Object.assign(form, defaultForm())
+    notifySuccess('Form reset to defaults')
+  }
+
+  // ─── Staff Management ──────────────────────────────────────────────────────────
+  const staffQuery = ref('')
+  const venue = computed(() => session?.email ? getVenueByAdminEmail(session.email) : null)
+
+  const currentStaff = computed(() => {
+    if (!venue.value) return []
+    return getStaffByVenue(venue.value.id).map(record => ({
+      record,
+      user: USER_LIST.find(u => u.email === record.userEmail),
+    })).filter(s => s.user)
+  })
+
+  const staffSearchResults = computed(() => {
+    const q = staffQuery.value.trim().toLowerCase()
+    if (q.length < 2 || !venue.value) return []
+    const ownerEmail = venue.value.adminEmail
+    const assignedEmails = new Set(getStaffByVenue(venue.value.id).map(r => r.userEmail))
+    return USER_LIST.filter(u => {
+      if (u.email === ownerEmail) return false
+      if (assignedEmails.has(u.email)) return false
+      const full = (u.first_name + ' ' + u.last_name + ' ' + u.email).toLowerCase()
+      return full.includes(q)
+    })
+  })
+
+  function addStaffMember (user) {
+    if (!venue.value) return
+    const ok = addVenueStaff(new VenueStaff({ id: Date.now(), venueId: venue.value.id, userEmail: user.email }))
+    staffQuery.value = ''
+    if (ok) notifySuccess('Staff member added')
+    else notifyError(`${user.first_name} ${user.last_name} is already staff at another venue`)
+  }
+
+  function removeStaffMember (id) {
+    removeVenueStaff(id)
+    notifySuccess('Staff member removed')
+  }
 </script>
 
 <style scoped>

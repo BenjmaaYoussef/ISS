@@ -1,7 +1,7 @@
 <template>
   <v-app-bar
-    flat
     color="background"
+    flat
     height="64"
     style="border-bottom: 1px solid rgba(212, 175, 55, 0.18)"
   >
@@ -19,31 +19,31 @@
         @click="$router.push('/')"
       >
         <img
-          src="@/assets/spotlyLogo.png"
-          :height="dense ? 28 : 34"
           alt="Spotly"
+          :height="dense ? 28 : 34"
+          src="@/assets/spotlyLogo.png"
           style="object-fit: contain"
-        />
+        >
       </div>
 
       <!-- ── Nav Links (horizontal tabs) ── -->
-      <div v-if="navLinks.length" class="nav-links d-flex align-center ga-1">
+      <div v-if="navLinks.length > 0" class="nav-links d-flex align-center ga-1">
         <v-btn
           v-for="link in navLinks"
           :key="link.key"
-          variant="text"
-          size="small"
           class="nav-btn"
           :class="{ 'nav-btn--active': activeLink === link.key }"
+          size="small"
+          variant="text"
           @click="$emit('nav', link.key)"
         >
-          <v-icon v-if="link.icon" :icon="link.icon" size="14" class="mr-1" />
+          <v-icon v-if="link.icon" class="mr-1" :icon="link.icon" size="14" />
           {{ link.label }}
         </v-btn>
       </div>
 
       <!-- ── Nav Tabs (pill style — for staff dashboard) ── -->
-      <div v-if="navTabs.length" class="nav-tabs d-flex align-center ml-8 ga-1">
+      <div v-if="navTabs.length > 0" class="nav-tabs d-flex align-center ml-8 ga-1">
         <div
           v-for="tab in navTabs"
           :key="tab.key"
@@ -51,7 +51,7 @@
           :class="{ 'nav-tab--active': activeLink === tab.key }"
           @click="$emit('nav', tab.key)"
         >
-          <v-icon size="14" class="mr-1">{{ tab.icon }}</v-icon>
+          <v-icon class="mr-1" size="14">{{ tab.icon }}</v-icon>
           {{ tab.label }}
         </div>
       </div>
@@ -64,23 +64,23 @@
       <!-- ── Default: back-to-home link (auth page style) ── -->
       <template v-if="showBackLink && !$slots.actions">
         <v-btn
-          variant="text"
-          to="/landing"
           style="
             color: rgba(255, 255, 255, 0.55);
             font-size: 0.82rem;
             letter-spacing: 1.5px;
             text-transform: uppercase;
           "
+          to="/landing"
+          variant="text"
         >
-          <v-icon start icon="mdi-arrow-left" size="16" />
+          <v-icon icon="mdi-arrow-left" size="16" start />
           Back to Home
         </v-btn>
       </template>
 
       <!-- ── Default: admin avatar + logout ── -->
       <div v-if="adminLabel" class="d-flex align-center ga-2 ml-4">
-        <v-avatar size="32" class="admin-avatar">
+        <v-avatar class="admin-avatar" size="32">
           <span class="text-caption font-weight-bold">
             {{ adminInitials }}
           </span>
@@ -89,10 +89,10 @@
         <v-btn
           v-if="showLogout"
           icon
-          variant="text"
           size="small"
           style="color: rgba(255,255,255,0.4)"
           title="Logout"
+          variant="text"
           @click="$emit('logout')"
         >
           <v-icon size="18">mdi-logout</v-icon>
@@ -103,63 +103,63 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+  import { computed } from 'vue'
 
-const props = defineProps({
-  /**
-   * Horizontal text links (admin style).
-   * Each: { key: string, label: string, icon?: string }
-   */
-  navLinks: {
-    type: Array,
-    default: () => [],
-  },
-  /**
-   * Pill-style tab links (staff dashboard style).
-   * Each: { key: string, label: string, icon: string }
-   */
-  navTabs: {
-    type: Array,
-    default: () => [],
-  },
-  /** Key of the currently active link/tab */
-  activeLink: {
-    type: String,
-    default: null,
-  },
-  /** Show "← Back to Home" on the right (auth page) */
-  showBackLink: {
-    type: Boolean,
-    default: false,
-  },
-  /** Display name for the admin avatar section */
-  adminLabel: {
-    type: String,
-    default: null,
-  },
-  /** Compact horizontal padding */
-  dense: {
-    type: Boolean,
-    default: false,
-  },
-  /** Show logout icon next to admin avatar */
-  showLogout: {
-    type: Boolean,
-    default: false,
-  },
-});
+  const props = defineProps({
+    /**
+     * Horizontal text links (admin style).
+     * Each: { key: string, label: string, icon?: string }
+     */
+    navLinks: {
+      type: Array,
+      default: () => [],
+    },
+    /**
+     * Pill-style tab links (staff dashboard style).
+     * Each: { key: string, label: string, icon: string }
+     */
+    navTabs: {
+      type: Array,
+      default: () => [],
+    },
+    /** Key of the currently active link/tab */
+    activeLink: {
+      type: String,
+      default: null,
+    },
+    /** Show "← Back to Home" on the right (auth page) */
+    showBackLink: {
+      type: Boolean,
+      default: false,
+    },
+    /** Display name for the admin avatar section */
+    adminLabel: {
+      type: String,
+      default: null,
+    },
+    /** Compact horizontal padding */
+    dense: {
+      type: Boolean,
+      default: false,
+    },
+    /** Show logout icon next to admin avatar */
+    showLogout: {
+      type: Boolean,
+      default: false,
+    },
+  })
 
-defineEmits(["nav", "logout"]);
+  defineEmits(['nav', 'logout'])
 
-const adminInitials = computed(() => {
-  if (!props.adminLabel) return "";
-  return props.adminLabel
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-});
+  const adminInitials = computed(() => {
+    if (!props.adminLabel) return ''
+    return props.adminLabel
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase()
+  })
 </script>
 
 <style scoped>

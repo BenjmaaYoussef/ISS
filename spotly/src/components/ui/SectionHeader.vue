@@ -11,13 +11,13 @@
       <div class="title-row">
         <v-icon
           v-if="icon"
-          :icon="icon"
-          color="#D4AF37"
-          size="18"
           class="mr-2"
+          color="#D4AF37"
+          :icon="icon"
+          size="18"
         />
         <span class="section-title">{{ title }}</span>
-        <v-chip v-if="count !== null" size="x-small" class="count-chip ml-2">
+        <v-chip v-if="count !== null" class="count-chip ml-2" size="x-small">
           {{ count }}
         </v-chip>
       </div>
@@ -30,13 +30,13 @@
 </template>
 
 <script setup>
-defineProps({
-  title: { type: String, required: true },
-  subtitle: { type: String, default: null },
-  icon: { type: String, default: null },
-  /** Show a count badge next to the title; pass null to hide */
-  count: { type: Number, default: null },
-});
+  defineProps({
+    title: { type: String, required: true },
+    subtitle: { type: String, default: null },
+    icon: { type: String, default: null },
+    /** Show a count badge next to the title; pass null to hide */
+    count: { type: Number, default: null },
+  })
 </script>
 
 <style scoped>

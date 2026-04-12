@@ -12,20 +12,20 @@
       />
   -->
   <v-dialog
-    :model-value="modelValue"
     max-width="400"
+    :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
   >
-    <v-card class="dialog-card" v-if="table">
+    <v-card v-if="table" class="dialog-card">
       <!-- Color strip at top based on status -->
       <div class="dialog-strip" :class="`dialog-strip--${table.status}`" />
 
       <v-card-title class="dialog-title pt-5 px-6 d-flex align-center">
         {{ table.id }}
         <ReservationStatusChip
-          :status="table.status"
-          size="x-small"
           class="ml-2"
+          size="x-small"
+          :status="table.status"
         />
       </v-card-title>
 
@@ -56,8 +56,8 @@
 
       <v-card-actions class="px-6 pb-5 ga-2">
         <v-btn
-          variant="text"
           class="keep-btn"
+          variant="text"
           @click="$emit('update:modelValue', false)"
         >
           Close
@@ -68,51 +68,49 @@
           class="action-chip action-chip--checkout"
           @click="handle('resolve-call')"
         >
-          <v-icon start size="13">mdi-check</v-icon> Resolve Alert
+          <v-icon size="13" start>mdi-check</v-icon> Resolve Alert
         </v-btn>
         <v-btn
           v-if="table.status === 'occupied'"
           class="action-chip action-chip--checkout"
           @click="handle('check-out')"
-          >Check Out</v-btn
-        >
+        >Check Out</v-btn>
         <v-btn
           v-if="table.status === 'reserved'"
           class="action-chip action-chip--checkin"
           @click="handle('check-in')"
-          >Check In</v-btn
-        >
+        >Check In</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup>
-import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
+  import ReservationStatusChip from '@/components/feedback/ReservationStatusChip.vue'
 
-defineProps({
-  modelValue: {
-    type: Boolean,
-    required: true,
-  },
-  table: {
-    type: Object,
-    default: null,
+  defineProps({
+    modelValue: {
+      type: Boolean,
+      required: true,
+    },
+    table: {
+      type: Object,
+      default: null,
     // shape: { id, env, seats, status, guest, time, note }
-  },
-});
+    },
+  })
 
-const emit = defineEmits([
-  "update:modelValue",
-  "check-in",
-  "check-out",
-  "resolve-call",
-]);
+  const emit = defineEmits([
+    'update:modelValue',
+    'check-in',
+    'check-out',
+    'resolve-call',
+  ])
 
-function handle(event) {
-  emit(event);
-  emit("update:modelValue", false);
-}
+  function handle (event) {
+    emit(event)
+    emit('update:modelValue', false)
+  }
 </script>
 
 <style scoped>

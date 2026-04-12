@@ -16,7 +16,7 @@
       <!-- ── Walk-in next-reservation alert ── -->
       <div v-if="walkInNotif" class="walkin-notif mb-3">
         <div class="wn-inner d-flex align-center ga-2">
-          <v-icon size="16" color="#D4AF37">mdi-clock-alert-outline</v-icon>
+          <v-icon color="#D4AF37" size="16">mdi-clock-alert-outline</v-icon>
           <span class="wn-text">
             <strong>{{ walkInNotif.tableLabel }}</strong> — next reservation
             <strong>{{ walkInNotif.nextReservation.name }}</strong>
@@ -27,21 +27,21 @@
       </div>
 
       <!-- ── Waiter Calls ── -->
-      <div v-if="pendingCalls.length || showEmptyCallsState" class="waiter-calls-section mb-4">
+      <div v-if="pendingCalls.length > 0 || showEmptyCallsState" class="waiter-calls-section mb-4">
         <div class="wc-header d-flex align-center ga-2 mb-2">
           <div class="wc-indicator" :class="{ 'wc-indicator--active': pendingCalls.length > 0 }" />
           <span class="wc-title">Waiter Calls</span>
-          <span v-if="pendingCalls.length" class="wc-badge">{{ pendingCalls.length }}</span>
+          <span v-if="pendingCalls.length > 0" class="wc-badge">{{ pendingCalls.length }}</span>
           <div class="flex-grow-1" />
-          <button class="wc-dismiss-btn" @click="showEmptyCallsState = false" v-if="!pendingCalls.length">
+          <button v-if="pendingCalls.length === 0" class="wc-dismiss-btn" @click="showEmptyCallsState = false">
             <v-icon size="14">mdi-close</v-icon>
           </button>
         </div>
-        <div v-if="pendingCalls.length" class="wc-list d-flex flex-wrap ga-2">
+        <div v-if="pendingCalls.length > 0" class="wc-list d-flex flex-wrap ga-2">
           <div v-for="call in pendingCalls" :key="call.id" class="wc-card">
             <div class="wc-card-inner d-flex align-center ga-3">
               <div class="wc-ring-icon">
-                <v-icon size="18" color="#D4AF37">mdi-room-service</v-icon>
+                <v-icon color="#D4AF37" size="18">mdi-room-service</v-icon>
               </div>
               <div class="wc-info flex-grow-1">
                 <div class="wc-table-label">{{ call.tableLabel }}</div>
@@ -52,21 +52,21 @@
                 </div>
               </div>
               <v-btn
-                size="x-small"
-                variant="tonal"
+                class="wc-ack-btn"
                 color="#D4AF37"
                 rounded="lg"
-                class="wc-ack-btn"
+                size="x-small"
+                variant="tonal"
                 @click="ackCall(call.id)"
               >
-                <v-icon start size="12">mdi-check</v-icon>
+                <v-icon size="12" start>mdi-check</v-icon>
                 Ack
               </v-btn>
             </div>
           </div>
         </div>
         <div v-else class="wc-empty">
-          <v-icon size="16" color="rgba(255,255,255,0.2)">mdi-bell-check-outline</v-icon>
+          <v-icon color="rgba(255,255,255,0.2)" size="16">mdi-bell-check-outline</v-icon>
           <span>No active calls</span>
         </div>
       </div>
@@ -76,13 +76,13 @@
 
         <!-- Venue identity -->
         <div v-if="venue" class="venue-identity">
-          <v-icon size="14" class="mr-1" style="color: #d4af37">mdi-storefront-outline</v-icon>
+          <v-icon class="mr-1" size="14" style="color: #d4af37">mdi-storefront-outline</v-icon>
           <span class="venue-identity-name">{{ venue.name }}</span>
         </div>
 
         <!-- Today's date (read-only — live view) -->
         <div class="today-badge">
-          <v-icon size="13" class="mr-1">mdi-calendar-today</v-icon>
+          <v-icon class="mr-1" size="13">mdi-calendar-today</v-icon>
           {{ formattedDate }}
         </div>
 
@@ -95,7 +95,7 @@
             :class="{ 'env-chip--active': selectedEnvId === env.id }"
             @click="selectedEnvId = env.id"
           >
-            <v-icon size="12" class="mr-1">{{ env.icon }}</v-icon>
+            <v-icon class="mr-1" size="12">{{ env.icon }}</v-icon>
             {{ env.name }}
           </button>
           <div v-if="venueEnvs.length === 0" style="color: rgba(255,255,255,0.3); font-size: 0.78rem;">No environments assigned</div>
@@ -103,17 +103,17 @@
 
         <!-- Walk-in button -->
         <button class="walkin-btn" @click="openWalkInDialog">
-          <v-icon size="15" class="mr-1">mdi-walk</v-icon>
+          <v-icon class="mr-1" size="15">mdi-walk</v-icon>
           Walk-in
         </button>
 
         <div class="flex-grow-1" />
 
         <!-- Panel toggle -->
-        <button class="panel-toggle-btn" @click="panelOpen = !panelOpen" :title="panelOpen ? 'Hide reservations' : 'Show reservations'">
+        <button class="panel-toggle-btn" :title="panelOpen ? 'Hide reservations' : 'Show reservations'" @click="panelOpen = !panelOpen">
           <v-icon size="16">{{ panelOpen ? 'mdi-table-arrow-right' : 'mdi-table-arrow-left' }}</v-icon>
           <span class="d-none d-sm-inline ml-1">{{ panelOpen ? 'Hide' : 'Reservations' }}</span>
-          <span v-if="!panelOpen && panelReservations.length" class="panel-toggle-count">{{ panelReservations.length }}</span>
+          <span v-if="!panelOpen && panelReservations.length > 0" class="panel-toggle-count">{{ panelReservations.length }}</span>
         </button>
       </div>
 
@@ -135,13 +135,13 @@
           <VenueFloorMap
             v-if="selectedEnv"
             :environment="selectedEnv"
-            :tables="floorTables"
             mode="staff"
+            :tables="floorTables"
             @table-click="onTableClick"
           />
 
           <div v-else class="no-env-msg">
-            <v-icon size="32" color="rgba(212,175,55,0.3)">mdi-floor-plan</v-icon>
+            <v-icon color="rgba(212,175,55,0.3)" size="32">mdi-floor-plan</v-icon>
             <p>No environments configured</p>
           </div>
         </div>
@@ -160,12 +160,12 @@
 
             <!-- Search -->
             <div class="search-wrap mb-3">
-              <v-icon size="14" class="search-icon">mdi-magnify</v-icon>
+              <v-icon class="search-icon" size="14">mdi-magnify</v-icon>
               <input
                 v-model="panelSearch"
                 class="search-input"
                 placeholder="Search guest..."
-              />
+              >
               <button v-if="panelSearch" class="search-clear" @click="panelSearch = ''">
                 <v-icon size="13">mdi-close</v-icon>
               </button>
@@ -193,21 +193,21 @@
               >
                 <div class="res-row-top d-flex align-center justify-space-between">
                   <span class="res-guest">{{ res.name }}</span>
-                  <ReservationStatusChip :status="res.status" size="x-small" />
+                  <ReservationStatusChip size="x-small" :status="res.status" />
                 </div>
                 <div class="res-row-sub d-flex align-center ga-2 mt-1">
                   <span class="res-meta">
-                    <v-icon size="11" class="mr-1">mdi-clock-outline</v-icon>{{ res.time }}
+                    <v-icon class="mr-1" size="11">mdi-clock-outline</v-icon>{{ res.time }}
                   </span>
                   <span class="res-meta">
-                    <v-icon size="11" class="mr-1">mdi-account-group</v-icon>{{ res.guests }}
+                    <v-icon class="mr-1" size="11">mdi-account-group</v-icon>{{ res.guests }}
                   </span>
                   <span class="res-meta res-env">{{ envNameById(res.environmentId) }}</span>
                 </div>
               </div>
 
               <div v-if="filteredPanelReservations.length === 0" class="res-empty">
-                <v-icon size="28" color="rgba(255,255,255,0.1)">mdi-calendar-blank</v-icon>
+                <v-icon color="rgba(255,255,255,0.1)" size="28">mdi-calendar-blank</v-icon>
                 <p>No reservations match</p>
               </div>
             </div>
@@ -248,347 +248,346 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { Reservation, addReservation } from '@/datamodel/Reservation.js'
-import { useSnackbar } from '@/composables/useSnackbar'
-import { useAuth } from '@/composables/useAuth'
-import { useFloorTables } from '@/composables/useFloorTables'
-import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
-import { getVenueById } from '@/datamodel/Venue.js'
-import { RESERVATION_LIST, updateReservationStatus, getReservationById } from '@/datamodel/Reservation.js'
-import { ReservationLog, addReservationLog } from '@/datamodel/ReservationLog.js'
-import { VENUE_STAFF_LIST } from '@/datamodel/VenueStaff.js'
-import { WAITER_CALL_LIST, acknowledgeWaiterCall, getPendingCallsByVenue } from '@/datamodel/WaiterCall.js'
+  import { computed, ref, watch } from 'vue'
+  import { useAuth } from '@/composables/useAuth'
+  import { useFloorTables } from '@/composables/useFloorTables'
+  import { useSnackbar } from '@/composables/useSnackbar'
+  import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import { addReservation, getReservationById, Reservation, RESERVATION_LIST, updateReservationStatus } from '@/datamodel/Reservation.js'
+  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
+  import { getVenueById } from '@/datamodel/Venue.js'
+  import { VENUE_STAFF_LIST } from '@/datamodel/VenueStaff.js'
+  import { acknowledgeWaiterCall, getPendingCallsByVenue, WAITER_CALL_LIST } from '@/datamodel/WaiterCall.js'
 
-const { snackbar, notify } = useSnackbar()
-const { getSession, logout } = useAuth()
-const session = getSession()
-const sessionName = session?.name || 'Staff'
+  const { snackbar, notify } = useSnackbar()
+  const { getSession, logout } = useAuth()
+  const session = getSession()
+  const sessionName = session?.name || 'Staff'
 
-// Always derive venueId from VenueStaff — session.venueId is the owned venue
-// and must not be used here (a user can own venue A and staff venue B).
-const venueId = computed(() => {
-  const record = VENUE_STAFF_LIST.find(r => r.userEmail === session?.email)
-  return record?.venueId ?? null
-})
+  // Always derive venueId from VenueStaff — session.venueId is the owned venue
+  // and must not be used here (a user can own venue A and staff venue B).
+  const venueId = computed(() => {
+    const record = VENUE_STAFF_LIST.find(r => r.userEmail === session?.email)
+    return record?.venueId ?? null
+  })
 
-const venue = computed(() => venueId.value != null ? getVenueById(venueId.value) : null)
+  const venue = computed(() => venueId.value == null ? null : getVenueById(venueId.value))
 
-// ── Waiter Calls ──────────────────────────────────────────────────────────────
-const showEmptyCallsState = ref(true)
+  // ── Waiter Calls ──────────────────────────────────────────────────────────────
+  const showEmptyCallsState = ref(true)
 
-const pendingCalls = computed(() => {
-  if (venueId.value == null) return []
-  return getPendingCallsByVenue(venueId.value)
-    .slice()
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-})
+  const pendingCalls = computed(() => {
+    if (venueId.value == null) return []
+    return getPendingCallsByVenue(venueId.value)
+      .slice()
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+  })
 
-function timeAgo(iso) {
-  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
-  if (diff < 60) return `${diff}s ago`
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-  return `${Math.floor(diff / 3600)}h ago`
-}
-
-function ackCall(id) {
-  acknowledgeWaiterCall(id)
-  notify('Call acknowledged', '#2EBB57', 'mdi-check-circle-outline')
-}
-
-// ── Scope environments to the venue this staff member is assigned to ──────────
-const venueEnvs = computed(() =>
-  venueId.value != null
-    ? ENVIRONMENT_LIST.filter(e => e.venueId === venueId.value)
-    : []
-)
-
-// ── Date (live — always today) ─────────────────────────────────────────────────
-const selectedDate = ref(new Date().toISOString().split('T')[0])
-
-const formattedDate = computed(() => {
-  const d = new Date(selectedDate.value + 'T12:00:00')
-  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
-})
-
-// ── Environment ───────────────────────────────────────────────────────────────
-const selectedEnvId = ref(venueEnvs.value[0]?.id || '')
-const selectedEnv = computed(() => venueEnvs.value.find(e => e.id === selectedEnvId.value) || null)
-const envNameById = (id) => venueEnvs.value.find(e => e.id === id)?.name || id
-
-// ── Floor tables (from composable) ───────────────────────────────────────────
-const floorTables = useFloorTables(selectedEnvId, selectedDate)
-
-const freeCount = computed(() => floorTables.value.filter(t => t.status === 'free').length)
-const reservedCount = computed(() => floorTables.value.filter(t => t.status === 'reserved').length)
-const occupiedCount = computed(() => floorTables.value.filter(t => t.status === 'occupied').length)
-
-// ── Panel ─────────────────────────────────────────────────────────────────────
-const panelOpen = ref(window.innerWidth >= 960)
-const panelSearch = ref('')
-const panelStatusFilter = ref('all')
-
-const statusFilters = [
-  { key: 'all', label: 'All' },
-  { key: 'REQUESTED', label: 'Pending' },
-  { key: 'APPROVED', label: 'Confirmed' },
-  { key: 'CHECKED_IN', label: 'In' },
-  { key: 'COMPLETED', label: 'Done' },
-  { key: 'NO_SHOW', label: 'No Show' },
-]
-
-const envIds = computed(() => venueEnvs.value.map(e => e.id))
-
-const panelReservations = computed(() =>
-  RESERVATION_LIST.filter(r =>
-    r.date === selectedDate.value &&
-    r.venueId === venueId.value,
-  ),
-)
-
-const filteredPanelReservations = computed(() => {
-  let list = panelReservations.value
-  if (panelStatusFilter.value !== 'all') {
-    list = list.filter(r => r.status === panelStatusFilter.value)
+  function timeAgo (iso) {
+    const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
+    if (diff < 60) return `${diff}s ago`
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+    return `${Math.floor(diff / 3600)}h ago`
   }
-  const q = panelSearch.value.trim().toLowerCase()
-  if (q) {
-    list = list.filter(r => r.name.toLowerCase().includes(q))
+
+  function ackCall (id) {
+    acknowledgeWaiterCall(id)
+    notify('Call acknowledged', '#2EBB57', 'mdi-check-circle-outline')
   }
-  return list
-})
 
-// ── Dialog state ──────────────────────────────────────────────────────────────
-const detailDialog = ref(false)
-const selectedTable = ref(null)
-const checkInDialog = ref(false)
-const checkInPayload = ref(null)
+  // ── Scope environments to the venue this staff member is assigned to ──────────
+  const venueEnvs = computed(() =>
+    venueId.value == null
+      ? []
+      : ENVIRONMENT_LIST.filter(e => e.venueId === venueId.value),
+  )
 
-// ── Table click handler ───────────────────────────────────────────────────────
-const onTableClick = (table) => {
-  if (table.status === 'free') {
-    notify(`${table.id} is available — ${table.seats} seats`, '#6b7a8d', 'mdi-circle-outline')
-    return
-  }
-  if (table.status === 'reserved') {
-    checkIn(table)
-    return
-  }
-  if (table.status === 'occupied') {
-    selectedTable.value = table
-    detailDialog.value = true
-  }
-}
+  // ── Date (live — always today) ─────────────────────────────────────────────────
+  const selectedDate = ref(new Date().toISOString().split('T')[0])
 
-// ── Panel reservation click ───────────────────────────────────────────────────
-const onPanelResClick = (res) => {
-  if (!['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(res.status)) return
+  const formattedDate = computed(() => {
+    const d = new Date(selectedDate.value + 'T12:00:00')
+    return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+  })
 
-  const env = venueEnvs.value.find(e => e.id === res.environmentId)
-  const el = env?.elements.find(e => e.id === res.elementId)
+  // ── Environment ───────────────────────────────────────────────────────────────
+  const selectedEnvId = ref(venueEnvs.value[0]?.id || '')
+  const selectedEnv = computed(() => venueEnvs.value.find(e => e.id === selectedEnvId.value) || null)
+  const envNameById = id => venueEnvs.value.find(e => e.id === id)?.name || id
 
-  if (res.status === 'CHECKED_IN') {
-    selectedTable.value = {
-      id: el?.label || res.elementId,
-      env: env?.name || res.environmentId,
-      envId: res.environmentId,
-      elementId: res.elementId,
-      seats: el?.capacity || res.guests,
-      status: 'occupied',
-      guest: res.name,
-      time: res.time,
-      note: res.notes,
-      reservationId: res.id,
+  // ── Floor tables (from composable) ───────────────────────────────────────────
+  const floorTables = useFloorTables(selectedEnvId, selectedDate)
+
+  const freeCount = computed(() => floorTables.value.filter(t => t.status === 'free').length)
+  const reservedCount = computed(() => floorTables.value.filter(t => t.status === 'reserved').length)
+  const occupiedCount = computed(() => floorTables.value.filter(t => t.status === 'occupied').length)
+
+  // ── Panel ─────────────────────────────────────────────────────────────────────
+  const panelOpen = ref(window.innerWidth >= 960)
+  const panelSearch = ref('')
+  const panelStatusFilter = ref('all')
+
+  const statusFilters = [
+    { key: 'all', label: 'All' },
+    { key: 'REQUESTED', label: 'Pending' },
+    { key: 'APPROVED', label: 'Confirmed' },
+    { key: 'CHECKED_IN', label: 'In' },
+    { key: 'COMPLETED', label: 'Done' },
+    { key: 'NO_SHOW', label: 'No Show' },
+  ]
+
+  const envIds = computed(() => venueEnvs.value.map(e => e.id))
+
+  const panelReservations = computed(() =>
+    RESERVATION_LIST.filter(r =>
+      r.date === selectedDate.value
+      && r.venueId === venueId.value,
+    ),
+  )
+
+  const filteredPanelReservations = computed(() => {
+    let list = panelReservations.value
+    if (panelStatusFilter.value !== 'all') {
+      list = list.filter(r => r.status === panelStatusFilter.value)
     }
-    detailDialog.value = true
-  } else {
-    checkInPayload.value = {
-      id: res.id,
-      guest: res.name,
-      partySize: res.guests,
-      tableId: el?.label || res.elementId,
-      environment: env?.name || res.environmentId,
-      clientNote: res.notes || '',
+    const q = panelSearch.value.trim().toLowerCase()
+    if (q) {
+      list = list.filter(r => r.name.toLowerCase().includes(q))
+    }
+    return list
+  })
+
+  // ── Dialog state ──────────────────────────────────────────────────────────────
+  const detailDialog = ref(false)
+  const selectedTable = ref(null)
+  const checkInDialog = ref(false)
+  const checkInPayload = ref(null)
+
+  // ── Table click handler ───────────────────────────────────────────────────────
+  function onTableClick (table) {
+    if (table.status === 'free') {
+      notify(`${table.id} is available — ${table.seats} seats`, '#6b7a8d', 'mdi-circle-outline')
+      return
+    }
+    if (table.status === 'reserved') {
+      checkIn(table)
+      return
+    }
+    if (table.status === 'occupied') {
+      selectedTable.value = table
+      detailDialog.value = true
+    }
+  }
+
+  // ── Panel reservation click ───────────────────────────────────────────────────
+  function onPanelResClick (res) {
+    if (!['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(res.status)) return
+
+    const env = venueEnvs.value.find(e => e.id === res.environmentId)
+    const el = env?.elements.find(e => e.id === res.elementId)
+
+    if (res.status === 'CHECKED_IN') {
+      selectedTable.value = {
+        id: el?.label || res.elementId,
+        env: env?.name || res.environmentId,
+        envId: res.environmentId,
+        elementId: res.elementId,
+        seats: el?.capacity || res.guests,
+        status: 'occupied',
+        guest: res.name,
+        time: res.time,
+        note: res.notes,
+        reservationId: res.id,
+      }
+      detailDialog.value = true
+    } else {
+      checkInPayload.value = {
+        id: res.id,
+        guest: res.name,
+        partySize: res.guests,
+        tableId: el?.label || res.elementId,
+        environment: env?.name || res.environmentId,
+        clientNote: res.notes || '',
+        staffNote: '',
+      }
+      checkInDialog.value = true
+    }
+  }
+
+  // ── Build check-in payload from table object ──────────────────────────────────
+  function buildCheckInPayload (t) {
+    const res = t.reservationId ? getReservationById(t.reservationId) : null
+    return {
+      id: res?.id ?? null,
+      guest: res?.name || t.guest || '—',
+      partySize: res?.guests || t.seats,
+      tableId: t.id,
+      environment: t.env,
+      clientNote: res?.notes || '',
       staffNote: '',
     }
-    checkInDialog.value = true
   }
-}
 
-// ── Build check-in payload from table object ──────────────────────────────────
-function buildCheckInPayload(t) {
-  const res = t.reservationId ? getReservationById(t.reservationId) : null
-  return {
-    id: res?.id ?? null,
-    guest: res?.name || t.guest || '—',
-    partySize: res?.guests || t.seats,
-    tableId: t.id,
-    environment: t.env,
-    clientNote: res?.notes || '',
-    staffNote: '',
-  }
-}
-
-// ── Check-in ──────────────────────────────────────────────────────────────────
-const checkIn = (t) => {
-  const res = t.reservationId ? getReservationById(t.reservationId) : null
-  if (res && ['REQUESTED', 'APPROVED'].includes(res.status)) {
-    checkInPayload.value = buildCheckInPayload(t)
-    checkInDialog.value = true
-    detailDialog.value = false
-  } else {
-    notify(`${t.id} check-in recorded`, '#D4AF37', 'mdi-login')
-  }
-}
-
-const handleMarkArrived = (payload) => {
-  if (payload.id) {
-    const res = getReservationById(payload.id)
-    if (res) {
-      const prev = res.status
-      updateReservationStatus(payload.id, 'CHECKED_IN')
-      addReservationLog(new ReservationLog({
-        id: Date.now(),
-        reservationId: payload.id,
-        previousStatus: prev,
-        newStatus: 'CHECKED_IN',
-        timestamp: new Date().toISOString(),
-        actorRole: 'staff',
-      }))
+  // ── Check-in ──────────────────────────────────────────────────────────────────
+  function checkIn (t) {
+    const res = t.reservationId ? getReservationById(t.reservationId) : null
+    if (res && ['REQUESTED', 'APPROVED'].includes(res.status)) {
+      checkInPayload.value = buildCheckInPayload(t)
+      checkInDialog.value = true
+      detailDialog.value = false
+    } else {
+      notify(`${t.id} check-in recorded`, '#D4AF37', 'mdi-login')
     }
   }
-  checkInDialog.value = false
-  notify(`${payload.tableId} — ${payload.guest} checked in`, '#2EBB57', 'mdi-login')
-}
 
-const handleMarkNoShow = (payload) => {
-  if (payload.id) {
-    const res = getReservationById(payload.id)
-    if (res) {
-      const prev = res.status
-      updateReservationStatus(payload.id, 'NO_SHOW')
-      addReservationLog(new ReservationLog({
-        id: Date.now() + 1,
-        reservationId: payload.id,
-        previousStatus: prev,
-        newStatus: 'NO_SHOW',
-        timestamp: new Date().toISOString(),
-        actorRole: 'staff',
-      }))
+  function handleMarkArrived (payload) {
+    if (payload.id) {
+      const res = getReservationById(payload.id)
+      if (res) {
+        const prev = res.status
+        updateReservationStatus(payload.id, 'CHECKED_IN')
+        addReservationLog(new ReservationLog({
+          id: Date.now(),
+          reservationId: payload.id,
+          previousStatus: prev,
+          newStatus: 'CHECKED_IN',
+          timestamp: new Date().toISOString(),
+          actorRole: 'staff',
+        }))
+      }
     }
+    checkInDialog.value = false
+    notify(`${payload.tableId} — ${payload.guest} checked in`, '#2EBB57', 'mdi-login')
   }
-  checkInDialog.value = false
-  notify(`${payload.tableId} marked no-show`, '#C71585', 'mdi-account-off')
-}
 
-// ── Walk-in ───────────────────────────────────────────────────────────────────
-const currentTimeString = () => new Date().toTimeString().slice(0, 5)
-
-const walkInDialog = ref(false)
-const freeTablesForWalkIn = ref([])
-
-const WALKIN_NOTIF_KEY = `spotly_walkin_notif_${session?.email}`
-const _savedNotif = localStorage.getItem(WALKIN_NOTIF_KEY)
-const walkInNotif = ref(_savedNotif ? JSON.parse(_savedNotif) : null)
-
-watch(walkInNotif, val => {
-  if (val) localStorage.setItem(WALKIN_NOTIF_KEY, JSON.stringify(val))
-  else localStorage.removeItem(WALKIN_NOTIF_KEY)
-})
-
-// Auto-dismiss when the walk-in reservation is checked out / completed
-watch(RESERVATION_LIST, () => {
-  if (!walkInNotif.value?.reservationId) return
-  const res = RESERVATION_LIST.find(r => r.id === walkInNotif.value.reservationId)
-  if (!res || !['CHECKED_IN', 'REQUESTED', 'APPROVED'].includes(res.status)) {
-    walkInNotif.value = null
+  function handleMarkNoShow (payload) {
+    if (payload.id) {
+      const res = getReservationById(payload.id)
+      if (res) {
+        const prev = res.status
+        updateReservationStatus(payload.id, 'NO_SHOW')
+        addReservationLog(new ReservationLog({
+          id: Date.now() + 1,
+          reservationId: payload.id,
+          previousStatus: prev,
+          newStatus: 'NO_SHOW',
+          timestamp: new Date().toISOString(),
+          actorRole: 'staff',
+        }))
+      }
+    }
+    checkInDialog.value = false
+    notify(`${payload.tableId} marked no-show`, '#C71585', 'mdi-account-off')
   }
-}, { deep: true })
 
-function openWalkInDialog() {
-  const today = new Date().toISOString().split('T')[0]
-  const now = currentTimeString()
+  // ── Walk-in ───────────────────────────────────────────────────────────────────
+  const currentTimeString = () => new Date().toTimeString().slice(0, 5)
 
-  const allVenueEnvs = venueId.value != null
-    ? ENVIRONMENT_LIST.filter(e => e.venueId === venueId.value)
-    : []
+  const walkInDialog = ref(false)
+  const freeTablesForWalkIn = ref([])
 
-  const free = []
-  for (const env of allVenueEnvs) {
-    for (const el of (env.elements || []).filter(el => el.capacity > 0)) {
-      const isOccupied = RESERVATION_LIST.some(r =>
-        r.environmentId === env.id &&
-        r.elementId === el.id &&
-        r.date === today &&
-        r.status === 'CHECKED_IN',
-      )
-      if (!isOccupied) {
-        free.push({
-          label: el.label,
-          envId: env.id,
-          envName: env.name,
-          elementId: el.id,
-          seats: el.capacity,
-        })
+  const WALKIN_NOTIF_KEY = `spotly_walkin_notif_${session?.email}`
+  const _savedNotif = localStorage.getItem(WALKIN_NOTIF_KEY)
+  const walkInNotif = ref(_savedNotif ? JSON.parse(_savedNotif) : null)
+
+  watch(walkInNotif, val => {
+    if (val) localStorage.setItem(WALKIN_NOTIF_KEY, JSON.stringify(val))
+    else localStorage.removeItem(WALKIN_NOTIF_KEY)
+  })
+
+  // Auto-dismiss when the walk-in reservation is checked out / completed
+  watch(RESERVATION_LIST, () => {
+    if (!walkInNotif.value?.reservationId) return
+    const res = RESERVATION_LIST.find(r => r.id === walkInNotif.value.reservationId)
+    if (!res || !['CHECKED_IN', 'REQUESTED', 'APPROVED'].includes(res.status)) {
+      walkInNotif.value = null
+    }
+  }, { deep: true })
+
+  function openWalkInDialog () {
+    const today = new Date().toISOString().split('T')[0]
+    const now = currentTimeString()
+
+    const allVenueEnvs = venueId.value == null
+      ? []
+      : ENVIRONMENT_LIST.filter(e => e.venueId === venueId.value)
+
+    const free = []
+    for (const env of allVenueEnvs) {
+      for (const el of (env.elements || []).filter(el => el.capacity > 0)) {
+        const isOccupied = RESERVATION_LIST.some(r =>
+          r.environmentId === env.id
+          && r.elementId === el.id
+          && r.date === today
+          && r.status === 'CHECKED_IN',
+        )
+        if (!isOccupied) {
+          free.push({
+            label: el.label,
+            envId: env.id,
+            envName: env.name,
+            elementId: el.id,
+            seats: el.capacity,
+          })
+        }
+      }
+    }
+
+    freeTablesForWalkIn.value = free
+    walkInDialog.value = true
+  }
+
+  function handleWalkIn ({ table, partySize, notes, user, conflict }) {
+    const today = new Date().toISOString().split('T')[0]
+    const guestName = user
+      ? `${user.first_name} ${user.last_name}`
+      : `Walk-in (${partySize} pax)`
+    const reservationId = Date.now()
+    addReservation(new Reservation({
+      id: reservationId,
+      venueId: venueId.value,
+      environmentId: table.envId,
+      elementId: table.elementId,
+      userId: user?.email ?? '',
+      name: guestName,
+      email: user?.email ?? '',
+      phone: '',
+      date: today,
+      time: currentTimeString(),
+      guests: partySize,
+      notes: notes || '',
+      status: 'CHECKED_IN',
+    }))
+    notify(`Walk-in seated at ${table.label}`, '#D4AF37', 'mdi-walk')
+
+    if (conflict?.nextReservation) {
+      walkInNotif.value = {
+        reservationId,
+        tableLabel: table.label,
+        nextReservation: conflict.nextReservation,
+        minutesUntilNext: conflict.minutesUntilNext,
       }
     }
   }
 
-  freeTablesForWalkIn.value = free
-  walkInDialog.value = true
-}
-
-function handleWalkIn({ table, partySize, notes, user, conflict }) {
-  const today = new Date().toISOString().split('T')[0]
-  const guestName = user
-    ? `${user.first_name} ${user.last_name}`
-    : `Walk-in (${partySize} pax)`
-  const reservationId = Date.now()
-  addReservation(new Reservation({
-    id: reservationId,
-    venueId: venueId.value,
-    environmentId: table.envId,
-    elementId: table.elementId,
-    userId: user?.email ?? '',
-    name: guestName,
-    email: user?.email ?? '',
-    phone: '',
-    date: today,
-    time: currentTimeString(),
-    guests: partySize,
-    notes: notes || '',
-    status: 'CHECKED_IN',
-  }))
-  notify(`Walk-in seated at ${table.label}`, '#D4AF37', 'mdi-walk')
-
-  if (conflict?.nextReservation) {
-    walkInNotif.value = {
-      reservationId,
-      tableLabel: table.label,
-      nextReservation: conflict.nextReservation,
-      minutesUntilNext: conflict.minutesUntilNext,
+  // ── Check-out ─────────────────────────────────────────────────────────────────
+  function checkOut (t) {
+    const res = t.reservationId ? getReservationById(t.reservationId) : null
+    if (res?.status === 'CHECKED_IN') {
+      const prev = res.status
+      updateReservationStatus(res.id, 'COMPLETED')
+      addReservationLog(new ReservationLog({
+        id: Date.now(),
+        reservationId: res.id,
+        previousStatus: prev,
+        newStatus: 'COMPLETED',
+        timestamp: new Date().toISOString(),
+        actorRole: 'staff',
+      }))
     }
+    detailDialog.value = false
+    notify(`${t.id} checked out`, '#2EBB57', 'mdi-logout')
   }
-}
-
-// ── Check-out ─────────────────────────────────────────────────────────────────
-const checkOut = (t) => {
-  const res = t.reservationId ? getReservationById(t.reservationId) : null
-  if (res?.status === 'CHECKED_IN') {
-    const prev = res.status
-    updateReservationStatus(res.id, 'COMPLETED')
-    addReservationLog(new ReservationLog({
-      id: Date.now(),
-      reservationId: res.id,
-      previousStatus: prev,
-      newStatus: 'COMPLETED',
-      timestamp: new Date().toISOString(),
-      actorRole: 'staff',
-    }))
-  }
-  detailDialog.value = false
-  notify(`${t.id} checked out`, '#2EBB57', 'mdi-logout')
-}
 </script>
 
 <style scoped>

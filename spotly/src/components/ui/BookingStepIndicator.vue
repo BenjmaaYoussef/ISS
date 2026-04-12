@@ -37,17 +37,17 @@
 </template>
 
 <script setup>
-defineProps({
-  steps: {
-    type: Array,
-    required: true,
+  defineProps({
+    steps: {
+      type: Array,
+      required: true,
     // Each: { label: string }
-  },
-  currentStep: {
-    type: Number,
-    required: true,
-  },
-});
+    },
+    currentStep: {
+      type: Number,
+      required: true,
+    },
+  })
 </script>
 
 <style scoped>

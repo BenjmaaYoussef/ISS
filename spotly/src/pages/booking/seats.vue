@@ -1,28 +1,28 @@
 <template>
   <!-- APP BAR -->
   <AppNavbarVenue
-    venue-name="Sunset Beach Club"
-    :show-powered-by="true"
     :show-default-actions="false"
+    :show-powered-by="true"
+    venue-name="Sunset Beach Club"
   >
     <template #actions>
       <BookingStepIndicator
+        :current-step="2"
         :steps="[
           { label: 'Environment' },
           { label: 'Select Table' },
           { label: 'Confirm' },
         ]"
-        :current-step="2"
       />
       <v-btn
-        variant="text"
-        :ripple="false"
         class="text-none px-4 ml-4"
+        :ripple="false"
         size="small"
         style="color: rgba(255, 255, 255, 0.55); font-size: 0.78rem"
+        variant="text"
         @click="$router.push('/booking/environment')"
       >
-        <v-icon size="14" class="mr-1">mdi-arrow-left</v-icon>Back
+        <v-icon class="mr-1" size="14">mdi-arrow-left</v-icon>Back
       </v-btn>
     </template>
   </AppNavbarVenue>
@@ -43,23 +43,19 @@
               @click="switchEnv(env.id)"
             >
               <v-icon
-                size="13"
                 class="mr-1"
+                size="13"
                 :style="{
                   color: currentEnvId === env.id ? '#D4AF37' : '#6A7080',
                 }"
-                >{{ env.icon }}</v-icon
-              >
+              >{{ env.icon }}</v-icon>
               {{ env.name }}
             </button>
           </div>
           <div class="legend">
-            <span class="legend-dot legend-dot--avail"></span
-            ><span class="legend-lbl">Available</span>
-            <span class="legend-dot legend-dot--rsvd ml-3"></span
-            ><span class="legend-lbl">Reserved</span>
-            <span class="legend-dot legend-dot--cart ml-3"></span
-            ><span class="legend-lbl">In cart</span>
+            <span class="legend-dot legend-dot--avail" /><span class="legend-lbl">Available</span>
+            <span class="legend-dot legend-dot--rsvd ml-3" /><span class="legend-lbl">Reserved</span>
+            <span class="legend-dot legend-dot--cart ml-3" /><span class="legend-lbl">In cart</span>
           </div>
         </div>
 
@@ -69,15 +65,15 @@
             <!-- Grid -->
             <svg
               class="grid-svg"
-              :width="currentEnv?.canvas.width ?? 1000"
               :height="currentEnv?.canvas.height ?? 660"
+              :width="currentEnv?.canvas.width ?? 1000"
             >
               <defs>
                 <pattern
                   id="g40"
-                  width="40"
                   height="40"
                   patternUnits="userSpaceOnUse"
+                  width="40"
                 >
                   <path
                     d="M 40 0 L 0 0 0 40"
@@ -88,9 +84,9 @@
                 </pattern>
                 <pattern
                   id="g200"
-                  width="200"
                   height="200"
                   patternUnits="userSpaceOnUse"
+                  width="200"
                 >
                   <path
                     d="M 200 0 L 0 0 0 200"
@@ -100,8 +96,8 @@
                   />
                 </pattern>
               </defs>
-              <rect width="100%" height="100%" fill="url(#g40)" />
-              <rect width="100%" height="100%" fill="url(#g200)" />
+              <rect fill="url(#g40)" height="100%" width="100%" />
+              <rect fill="url(#g200)" height="100%" width="100%" />
             </svg>
 
             <!-- Elements -->
@@ -128,7 +124,7 @@
                       v-for="i in getChairs(el).top"
                       :key="'t' + i"
                       class="chair chair--h"
-                    ></div>
+                    />
                   </div>
                   <div
                     class="table-surface"
@@ -144,15 +140,14 @@
                         left: 50%;
                         transform: translate(-50%, -50%);
                       "
-                      >mdi-cart</v-icon
-                    >
+                    >mdi-cart</v-icon>
                   </div>
                   <div class="chair-row">
                     <div
                       v-for="i in getChairs(el).bottom"
                       :key="'b' + i"
                       class="chair chair--h"
-                    ></div>
+                    />
                   </div>
                 </div>
                 <div class="el-label">
@@ -168,7 +163,7 @@
                   :class="'struct-el--' + el.type"
                   :style="getStructStyle(el)"
                 >
-                  <v-icon size="18" class="struct-icon">{{
+                  <v-icon class="struct-icon" size="18">{{
                     getElementDef(el.type)?.icon
                   }}</v-icon>
                   <span v-if="(el.w ?? 1) > 1" class="struct-label">{{
@@ -188,9 +183,7 @@
             <div>
               <div class="dp-title">{{ selectedTable.label }}</div>
               <div class="dp-sub">
-                <v-icon size="12" class="mr-1" style="color: #6a7080"
-                  >mdi-map-marker-outline</v-icon
-                >
+                <v-icon class="mr-1" size="12" style="color: #6a7080">mdi-map-marker-outline</v-icon>
                 {{ currentEnv?.name }}
               </div>
             </div>
@@ -220,15 +213,13 @@
               }}
             </span>
             <div class="dp-cap">
-              <v-icon size="13" class="mr-1" style="color: #6a7080"
-                >mdi-account-group-outline</v-icon
-              >
+              <v-icon class="mr-1" size="13" style="color: #6a7080">mdi-account-group-outline</v-icon>
               Up to {{ selectedTable.capacity }} guests
             </div>
           </div>
 
           <template v-if="selectedTableStatus !== 'reserved'">
-            <div class="dp-divider"></div>
+            <div class="dp-divider" />
 
             <!-- Date -->
             <div class="dp-field">
@@ -296,10 +287,10 @@
                 class="dp-notes"
                 placeholder="Allergies, celebrations, preferences…"
                 rows="2"
-              ></textarea>
+              />
             </div>
 
-            <div class="dp-divider"></div>
+            <div class="dp-divider" />
 
             <!-- Add to cart -->
             <button
@@ -308,14 +299,12 @@
               :disabled="!bookingDate || !bookingTime"
               @click="addToCart"
             >
-              <v-icon size="16" class="mr-2">mdi-cart-plus</v-icon>
+              <v-icon class="mr-2" size="16">mdi-cart-plus</v-icon>
               Add to Cart
             </button>
             <div v-else class="in-cart-cta">
               <div class="in-cart-msg">
-                <v-icon size="14" class="mr-1" style="color: #d4af37"
-                  >mdi-check-circle</v-icon
-                >
+                <v-icon class="mr-1" size="14" style="color: #d4af37">mdi-check-circle</v-icon>
                 Added · {{ bookingDate }}, {{ bookingTime }}, {{ guestCount }}p
               </div>
               <button
@@ -328,13 +317,12 @@
           </template>
 
           <template v-else>
-            <div class="dp-divider"></div>
+            <div class="dp-divider" />
             <div class="reserved-msg">
               <v-icon
                 size="28"
                 style="color: rgba(199, 21, 133, 0.4); margin-bottom: 8px"
-                >mdi-lock-outline</v-icon
-              >
+              >mdi-lock-outline</v-icon>
               <p>
                 This table is already reserved and not available for booking.
               </p>
@@ -347,8 +335,7 @@
           <v-icon
             size="44"
             style="color: rgba(212, 175, 55, 0.18); margin-bottom: 14px"
-            >mdi-cursor-default-click-outline</v-icon
-          >
+          >mdi-cursor-default-click-outline</v-icon>
           <div class="idle-title">Select a Table</div>
           <p class="idle-sub">
             Click any available table on the floor plan to see details and add
@@ -363,20 +350,12 @@
   <transition name="cart-bar-in">
     <div v-if="cart.length > 0" class="cart-bar">
       <div class="cart-bar-info">
-        <v-icon size="16" class="mr-2" style="color: #d4af37"
-          >mdi-cart-outline</v-icon
-        >
-        <span class="cart-bar-count"
-          >{{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }}</span
-        >
+        <v-icon class="mr-2" size="16" style="color: #d4af37">mdi-cart-outline</v-icon>
+        <span class="cart-bar-count">{{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }}</span>
         <span class="cart-bar-dot mx-2">·</span>
-        <span class="cart-bar-guests"
-          >{{ totalGuests }} guest{{ totalGuests !== 1 ? "s" : "" }}</span
-        >
+        <span class="cart-bar-guests">{{ totalGuests }} guest{{ totalGuests !== 1 ? "s" : "" }}</span>
         <span class="cart-bar-dot mx-2">·</span>
-        <span class="cart-bar-date"
-          >{{ cart[0]?.date }}, {{ cart[0]?.time }}</span
-        >
+        <span class="cart-bar-date">{{ cart[0]?.date }}, {{ cart[0]?.time }}</span>
       </div>
       <div class="d-flex gap-2">
         <button class="cart-outline-btn" @click="showCartSheet = true">
@@ -384,7 +363,7 @@
         </button>
         <button class="cart-confirm-btn" @click="goToConfirm">
           Continue to Confirmation
-          <v-icon size="14" class="ml-1">mdi-arrow-right</v-icon>
+          <v-icon class="ml-1" size="14">mdi-arrow-right</v-icon>
         </button>
       </div>
     </div>
@@ -413,21 +392,17 @@
             <div class="cs-item-main">
               <div class="cs-item-name">{{ item.label }}</div>
               <div class="cs-item-meta">
-                <v-icon size="11" class="mr-1" style="color: #6a7080"
-                  >mdi-map-marker-outline</v-icon
-                >{{ item.env }}
-                <span class="mx-2" style="color: rgba(212, 175, 55, 0.3)"
-                  >·</span
-                >
-                <v-icon size="11" class="mr-1" style="color: #6a7080"
-                  >mdi-account-outline</v-icon
-                >{{ item.guests }}p
-                <span class="mx-2" style="color: rgba(212, 175, 55, 0.3)"
-                  >·</span
-                >
-                <v-icon size="11" class="mr-1" style="color: #6a7080"
-                  >mdi-clock-outline</v-icon
-                >{{ item.date }}, {{ item.time }}
+                <v-icon class="mr-1" size="11" style="color: #6a7080">mdi-map-marker-outline</v-icon>{{ item.env }}
+                <span
+                  class="mx-2"
+                  style="color: rgba(212, 175, 55, 0.3)"
+                >·</span>
+                <v-icon class="mr-1" size="11" style="color: #6a7080">mdi-account-outline</v-icon>{{ item.guests }}p
+                <span
+                  class="mx-2"
+                  style="color: rgba(212, 175, 55, 0.3)"
+                >·</span>
+                <v-icon class="mr-1" size="11" style="color: #6a7080">mdi-clock-outline</v-icon>{{ item.date }}, {{ item.time }}
               </div>
               <div v-if="item.notes" class="cs-item-notes">
                 "{{ item.notes }}"
@@ -442,14 +417,12 @@
         <div class="cs-footer">
           <div class="cs-total">
             <span class="cs-total-lbl">Total</span>
-            <span class="cs-total-val"
-              >{{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }},
-              {{ totalGuests }} guests</span
-            >
+            <span class="cs-total-val">{{ cart.length }} table{{ cart.length !== 1 ? "s" : "" }},
+              {{ totalGuests }} guests</span>
           </div>
           <button class="cart-confirm-btn w-100 mt-3" @click="goToConfirm">
             Continue to Confirmation
-            <v-icon size="14" class="ml-1">mdi-arrow-right</v-icon>
+            <v-icon class="ml-1" size="14">mdi-arrow-right</v-icon>
           </button>
         </div>
       </v-card-text>
@@ -458,392 +431,399 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
-import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
-import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
-import { RESERVATION_LIST } from "@/datamodel/Reservation.js";
+  import { computed, onMounted, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
+  import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
+  import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
 
-const router = useRouter();
+  const router = useRouter()
 
-// ── Mock floor plan (same JSON format as P10 output) ─────────────────────────
-const floorPlan = {
-  venueId: "venue_demo",
-  environments: [
-    {
-      id: "env_indoor",
-      name: "Indoor Lounge",
-      icon: "mdi-sofa-outline",
-      canvas: { width: 1000, height: 660 },
-      elements: [
-        {
-          id: "e1",
-          type: "table_rect_4",
-          shape: "rect",
-          label: "Table A1",
-          capacity: 4,
-          x: 100,
-          y: 90,
-          rotation: 0,
-          status: "available",
-        },
-        {
-          id: "e2",
-          type: "table_rect_4",
-          shape: "rect",
-          label: "Table A2",
-          capacity: 4,
-          x: 240,
-          y: 90,
-          rotation: 0,
-          status: "reserved",
-        },
-        {
-          id: "e3",
-          type: "table_rect_4",
-          shape: "rect",
-          label: "Table A3",
-          capacity: 4,
-          x: 100,
-          y: 230,
-          rotation: 0,
-          status: "available",
-        },
-        {
-          id: "e4",
-          type: "table_rect_6",
-          shape: "rect",
-          label: "Table B1",
-          capacity: 6,
-          x: 80,
-          y: 390,
-          rotation: 0,
-          status: "available",
-        },
-        {
-          id: "e5",
-          type: "table_rect_6",
-          shape: "rect",
-          label: "Table B2",
-          capacity: 6,
-          x: 270,
-          y: 390,
-          rotation: 0,
-          status: "reserved",
-        },
-        {
-          id: "e6",
-          type: "table_large_8",
-          shape: "round",
-          label: "VIP 1",
-          capacity: 8,
-          x: 540,
-          y: 80,
-          rotation: 0,
-          status: "available",
-        },
-        {
-          id: "e7",
-          type: "table_round_2",
-          shape: "round",
-          label: "VIP 2",
-          capacity: 2,
-          x: 720,
-          y: 80,
-          rotation: 0,
-          status: "available",
-        },
-        {
-          id: "e8",
-          type: "table_large_8",
-          shape: "round",
-          label: "VIP 3",
-          capacity: 8,
-          x: 540,
-          y: 330,
-          rotation: 0,
-          status: "available",
-        },
-        {
-          id: "e9",
-          type: "entrance",
-          label: "Entrance",
-          capacity: 0,
-          w: 1,
-          h: 1,
-          x: 440,
-          y: 590,
-          rotation: 0,
-        },
-        {
-          id: "e10",
-          type: "bar_counter",
-          label: "Bar",
-          capacity: 0,
-          w: 3,
-          h: 1,
-          x: 780,
-          y: 550,
-          rotation: 0,
-        },
-        {
-          id: "e11",
-          type: "plant",
-          label: "Plant",
-          capacity: 0,
-          w: 1,
-          h: 1,
-          x: 910,
-          y: 100,
-          rotation: 0,
-        },
-      ],
-    },
-    {
-      id: "env_terrace",
-      name: "Outdoor Terrace",
-      icon: "mdi-umbrella-beach-outline",
-      canvas: { width: 1000, height: 660 },
-      elements: [
-        {
-          id: "et1",
-          type: "table_rect_4",
-          shape: "rect",
-          label: "T1",
-          capacity: 4,
-          x: 120,
-          y: 80,
-          rotation: 0,
-          status: "available",
-        },
-        {
-          id: "et2",
-          type: "table_rect_4",
-          shape: "rect",
-          label: "T2",
-          capacity: 4,
-          x: 280,
-          y: 80,
-          rotation: 0,
-          status: "reserved",
-        },
-        {
-          id: "et3",
-          type: "table_rect_4",
-          shape: "rect",
-          label: "T3",
-          capacity: 4,
-          x: 440,
-          y: 80,
-          rotation: 0,
-          status: "available",
-        },
-        {
-          id: "et4",
-          type: "table_rect_6",
-          shape: "rect",
-          label: "T4",
-          capacity: 6,
-          x: 120,
-          y: 320,
-          rotation: 0,
-          status: "available",
-        },
-        {
-          id: "et5",
-          type: "table_rect_6",
-          shape: "rect",
-          label: "T5",
-          capacity: 6,
-          x: 360,
-          y: 320,
-          rotation: 0,
-          status: "available",
-        },
-      ],
-    },
-  ],
-};
-
-// ── Element catalog ───────────────────────────────────────────────────────────
-const elementDefs = {
-  entrance: { name: "Entrance", icon: "mdi-location-enter" },
-  bar_counter: { name: "Bar", icon: "mdi-glass-cocktail" },
-  stage: { name: "Stage", icon: "mdi-microphone-outline" },
-  plant: { name: "Plant", icon: "mdi-flower-tulip-outline" },
-  pillar: { name: "Pillar", icon: "mdi-pillar" },
-};
-const getElementDef = (type) => elementDefs[type] ?? null;
-
-// ── Environment ───────────────────────────────────────────────────────────────
-const currentEnvId = ref(ENVIRONMENT_LIST[0]?.id ?? "");
-const currentEnv = computed(() =>
-  ENVIRONMENT_LIST.find((e) => e.id === currentEnvId.value),
-);
-const currentEnvElements = computed(() => currentEnv.value?.elements ?? []);
-const switchEnv = (id) => {
-  currentEnvId.value = id;
-  selectedTable.value = null;
-};
-
-onMounted(() => {
-  const saved = sessionStorage.getItem("spotly_selected_env");
-  if (saved && ENVIRONMENT_LIST.some((e) => e.id === saved)) {
-    currentEnvId.value = saved;
+  // ── Mock floor plan (same JSON format as P10 output) ─────────────────────────
+  const floorPlan = {
+    venueId: 'venue_demo',
+    environments: [
+      {
+        id: 'env_indoor',
+        name: 'Indoor Lounge',
+        icon: 'mdi-sofa-outline',
+        canvas: { width: 1000, height: 660 },
+        elements: [
+          {
+            id: 'e1',
+            type: 'table_rect_4',
+            shape: 'rect',
+            label: 'Table A1',
+            capacity: 4,
+            x: 100,
+            y: 90,
+            rotation: 0,
+            status: 'available',
+          },
+          {
+            id: 'e2',
+            type: 'table_rect_4',
+            shape: 'rect',
+            label: 'Table A2',
+            capacity: 4,
+            x: 240,
+            y: 90,
+            rotation: 0,
+            status: 'reserved',
+          },
+          {
+            id: 'e3',
+            type: 'table_rect_4',
+            shape: 'rect',
+            label: 'Table A3',
+            capacity: 4,
+            x: 100,
+            y: 230,
+            rotation: 0,
+            status: 'available',
+          },
+          {
+            id: 'e4',
+            type: 'table_rect_6',
+            shape: 'rect',
+            label: 'Table B1',
+            capacity: 6,
+            x: 80,
+            y: 390,
+            rotation: 0,
+            status: 'available',
+          },
+          {
+            id: 'e5',
+            type: 'table_rect_6',
+            shape: 'rect',
+            label: 'Table B2',
+            capacity: 6,
+            x: 270,
+            y: 390,
+            rotation: 0,
+            status: 'reserved',
+          },
+          {
+            id: 'e6',
+            type: 'table_large_8',
+            shape: 'round',
+            label: 'VIP 1',
+            capacity: 8,
+            x: 540,
+            y: 80,
+            rotation: 0,
+            status: 'available',
+          },
+          {
+            id: 'e7',
+            type: 'table_round_2',
+            shape: 'round',
+            label: 'VIP 2',
+            capacity: 2,
+            x: 720,
+            y: 80,
+            rotation: 0,
+            status: 'available',
+          },
+          {
+            id: 'e8',
+            type: 'table_large_8',
+            shape: 'round',
+            label: 'VIP 3',
+            capacity: 8,
+            x: 540,
+            y: 330,
+            rotation: 0,
+            status: 'available',
+          },
+          {
+            id: 'e9',
+            type: 'entrance',
+            label: 'Entrance',
+            capacity: 0,
+            w: 1,
+            h: 1,
+            x: 440,
+            y: 590,
+            rotation: 0,
+          },
+          {
+            id: 'e10',
+            type: 'bar_counter',
+            label: 'Bar',
+            capacity: 0,
+            w: 3,
+            h: 1,
+            x: 780,
+            y: 550,
+            rotation: 0,
+          },
+          {
+            id: 'e11',
+            type: 'plant',
+            label: 'Plant',
+            capacity: 0,
+            w: 1,
+            h: 1,
+            x: 910,
+            y: 100,
+            rotation: 0,
+          },
+        ],
+      },
+      {
+        id: 'env_terrace',
+        name: 'Outdoor Terrace',
+        icon: 'mdi-umbrella-beach-outline',
+        canvas: { width: 1000, height: 660 },
+        elements: [
+          {
+            id: 'et1',
+            type: 'table_rect_4',
+            shape: 'rect',
+            label: 'T1',
+            capacity: 4,
+            x: 120,
+            y: 80,
+            rotation: 0,
+            status: 'available',
+          },
+          {
+            id: 'et2',
+            type: 'table_rect_4',
+            shape: 'rect',
+            label: 'T2',
+            capacity: 4,
+            x: 280,
+            y: 80,
+            rotation: 0,
+            status: 'reserved',
+          },
+          {
+            id: 'et3',
+            type: 'table_rect_4',
+            shape: 'rect',
+            label: 'T3',
+            capacity: 4,
+            x: 440,
+            y: 80,
+            rotation: 0,
+            status: 'available',
+          },
+          {
+            id: 'et4',
+            type: 'table_rect_6',
+            shape: 'rect',
+            label: 'T4',
+            capacity: 6,
+            x: 120,
+            y: 320,
+            rotation: 0,
+            status: 'available',
+          },
+          {
+            id: 'et5',
+            type: 'table_rect_6',
+            shape: 'rect',
+            label: 'T5',
+            capacity: 6,
+            x: 360,
+            y: 320,
+            rotation: 0,
+            status: 'available',
+          },
+        ],
+      },
+    ],
   }
-});
 
-// ── Canvas helpers ────────────────────────────────────────────────────────────
-const GRID = 40;
-const isRound = (el) => el?.shape === "round";
-const getChairs = (el) => {
-  const cap = el.capacity;
-  if (!cap || cap <= 0) return { top: 0, bottom: 0 };
-  return { top: Math.ceil(cap / 2), bottom: Math.floor(cap / 2) };
-};
-const getStructStyle = (el) => ({
-  width: (el.w ?? 1) * GRID + "px",
-  height: (el.h ?? 1) * GRID + "px",
-});
-const getElementStyle = (el) => ({
-  position: "absolute",
-  left: el.x + "px",
-  top: el.y + "px",
-  transform: "rotate(" + el.rotation + "deg)",
-  transformOrigin: "center center",
-  cursor:
-    el.type.startsWith("table_") &&
-    getComputedStatus(currentEnvId.value, el.id) !== "reserved"
-      ? "pointer"
-      : "default",
-});
+  // ── Element catalog ───────────────────────────────────────────────────────────
+  const elementDefs = {
+    entrance: { name: 'Entrance', icon: 'mdi-location-enter' },
+    bar_counter: { name: 'Bar', icon: 'mdi-glass-cocktail' },
+    stage: { name: 'Stage', icon: 'mdi-microphone-outline' },
+    plant: { name: 'Plant', icon: 'mdi-flower-tulip-outline' },
+    pillar: { name: 'Pillar', icon: 'mdi-pillar' },
+  }
+  const getElementDef = type => elementDefs[type] ?? null
 
-// ── Table status / class ──────────────────────────────────────────────────────
-const isInCart = (id) => cart.value.some((c) => c.id === id);
-const getTableClass = (el) => {
-  if (getComputedStatus(currentEnvId.value, el.id) === "reserved") return "placed-el--reserved";
-  if (isInCart(el.id)) return "placed-el--cart";
-  if (selectedTable.value?.id === el.id) return "placed-el--selected";
-  return "placed-el--available";
-};
-
-// ── Selection + booking form ──────────────────────────────────────────────────
-const selectedTable = ref(null);
-const bookingDate = ref(null);
-const bookingTime = ref(null);
-const guestCount = ref(2);
-const specialRequests = ref("");
-
-// ── Availability check (computed from RESERVATION_LIST) ───────────────────────
-const getComputedStatus = (envId, elementId) => {
-  if (!bookingDate.value || !bookingTime.value) return "available";
-  return RESERVATION_LIST.some(
-    (r) =>
-      r.environmentId === envId &&
-      r.elementId === elementId &&
-      r.date === bookingDate.value &&
-      r.time === bookingTime.value &&
-      (r.status === "APPROVED" || r.status === "REQUESTED"),
+  // ── Environment ───────────────────────────────────────────────────────────────
+  const currentEnvId = ref(ENVIRONMENT_LIST[0]?.id ?? '')
+  const currentEnv = computed(() =>
+    ENVIRONMENT_LIST.find(e => e.id === currentEnvId.value),
   )
-    ? "reserved"
-    : "available";
-};
-const selectedTableStatus = computed(() =>
-  selectedTable.value
-    ? getComputedStatus(currentEnvId.value, selectedTable.value.id)
-    : "available",
-);
-
-const onTableClick = (el) => {
-  if (!el.type.startsWith("table_")) return;
-  selectedTable.value = el;
-  guestCount.value = Math.min(el.capacity, 2);
-  specialRequests.value = "";
-  const existing = cart.value.find((c) => c.id === el.id);
-  if (existing) {
-    bookingDate.value = existing.date;
-    bookingTime.value = existing.time;
-    guestCount.value = existing.guests;
-    specialRequests.value = existing.notes;
+  const currentEnvElements = computed(() => currentEnv.value?.elements ?? [])
+  function switchEnv (id) {
+    currentEnvId.value = id
+    selectedTable.value = null
   }
-};
 
-// ── Date / time options ───────────────────────────────────────────────────────
-const dateOptions = (() => {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const base = new Date();
-  base.setHours(0, 0, 0, 0);
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(base);
-    d.setDate(base.getDate() + i + 1);
+  onMounted(() => {
+    const saved = sessionStorage.getItem('spotly_selected_env')
+    if (saved && ENVIRONMENT_LIST.some(e => e.id === saved)) {
+      currentEnvId.value = saved
+    }
+  })
+
+  // ── Canvas helpers ────────────────────────────────────────────────────────────
+  const GRID = 40
+  const isRound = el => el?.shape === 'round'
+  function getChairs (el) {
+    const cap = el.capacity
+    if (!cap || cap <= 0) return { top: 0, bottom: 0 }
+    return { top: Math.ceil(cap / 2), bottom: Math.floor(cap / 2) }
+  }
+  function getStructStyle (el) {
     return {
-      iso: d.toISOString().split('T')[0],
-      day: days[d.getDay()],
-      num: d.getDate(),
-    };
-  });
-})();
+      width: (el.w ?? 1) * GRID + 'px',
+      height: (el.h ?? 1) * GRID + 'px',
+    }
+  }
+  function getElementStyle (el) {
+    return {
+      position: 'absolute',
+      left: el.x + 'px',
+      top: el.y + 'px',
+      transform: 'rotate(' + el.rotation + 'deg)',
+      transformOrigin: 'center center',
+      cursor:
+        el.type.startsWith('table_')
+        && getComputedStatus(currentEnvId.value, el.id) !== 'reserved'
+          ? 'pointer'
+          : 'default',
+    }
+  }
 
-const timeSlots = [
-  "6:00 PM",
-  "7:00 PM",
-  "8:00 PM",
-  "9:00 PM",
-  "10:00 PM",
-  "11:00 PM",
-];
+  // ── Table status / class ──────────────────────────────────────────────────────
+  const isInCart = id => cart.value.some(c => c.id === id)
+  function getTableClass (el) {
+    if (getComputedStatus(currentEnvId.value, el.id) === 'reserved') return 'placed-el--reserved'
+    if (isInCart(el.id)) return 'placed-el--cart'
+    if (selectedTable.value?.id === el.id) return 'placed-el--selected'
+    return 'placed-el--available'
+  }
 
-// ── Cart ──────────────────────────────────────────────────────────────────────
-const cart = ref([]);
-const showCartSheet = ref(false);
-const totalGuests = computed(() =>
-  cart.value.reduce((s, c) => s + c.guests, 0),
-);
+  // ── Selection + booking form ──────────────────────────────────────────────────
+  const selectedTable = ref(null)
+  const bookingDate = ref(null)
+  const bookingTime = ref(null)
+  const guestCount = ref(2)
+  const specialRequests = ref('')
 
-const addToCart = () => {
-  if (!selectedTable.value || !bookingDate.value || !bookingTime.value) return;
-  const existing = cart.value.findIndex((c) => c.id === selectedTable.value.id);
-  const item = {
-    id: selectedTable.value.id,
-    label: selectedTable.value.label,
-    env: currentEnv.value.name,
-    envId: currentEnvId.value,
-    cap: selectedTable.value.capacity,
-    date: bookingDate.value,
-    time: bookingTime.value,
-    guests: guestCount.value,
-    notes: specialRequests.value,
-  };
-  if (existing >= 0) cart.value.splice(existing, 1, item);
-  else cart.value.push(item);
-};
+  // ── Availability check (computed from RESERVATION_LIST) ───────────────────────
+  function getComputedStatus (envId, elementId) {
+    if (!bookingDate.value || !bookingTime.value) return 'available'
+    return RESERVATION_LIST.some(
+      r =>
+        r.environmentId === envId
+        && r.elementId === elementId
+        && r.date === bookingDate.value
+        && r.time === bookingTime.value
+        && (r.status === 'APPROVED' || r.status === 'REQUESTED'),
+    )
+      ? 'reserved'
+      : 'available'
+  }
+  const selectedTableStatus = computed(() =>
+    selectedTable.value
+      ? getComputedStatus(currentEnvId.value, selectedTable.value.id)
+      : 'available',
+  )
 
-const removeFromCart = (id) => {
-  cart.value = cart.value.filter((c) => c.id !== id);
-};
+  function onTableClick (el) {
+    if (!el.type.startsWith('table_')) return
+    selectedTable.value = el
+    guestCount.value = Math.min(el.capacity, 2)
+    specialRequests.value = ''
+    const existing = cart.value.find(c => c.id === el.id)
+    if (existing) {
+      bookingDate.value = existing.date
+      bookingTime.value = existing.time
+      guestCount.value = existing.guests
+      specialRequests.value = existing.notes
+    }
+  }
 
-// ── Confirm ───────────────────────────────────────────────────────────────────
-const goToConfirm = () => {
-  showCartSheet.value = false;
-  // In a real app this would go into a composable store; here we use sessionStorage
-  sessionStorage.setItem("spotly_cart", JSON.stringify(cart.value));
-  router.push("/booking/confirm");
-};
+  // ── Date / time options ───────────────────────────────────────────────────────
+  const dateOptions = (() => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ]
+    const base = new Date()
+    base.setHours(0, 0, 0, 0)
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(base)
+      d.setDate(base.getDate() + i + 1)
+      return {
+        iso: d.toISOString().split('T')[0],
+        day: days[d.getDay()],
+        num: d.getDate(),
+      }
+    })
+  })()
+
+  const timeSlots = [
+    '6:00 PM',
+    '7:00 PM',
+    '8:00 PM',
+    '9:00 PM',
+    '10:00 PM',
+    '11:00 PM',
+  ]
+
+  // ── Cart ──────────────────────────────────────────────────────────────────────
+  const cart = ref([])
+  const showCartSheet = ref(false)
+  const totalGuests = computed(() =>
+    cart.value.reduce((s, c) => s + c.guests, 0),
+  )
+
+  function addToCart () {
+    if (!selectedTable.value || !bookingDate.value || !bookingTime.value) return
+    const existing = cart.value.findIndex(c => c.id === selectedTable.value.id)
+    const item = {
+      id: selectedTable.value.id,
+      label: selectedTable.value.label,
+      env: currentEnv.value.name,
+      envId: currentEnvId.value,
+      cap: selectedTable.value.capacity,
+      date: bookingDate.value,
+      time: bookingTime.value,
+      guests: guestCount.value,
+      notes: specialRequests.value,
+    }
+    if (existing === -1) {
+      cart.value.push(item)
+    } else {
+      cart.value.splice(existing, 1, item)
+    }
+  }
+
+  function removeFromCart (id) {
+    cart.value = cart.value.filter(c => c.id !== id)
+  }
+
+  // ── Confirm ───────────────────────────────────────────────────────────────────
+  function goToConfirm () {
+    showCartSheet.value = false
+    // In a real app this would go into a composable store; here we use sessionStorage
+    sessionStorage.setItem('spotly_cart', JSON.stringify(cart.value))
+    router.push('/booking/confirm')
+  }
 </script>
 
 <style scoped>

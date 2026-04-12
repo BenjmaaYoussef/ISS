@@ -1,7 +1,7 @@
 <template>
   <v-app-bar
-    flat
     color="background"
+    flat
     height="64"
     style="border-bottom: 1px solid rgba(212, 175, 55, 0.18)"
   >
@@ -9,21 +9,21 @@
 
       <!-- ── Left: Spotly Logo ── -->
       <div class="logo-area" @click="router.push('/home')">
-        <img src="@/assets/spotlyLogo.png" height="32" alt="Spotly" style="object-fit: contain" />
+        <img alt="Spotly" height="32" src="@/assets/spotlyLogo.png" style="object-fit: contain">
       </div>
 
       <!-- ── Center: Nav tabs ── -->
-      <div v-if="navLinks.length" class="nav-links d-flex align-center ga-1 ml-8">
+      <div v-if="navLinks.length > 0" class="nav-links d-flex align-center ga-1 ml-8">
         <v-btn
           v-for="link in navLinks"
           :key="link.key"
-          variant="text"
-          size="small"
           class="nav-btn"
           :class="{ 'nav-btn--active': activeLink === link.key }"
+          size="small"
+          variant="text"
           @click="$emit('nav', link.key)"
         >
-          <v-icon v-if="link.icon" :icon="link.icon" size="14" class="mr-1" />
+          <v-icon v-if="link.icon" class="mr-1" :icon="link.icon" size="14" />
           {{ link.label }}
         </v-btn>
       </div>
@@ -41,16 +41,16 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+  import { useRouter } from 'vue-router'
 
-defineProps({
-  navLinks: { type: Array, default: () => [] },
-  activeLink: { type: String, default: null },
-})
+  defineProps({
+    navLinks: { type: Array, default: () => [] },
+    activeLink: { type: String, default: null },
+  })
 
-defineEmits(['nav'])
+  defineEmits(['nav'])
 
-const router = useRouter()
+  const router = useRouter()
 </script>
 
 <style scoped>

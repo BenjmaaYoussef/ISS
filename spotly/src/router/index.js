@@ -7,8 +7,8 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
-import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
 import { getEnvironmentsByVenue } from '@/datamodel/Environment.js'
+import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
 import { isVenueStaff } from '@/datamodel/VenueStaff.js'
 
 const router = createRouter({
@@ -36,17 +36,23 @@ router.isReady().then(() => {
 })
 
 // ── Public routes (no auth required) ──────────────────────────────────────────
-const PUBLIC_ROUTES = ['/', '/landing', '/auth', '/home', '/seed']
+const PUBLIC_ROUTES = new Set(['/', '/landing', '/auth', '/home', '/seed'])
 
-function isPublic(path) {
-  if (PUBLIC_ROUTES.includes(path)) return true
-  if (path.startsWith('/venue/') || path.startsWith('/menu/')) return true
+function isPublic (path) {
+  if (PUBLIC_ROUTES.has(path)) {
+    return true
+  }
+  if (path.startsWith('/venue/') || path.startsWith('/menu/')) {
+    return true
+  }
   return false
 }
 
-router.beforeEach((to) => {
+router.beforeEach(to => {
   // Allow the catch-all 404 page through regardless of auth state
-  if (to.matched.some(r => r.path === '/:all(.*)')) return true
+  if (to.matched.some(r => r.path === '/:all(.*)')) {
+    return true
+  }
 
   let session = null
   try {
@@ -57,7 +63,9 @@ router.beforeEach((to) => {
 
   // No session — redirect gated routes to /auth
   if (!session) {
-    if (!isPublic(to.path)) return '/auth'
+    if (!isPublic(to.path)) {
+      return '/auth'
+    }
     return true
   }
 
@@ -75,8 +83,12 @@ router.beforeEach((to) => {
   // ── Admin onboarding gate ─────────────────────────────────────────────────
   if (isOwner && to.path.startsWith('/admin/') && to.path !== '/admin/onboarding') {
     const venue = getVenueByAdminEmail(session.email)
-    if (!venue || !venue.name?.trim()) return '/admin/onboarding'
-    if (getEnvironmentsByVenue(venue.id).length === 0) return '/admin/onboarding'
+    if (!venue || !venue.name?.trim()) {
+      return '/admin/onboarding'
+    }
+    if (getEnvironmentsByVenue(venue.id).length === 0) {
+      return '/admin/onboarding'
+    }
   }
 
   return true

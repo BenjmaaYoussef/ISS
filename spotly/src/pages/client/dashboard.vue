@@ -24,20 +24,20 @@
         <!-- ── LEFT: Upcoming Reservations ── -->
         <div class="section">
           <SectionHeader
-            title="Upcoming Reservations"
-            icon="mdi-calendar-clock"
-            :count="upcoming.length"
             class="mb-5"
+            :count="upcoming.length"
+            icon="mdi-calendar-clock"
+            title="Upcoming Reservations"
           />
 
           <div v-if="upcoming.length === 0" class="empty-card">
-            <v-icon size="40" color="#D4AF37" class="mb-3"
-              >mdi-calendar-blank</v-icon
-            >
+            <v-icon class="mb-3" color="#D4AF37" size="40">mdi-calendar-blank</v-icon>
             <div>No upcoming reservations</div>
-            <v-btn class="book-btn mt-4" size="small" @click="router.push('/home')"
-              >Book a Table</v-btn
-            >
+            <v-btn
+              class="book-btn mt-4"
+              size="small"
+              @click="router.push('/home')"
+            >Book a Table</v-btn>
           </div>
 
           <div
@@ -60,9 +60,7 @@
                 <div>
                   <div class="res-date">{{ res.date }}</div>
                   <div class="res-time">
-                    <v-icon size="12" class="mr-1" color="#D4AF37"
-                      >mdi-clock-outline</v-icon
-                    >
+                    <v-icon class="mr-1" color="#D4AF37" size="12">mdi-clock-outline</v-icon>
                     {{ res.time }}
                   </div>
                 </div>
@@ -72,21 +70,23 @@
               <!-- Details -->
               <div class="res-details">
                 <div class="detail-row">
-                  <v-icon size="13" color="#6b7a8d"
-                    >mdi-map-marker-outline</v-icon
-                  >
+                  <v-icon
+                    color="#6b7a8d"
+                    size="13"
+                  >mdi-map-marker-outline</v-icon>
                   <span class="detail-label">Area</span>
                   <span class="detail-value">{{ res.area }}</span>
                 </div>
                 <div class="detail-row">
-                  <v-icon size="13" color="#6b7a8d">mdi-table-furniture</v-icon>
+                  <v-icon color="#6b7a8d" size="13">mdi-table-furniture</v-icon>
                   <span class="detail-label">Table</span>
                   <span class="detail-value">{{ res.table }}</span>
                 </div>
                 <div class="detail-row">
-                  <v-icon size="13" color="#6b7a8d"
-                    >mdi-account-group-outline</v-icon
-                  >
+                  <v-icon
+                    color="#6b7a8d"
+                    size="13"
+                  >mdi-account-group-outline</v-icon>
                   <span class="detail-label">Guests</span>
                   <span class="detail-value">{{ res.guests }}</span>
                 </div>
@@ -94,25 +94,23 @@
 
               <!-- Notes -->
               <div v-if="res.notes" class="res-notes mt-3">
-                <v-icon size="12" color="#D4AF37" class="mr-1"
-                  >mdi-note-text-outline</v-icon
-                >
+                <v-icon class="mr-1" color="#D4AF37" size="12">mdi-note-text-outline</v-icon>
                 {{ res.notes }}
               </div>
 
               <!-- Cancel -->
               <div class="card-actions mt-4">
                 <v-btn
-                  variant="outlined"
-                  size="small"
                   class="cancel-btn"
                   :disabled="['CANCELLED', 'REJECTED', 'NO_SHOW', 'COMPLETED', 'CHECKED_IN'].includes(res.status)"
+                  size="small"
+                  variant="outlined"
                   @click="
                     cancelDialog = true;
                     selectedRes = res;
                   "
                 >
-                  <v-icon start size="13">mdi-close-circle-outline</v-icon>
+                  <v-icon size="13" start>mdi-close-circle-outline</v-icon>
                   Cancel Reservation
                 </v-btn>
               </div>
@@ -123,10 +121,10 @@
         <!-- ── RIGHT: Past Visits ── -->
         <div class="section">
           <SectionHeader
-            title="Past Visits"
-            icon="mdi-history"
-            :count="pastVisits.length"
             class="mb-5"
+            :count="pastVisits.length"
+            icon="mdi-history"
+            title="Past Visits"
           />
 
           <div class="past-list">
@@ -150,7 +148,7 @@
               </div>
               <div class="past-right">
                 <v-chip class="completed-chip" size="x-small">
-                  <v-icon start size="10">mdi-check-circle</v-icon>
+                  <v-icon size="10" start>mdi-check-circle</v-icon>
                   Completed
                 </v-chip>
               </div>
@@ -162,9 +160,11 @@
             <div class="loyalty-bg" />
             <div class="loyalty-content">
               <div class="loyalty-title">
-                <v-icon color="#D4AF37" size="18" class="mr-2"
-                  >mdi-star-four-points</v-icon
-                >
+                <v-icon
+                  class="mr-2"
+                  color="#D4AF37"
+                  size="18"
+                >mdi-star-four-points</v-icon>
                 Guest Status
               </div>
               <div class="loyalty-tier">{{ loyaltyTier.label }}</div>
@@ -172,12 +172,12 @@
                 {{ completedCount }} visits completed
               </div>
               <v-progress-linear
-                :model-value="loyaltyTier.progress"
-                color="#D4AF37"
                 bg-color="rgba(212,175,55,0.18)"
-                rounded
-                height="4"
                 class="mt-3"
+                color="#D4AF37"
+                height="4"
+                :model-value="loyaltyTier.progress"
+                rounded
               />
               <div class="loyalty-next mt-1">
                 {{ loyaltyTier.next }}
@@ -190,30 +190,26 @@
   </v-main>
 
   <!-- ── Cancel Confirmation Dialog ── -->
-  <v-dialog v-model="cancelDialog" max-width="420" class="spotly-dialog">
+  <v-dialog v-model="cancelDialog" class="spotly-dialog" max-width="420">
     <v-card class="dialog-card">
       <div class="dialog-strip" />
-      <v-card-title class="dialog-title pt-6 px-6"
-        >Cancel Reservation?</v-card-title
-      >
+      <v-card-title class="dialog-title pt-6 px-6">Cancel Reservation?</v-card-title>
       <v-card-text class="px-6 pb-2">
         <p class="dialog-body">
           Are you sure you want to cancel your reservation at
           <strong>{{ selectedRes?.area }}</strong> on
           <strong>{{ selectedRes?.date }}</strong> at
-          <strong>{{ selectedRes?.time }}</strong
-          >?
+          <strong>{{ selectedRes?.time }}</strong>?
         </p>
         <p class="dialog-note mt-2">This action cannot be undone.</p>
       </v-card-text>
       <v-card-actions class="px-6 pb-6 ga-3">
-        <v-btn variant="text" class="keep-btn" @click="cancelDialog = false"
-          >Keep it</v-btn
-        >
+        <v-btn class="keep-btn" variant="text" @click="cancelDialog = false">Keep it</v-btn>
         <v-spacer />
-        <v-btn class="confirm-cancel-btn" @click="confirmCancel"
-          >Yes, Cancel</v-btn
-        >
+        <v-btn
+          class="confirm-cancel-btn"
+          @click="confirmCancel"
+        >Yes, Cancel</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -223,124 +219,128 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
-import { useSnackbar } from "@/composables/useSnackbar";
-import { useAuth } from "@/composables/useAuth";
-import SectionHeader from "@/components/ui/SectionHeader.vue";
-import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
-import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
-import { RESERVATION_LIST, updateReservationStatus } from "@/datamodel/Reservation.js";
-import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
-import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog.js";
+  import { computed, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import ReservationStatusChip from '@/components/feedback/ReservationStatusChip.vue'
+  import SpotlySnackbar from '@/components/feedback/SpotlySnackbar.vue'
+  import SectionHeader from '@/components/ui/SectionHeader.vue'
+  import { useAuth } from '@/composables/useAuth'
+  import { useSnackbar } from '@/composables/useSnackbar'
+  import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import { RESERVATION_LIST, updateReservationStatus } from '@/datamodel/Reservation.js'
+  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
 
-const router = useRouter();
+  const router = useRouter()
 
-const { snackbar, notify } = useSnackbar();
+  const { snackbar, notify } = useSnackbar()
 
-// ── Session ────────────────────────────────────────────────────────────────────
-const session = (() => {
-  try { return JSON.parse(localStorage.getItem("spotly_session") || "{}"); } catch { return {}; }
-})();
-const sessionUserId = session.userId || "";
-const sessionName = session.name || "Guest";
+  // ── Session ────────────────────────────────────────────────────────────────────
+  const session = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('spotly_session') || '{}')
+    } catch {
+      return {}
+    }
+  })()
+  const sessionUserId = session.userId || ''
+  const sessionName = session.name || 'Guest'
 
-// ── Dialogs & state ────────────────────────────────────────────────────────────
-const cancelDialog = ref(false);
-const selectedRes = ref(null);
+  // ── Dialogs & state ────────────────────────────────────────────────────────────
+  const cancelDialog = ref(false)
+  const selectedRes = ref(null)
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-function formatDate(dateStr) {
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
-
-function enrichReservation(r) {
-  const env = ENVIRONMENT_LIST.find((e) => e.id === r.environmentId);
-  const el = env?.elements.find((el) => el.id === r.elementId);
-  return {
-    id: r.id,
-    rawDate: r.date,
-    date: formatDate(r.date),
-    time: r.time,
-    area: env?.name || r.environmentId || "Unknown",
-    table: el?.label || r.elementId || "TBD",
-    guests: r.guests,
-    notes: r.notes,
-    status: r.status,
-  };
-}
-
-// ── Computed lists ─────────────────────────────────────────────────────────────
-const ACTIVE_STATUSES = ["REQUESTED", "APPROVED", "CHECKED_IN", "CANCELLED", "REJECTED"];
-const PAST_STATUSES = ["COMPLETED", "NO_SHOW"];
-
-const baseList = computed(() =>
-  sessionUserId
-    ? RESERVATION_LIST.filter((r) => r.userId === sessionUserId)
-    : [],
-);
-
-const upcoming = computed(() =>
-  baseList.value
-    .filter((r) => ACTIVE_STATUSES.includes(r.status))
-    .map(enrichReservation)
-    .sort((a, b) => a.rawDate.localeCompare(b.rawDate)),
-);
-
-const pastVisits = computed(() =>
-  baseList.value
-    .filter((r) => PAST_STATUSES.includes(r.status))
-    .map((r) => {
-      const d = new Date(r.date + "T00:00:00");
-      const env = ENVIRONMENT_LIST.find((e) => e.id === r.environmentId);
-      const el = env?.elements.find((el) => el.id === r.elementId);
-      return {
-        day: String(d.getDate()).padStart(2, "0"),
-        month: d.toLocaleString("en-US", { month: "short" }),
-        area: env?.name || r.environmentId || "Unknown",
-        table: el?.label || r.elementId || "TBD",
-        guests: r.guests,
-        rawDate: r.date,
-      };
-    })
-    .sort((a, b) => b.rawDate.localeCompare(a.rawDate)),
-);
-
-// ── Loyalty tier ───────────────────────────────────────────────────────────────
-const completedCount = computed(() =>
-  baseList.value.filter((r) => r.status === "COMPLETED").length,
-);
-const loyaltyTier = computed(() => {
-  const n = completedCount.value;
-  if (n >= 10) return { label: "Gold Member", progress: 100, next: "You've reached Gold!" };
-  if (n >= 3)  return { label: "Silver Member", progress: (n / 10) * 100, next: `${10 - n} more visits to Gold` };
-  return { label: "Bronze Member", progress: (n / 3) * 100, next: `${3 - n} more visits to Silver` };
-});
-
-// ── Actions ────────────────────────────────────────────────────────────────────
-const confirmCancel = () => {
-  if (!selectedRes.value) return;
-  const res = RESERVATION_LIST.find((r) => r.id === selectedRes.value.id);
-  if (res) {
-    const prev = res.status;
-    updateReservationStatus(res.id, "CANCELLED");
-    addReservationLog(
-      new ReservationLog({
-        id: Date.now(),
-        reservationId: res.id,
-        previousStatus: prev,
-        newStatus: "CANCELLED",
-        timestamp: new Date().toISOString(),
-        actorRole: "client",
-      }),
-    );
+  // ── Helpers ────────────────────────────────────────────────────────────────────
+  function formatDate (dateStr) {
+    const d = new Date(dateStr + 'T00:00:00')
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
-  cancelDialog.value = false;
-  notify("Reservation cancelled successfully", "#C71585", "mdi-close-circle");
-};
 
-const { logout } = useAuth();
+  function enrichReservation (r) {
+    const env = ENVIRONMENT_LIST.find(e => e.id === r.environmentId)
+    const el = env?.elements.find(el => el.id === r.elementId)
+    return {
+      id: r.id,
+      rawDate: r.date,
+      date: formatDate(r.date),
+      time: r.time,
+      area: env?.name || r.environmentId || 'Unknown',
+      table: el?.label || r.elementId || 'TBD',
+      guests: r.guests,
+      notes: r.notes,
+      status: r.status,
+    }
+  }
+
+  // ── Computed lists ─────────────────────────────────────────────────────────────
+  const ACTIVE_STATUSES = new Set(['REQUESTED', 'APPROVED', 'CHECKED_IN', 'CANCELLED', 'REJECTED'])
+  const PAST_STATUSES = new Set(['COMPLETED', 'NO_SHOW'])
+
+  const baseList = computed(() =>
+    sessionUserId
+      ? RESERVATION_LIST.filter(r => r.userId === sessionUserId)
+      : [],
+  )
+
+  const upcoming = computed(() =>
+    baseList.value
+      .filter(r => ACTIVE_STATUSES.has(r.status))
+      .map(enrichReservation)
+      .sort((a, b) => a.rawDate.localeCompare(b.rawDate)),
+  )
+
+  const pastVisits = computed(() =>
+    baseList.value
+      .filter(r => PAST_STATUSES.has(r.status))
+      .map(r => {
+        const d = new Date(r.date + 'T00:00:00')
+        const env = ENVIRONMENT_LIST.find(e => e.id === r.environmentId)
+        const el = env?.elements.find(el => el.id === r.elementId)
+        return {
+          day: String(d.getDate()).padStart(2, '0'),
+          month: d.toLocaleString('en-US', { month: 'short' }),
+          area: env?.name || r.environmentId || 'Unknown',
+          table: el?.label || r.elementId || 'TBD',
+          guests: r.guests,
+          rawDate: r.date,
+        }
+      })
+      .sort((a, b) => b.rawDate.localeCompare(a.rawDate)),
+  )
+
+  // ── Loyalty tier ───────────────────────────────────────────────────────────────
+  const completedCount = computed(() =>
+    baseList.value.filter(r => r.status === 'COMPLETED').length,
+  )
+  const loyaltyTier = computed(() => {
+    const n = completedCount.value
+    if (n >= 10) return { label: 'Gold Member', progress: 100, next: 'You\'ve reached Gold!' }
+    if (n >= 3) return { label: 'Silver Member', progress: (n / 10) * 100, next: `${10 - n} more visits to Gold` }
+    return { label: 'Bronze Member', progress: (n / 3) * 100, next: `${3 - n} more visits to Silver` }
+  })
+
+  // ── Actions ────────────────────────────────────────────────────────────────────
+  function confirmCancel () {
+    if (!selectedRes.value) return
+    const res = RESERVATION_LIST.find(r => r.id === selectedRes.value.id)
+    if (res) {
+      const prev = res.status
+      updateReservationStatus(res.id, 'CANCELLED')
+      addReservationLog(
+        new ReservationLog({
+          id: Date.now(),
+          reservationId: res.id,
+          previousStatus: prev,
+          newStatus: 'CANCELLED',
+          timestamp: new Date().toISOString(),
+          actorRole: 'client',
+        }),
+      )
+    }
+    cancelDialog.value = false
+    notify('Reservation cancelled successfully', '#C71585', 'mdi-close-circle')
+  }
+
+  const { logout } = useAuth()
 </script>
 
 <style scoped>

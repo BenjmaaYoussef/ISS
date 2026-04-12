@@ -8,11 +8,11 @@
           The page you're looking for doesn't exist or has been moved.
         </p>
         <v-btn
-          flat
           class="gold-btn mt-6"
+          flat
           @click="goHome"
         >
-          <v-icon start size="16">mdi-home-outline</v-icon>
+          <v-icon size="16" start>mdi-home-outline</v-icon>
           Go Home
         </v-btn>
       </div>
@@ -21,28 +21,28 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
-import { isVenueStaff } from '@/datamodel/VenueStaff.js'
+  import { computed } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
+  import { isVenueStaff } from '@/datamodel/VenueStaff.js'
 
-const router = useRouter()
+  const router = useRouter()
 
-const homeRoute = computed(() => {
-  try {
-    const session = JSON.parse(localStorage.getItem('spotly_session') || 'null')
-    if (!session) return '/landing'
-    if (getVenueByAdminEmail(session.email)) return '/admin/dashboard'
-    if (isVenueStaff(session.email)) return '/staff/dashboard'
-    return '/home'
-  } catch {
-    return '/landing'
+  const homeRoute = computed(() => {
+    try {
+      const session = JSON.parse(localStorage.getItem('spotly_session') || 'null')
+      if (!session) return '/landing'
+      if (getVenueByAdminEmail(session.email)) return '/admin/dashboard'
+      if (isVenueStaff(session.email)) return '/staff/dashboard'
+      return '/home'
+    } catch {
+      return '/landing'
+    }
+  })
+
+  function goHome () {
+    router.push(homeRoute.value)
   }
-})
-
-function goHome() {
-  router.push(homeRoute.value)
-}
 </script>
 
 <style scoped>

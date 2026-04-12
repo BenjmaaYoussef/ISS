@@ -1,8 +1,8 @@
 <template>
   <!-- ── Top Navigation Bar ── -->
   <AppNavbarSpotly
-    :nav-links="adminNavLinks"
     active-link="dashboard"
+    :nav-links="adminNavLinks"
     @nav="handleNav"
   />
 
@@ -14,9 +14,7 @@
         <div class="welcome-glow" />
         <div class="welcome-content">
           <div class="welcome-eyebrow">
-            <v-icon size="14" class="mr-1" color="#D4AF37"
-              >mdi-shield-crown</v-icon
-            >
+            <v-icon class="mr-1" color="#D4AF37" size="14">mdi-shield-crown</v-icon>
             Admin Panel
           </div>
           <h1 class="welcome-title">{{ greeting }}, {{ sessionFirstName }}</h1>
@@ -26,11 +24,11 @@
         </div>
         <div class="welcome-logo-area">
           <svg
-            width="64"
-            height="64"
-            viewBox="0 0 40 40"
             fill="none"
+            height="64"
             opacity="0.15"
+            viewBox="0 0 40 40"
+            width="64"
           >
             <circle
               cx="20"
@@ -41,23 +39,23 @@
             />
             <path
               d="M12 28 C12 20 16 14 20 12 C24 14 28 20 28 28"
+              fill="none"
               stroke="#D4AF37"
               stroke-width="1.5"
-              fill="none"
             />
             <path
               d="M8 20 C12 16 16 14 20 14 C24 14 28 16 32 20"
+              fill="none"
               stroke="#D4AF37"
               stroke-width="1.5"
-              fill="none"
             />
             <circle
               cx="20"
               cy="20"
+              fill="none"
               r="3"
               stroke="#D4AF37"
               stroke-width="1.5"
-              fill="none"
             />
           </svg>
         </div>
@@ -68,9 +66,9 @@
         <StatCard
           v-for="kpi in kpis"
           :key="kpi.label"
-          :value="kpi.value"
-          :label="kpi.label"
           :color="kpi.color"
+          :label="kpi.label"
+          :value="kpi.value"
         />
       </div>
 
@@ -79,9 +77,7 @@
         <!-- LEFT: Quick Actions -->
         <div>
           <div class="section-label mb-4">
-            <v-icon size="15" class="mr-2" color="#D4AF37"
-              >mdi-lightning-bolt</v-icon
-            >
+            <v-icon class="mr-2" color="#D4AF37" size="15">mdi-lightning-bolt</v-icon>
             Quick Actions
           </div>
           <div class="action-cards">
@@ -92,7 +88,7 @@
               @click="handleNav(action.key)"
             >
               <div class="action-icon-wrap">
-                <v-icon size="22" :color="action.color">{{
+                <v-icon :color="action.color" size="22">{{
                   action.icon
                 }}</v-icon>
               </div>
@@ -100,9 +96,7 @@
                 <div class="action-title">{{ action.title }}</div>
                 <div class="action-desc">{{ action.desc }}</div>
               </div>
-              <v-icon size="16" color="#3A4151" class="action-arrow"
-                >mdi-chevron-right</v-icon
-              >
+              <v-icon class="action-arrow" color="#3A4151" size="16">mdi-chevron-right</v-icon>
             </div>
           </div>
         </div>
@@ -110,9 +104,7 @@
         <!-- RIGHT: Status Breakdown -->
         <div>
           <div class="section-label mb-4">
-            <v-icon size="15" class="mr-2" color="#D4AF37"
-              >mdi-chart-donut</v-icon
-            >
+            <v-icon class="mr-2" color="#D4AF37" size="15">mdi-chart-donut</v-icon>
             Reservation Status
           </div>
           <div class="status-card">
@@ -125,7 +117,7 @@
                 <span
                   class="status-dot"
                   :style="{ background: item.color }"
-                ></span>
+                />
                 <span class="status-label">{{ item.label }}</span>
               </div>
               <div class="status-right">
@@ -136,7 +128,7 @@
                   <div
                     class="status-bar-fill"
                     :style="{ width: item.pct + '%', background: item.color }"
-                  ></div>
+                  />
                 </div>
               </div>
             </div>
@@ -146,14 +138,14 @@
 
       <!-- ── Environments Overview ── -->
       <div class="section-label mb-4">
-        <v-icon size="15" class="mr-2" color="#D4AF37">mdi-floor-plan</v-icon>
+        <v-icon class="mr-2" color="#D4AF37" size="15">mdi-floor-plan</v-icon>
         Environments Overview
       </div>
       <div class="env-grid mb-8">
         <div v-for="env in environments" :key="env.name" class="env-card">
           <div class="env-card-top">
             <div class="env-icon-wrap">
-              <v-icon size="18" color="#D4AF37">{{ env.icon }}</v-icon>
+              <v-icon color="#D4AF37" size="18">{{ env.icon }}</v-icon>
             </div>
             <div class="env-info">
               <div class="env-name">{{ env.name }}</div>
@@ -169,7 +161,7 @@
                 width: env.occupancy + '%',
                 background: occupancyColor(env.occupancy),
               }"
-            ></div>
+            />
           </div>
           <div class="occ-label mt-1">{{ env.occupancy }}% occupied</div>
         </div>
@@ -177,9 +169,7 @@
 
       <!-- ── Recent Reservations ── -->
       <div class="section-label mb-4">
-        <v-icon size="15" class="mr-2" color="#D4AF37"
-          >mdi-calendar-clock</v-icon
-        >
+        <v-icon class="mr-2" color="#D4AF37" size="15">mdi-calendar-clock</v-icon>
         Recent Reservations
       </div>
       <div class="recent-table-wrap">
@@ -203,10 +193,10 @@
               </td>
               <td class="t-td">
                 <v-chip
-                  size="x-small"
                   :class="
                     res.table.startsWith('VIP') ? 'vip-chip' : 'table-chip'
                   "
+                  size="x-small"
                   variant="tonal"
                 >
                   {{ res.table }}
@@ -221,7 +211,7 @@
         <div class="see-all-row">
           <button class="see-all-btn" @click="handleNav('reservations')">
             View all reservations
-            <v-icon size="13" class="ml-1">mdi-arrow-right</v-icon>
+            <v-icon class="ml-1" size="13">mdi-arrow-right</v-icon>
           </button>
         </div>
       </div>
@@ -230,151 +220,151 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
-import StatCard from "@/components/ui/StatCard.vue";
-import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
-import { useAdminNav } from "@/composables/useAdminNav";
-import { useAuth } from "@/composables/useAuth";
-import { RESERVATION_LIST } from "@/datamodel/Reservation.js";
-import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
+  import { computed } from 'vue'
+  import ReservationStatusChip from '@/components/feedback/ReservationStatusChip.vue'
+  import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
+  import StatCard from '@/components/ui/StatCard.vue'
+  import { useAdminNav } from '@/composables/useAdminNav'
+  import { useAuth } from '@/composables/useAuth'
+  import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
 
-// ─── Nav ──────────────────────────────────────────────────────────────────────
-const { adminNavLinks, handleNav } = useAdminNav();
-const { getSession, logout } = useAuth();
-const session = getSession();
-const sessionName = session?.name || "Admin";
-const sessionFirstName = session?.name?.split(" ")[0] || "Admin";
+  // ─── Nav ──────────────────────────────────────────────────────────────────────
+  const { adminNavLinks, handleNav } = useAdminNav()
+  const { getSession, logout } = useAuth()
+  const session = getSession()
+  const sessionName = session?.name || 'Admin'
+  const sessionFirstName = session?.name?.split(' ')[0] || 'Admin'
 
-// ─── Venue-scoped data ────────────────────────────────────────────────────────
-const venueReservations = computed(() =>
-  session?.venueId != null
-    ? RESERVATION_LIST.filter(r => r.venueId === session.venueId)
-    : []
-);
-const venueEnvironments = computed(() =>
-  session?.venueId != null
-    ? ENVIRONMENT_LIST.filter(e => e.venueId === session.venueId)
-    : []
-);
+  // ─── Venue-scoped data ────────────────────────────────────────────────────────
+  const venueReservations = computed(() =>
+    session?.venueId == null
+      ? []
+      : RESERVATION_LIST.filter(r => r.venueId === session.venueId),
+  )
+  const venueEnvironments = computed(() =>
+    session?.venueId == null
+      ? []
+      : ENVIRONMENT_LIST.filter(e => e.venueId === session.venueId),
+  )
 
-// ─── Date ─────────────────────────────────────────────────────────────────────
-const todayLabel = computed(() => {
-  return new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-});
+  // ─── Date ─────────────────────────────────────────────────────────────────────
+  const todayLabel = computed(() => {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  })
 
-const greeting = computed(() => {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-});
+  const greeting = computed(() => {
+    const h = new Date().getHours()
+    if (h < 12) return 'Good morning'
+    if (h < 17) return 'Good afternoon'
+    return 'Good evening'
+  })
 
-const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0]
 
-// ─── KPIs from live data ───────────────────────────────────────────────────────
-const kpis = computed(() => {
-  const total = venueReservations.value.length;
-  const pending = venueReservations.value.filter((r) => r.status === "REQUESTED").length;
-  const approved = venueReservations.value.filter((r) => r.status === "APPROVED").length;
-  const totalTables = venueEnvironments.value.reduce(
-    (s, e) => s + e.elements.filter((el) => el.capacity > 0).length,
-    0,
-  );
-  return [
-    { label: "Total Reservations", value: total, color: "#D4AF37" },
-    { label: "Pending Approvals", value: pending, color: "#C71585" },
-    { label: "Approved", value: approved, color: "#2EBB57" },
-    { label: "Total Tables", value: totalTables, color: "#6B9FD4" },
-  ];
-});
+  // ─── KPIs from live data ───────────────────────────────────────────────────────
+  const kpis = computed(() => {
+    const total = venueReservations.value.length
+    const pending = venueReservations.value.filter(r => r.status === 'REQUESTED').length
+    const approved = venueReservations.value.filter(r => r.status === 'APPROVED').length
+    const totalTables = venueEnvironments.value.reduce(
+      (s, e) => s + e.elements.filter(el => el.capacity > 0).length,
+      0,
+    )
+    return [
+      { label: 'Total Reservations', value: total, color: '#D4AF37' },
+      { label: 'Pending Approvals', value: pending, color: '#C71585' },
+      { label: 'Approved', value: approved, color: '#2EBB57' },
+      { label: 'Total Tables', value: totalTables, color: '#6B9FD4' },
+    ]
+  })
 
-// ─── Status Breakdown ─────────────────────────────────────────────────────────
-const statusBreakdown = computed(() => {
-  const total = venueReservations.value.length || 1;
-  const map = [
-    { label: "Pending", status: "REQUESTED", color: "#C71585" },
-    { label: "Approved", status: "APPROVED", color: "#2EBB57" },
-    { label: "Rejected", status: "REJECTED", color: "#666666" },
-    { label: "Cancelled", status: "CANCELLED", color: "#444444" },
-  ];
-  return map.map((m) => {
-    const count = venueReservations.value.filter((r) => r.status === m.status).length;
-    return { label: m.label, color: m.color, count, pct: Math.round((count / total) * 100) };
-  });
-});
+  // ─── Status Breakdown ─────────────────────────────────────────────────────────
+  const statusBreakdown = computed(() => {
+    const total = venueReservations.value.length || 1
+    const map = [
+      { label: 'Pending', status: 'REQUESTED', color: '#C71585' },
+      { label: 'Approved', status: 'APPROVED', color: '#2EBB57' },
+      { label: 'Rejected', status: 'REJECTED', color: '#666666' },
+      { label: 'Cancelled', status: 'CANCELLED', color: '#444444' },
+    ]
+    return map.map(m => {
+      const count = venueReservations.value.filter(r => r.status === m.status).length
+      return { label: m.label, color: m.color, count, pct: Math.round((count / total) * 100) }
+    })
+  })
 
-// ─── Quick Actions ────────────────────────────────────────────────────────────
-const quickActions = [
-  {
-    key: "builder",
-    icon: "mdi-floor-plan",
-    color: "#D4AF37",
-    title: "Floor Plan Builder",
-    desc: "Manage environments, place & configure tables",
-  },
-  {
-    key: "menu",
-    icon: "mdi-silverware-fork-knife",
-    color: "#D4AF37",
-    title: "Menu Manager",
-    desc: "Add items, set prices, manage allergens & tags",
-  },
-  {
-    key: "reservations",
-    icon: "mdi-calendar-check",
-    color: "#D4AF37",
-    title: "Reservation Queue",
-    desc: "Review, approve or reject pending requests",
-  },
-];
+  // ─── Quick Actions ────────────────────────────────────────────────────────────
+  const quickActions = [
+    {
+      key: 'builder',
+      icon: 'mdi-floor-plan',
+      color: '#D4AF37',
+      title: 'Floor Plan Builder',
+      desc: 'Manage environments, place & configure tables',
+    },
+    {
+      key: 'menu',
+      icon: 'mdi-silverware-fork-knife',
+      color: '#D4AF37',
+      title: 'Menu Manager',
+      desc: 'Add items, set prices, manage allergens & tags',
+    },
+    {
+      key: 'reservations',
+      icon: 'mdi-calendar-check',
+      color: '#D4AF37',
+      title: 'Reservation Queue',
+      desc: 'Review, approve or reject pending requests',
+    },
+  ]
 
-// ─── Environments from datamodel ──────────────────────────────────────────────
-const environments = computed(() =>
-  venueEnvironments.value.map((env) => {
-    const seatElements = env.elements.filter((el) => el.capacity > 0);
-    const tableCount = seatElements.length;
-    const capacity = seatElements.reduce((s, el) => s + el.capacity, 0);
-    const activeToday = venueReservations.value.filter(
-      (r) =>
-        r.environmentId === env.id &&
-        r.date === today &&
-        ["APPROVED", "CHECKED_IN"].includes(r.status),
-    ).length;
-    const occupancy = tableCount > 0 ? Math.round((activeToday / tableCount) * 100) : 0;
-    return { name: env.name, icon: env.icon, tables: tableCount, capacity, occupancy };
-  }),
-);
+  // ─── Environments from datamodel ──────────────────────────────────────────────
+  const environments = computed(() =>
+    venueEnvironments.value.map(env => {
+      const seatElements = env.elements.filter(el => el.capacity > 0)
+      const tableCount = seatElements.length
+      const capacity = seatElements.reduce((s, el) => s + el.capacity, 0)
+      const activeToday = venueReservations.value.filter(
+        r =>
+          r.environmentId === env.id
+          && r.date === today
+          && ['APPROVED', 'CHECKED_IN'].includes(r.status),
+      ).length
+      const occupancy = tableCount > 0 ? Math.round((activeToday / tableCount) * 100) : 0
+      return { name: env.name, icon: env.icon, tables: tableCount, capacity, occupancy }
+    }),
+  )
 
-const occupancyColor = (pct) => {
-  if (pct >= 70) return "#C71585";
-  if (pct >= 40) return "#D4AF37";
-  return "#2EBB57";
-};
+  function occupancyColor (pct) {
+    if (pct >= 70) return '#C71585'
+    if (pct >= 40) return '#D4AF37'
+    return '#2EBB57'
+  }
 
-// ─── Recent (last 5) ─────────────────────────────────────────────────────────
-const recentReservations = computed(() => {
-  return [...venueReservations.value]
-    .sort((a, b) => b.id - a.id)
-    .slice(0, 5)
-    .map((r) => {
-      const env = venueEnvironments.value.find((e) => e.id === r.environmentId);
-      const el = env?.elements.find((el) => el.id === r.elementId);
-      return {
-        id: r.id,
-        name: r.name,
-        date: new Date(r.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-        time: r.time,
-        table: el?.label || r.elementId || "—",
-        status: r.status,
-      };
-    });
-});
+  // ─── Recent (last 5) ─────────────────────────────────────────────────────────
+  const recentReservations = computed(() => {
+    return [...venueReservations.value]
+      .sort((a, b) => b.id - a.id)
+      .slice(0, 5)
+      .map(r => {
+        const env = venueEnvironments.value.find(e => e.id === r.environmentId)
+        const el = env?.elements.find(el => el.id === r.elementId)
+        return {
+          id: r.id,
+          name: r.name,
+          date: new Date(r.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          time: r.time,
+          table: el?.label || r.elementId || '—',
+          status: r.status,
+        }
+      })
+  })
 </script>
 
 <style scoped>

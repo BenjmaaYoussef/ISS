@@ -16,8 +16,8 @@
       />
   -->
   <v-dialog
-    :model-value="modelValue"
     max-width="460"
+    :model-value="modelValue"
     persistent
     @update:model-value="$emit('update:modelValue', $event)"
   >
@@ -28,7 +28,7 @@
       <!-- Header -->
       <v-card-title class="dcd-title px-6 pt-5 pb-3 d-flex align-center gap-3">
         <div class="dcd-icon-wrap">
-          <v-icon size="20" color="#e05252">mdi-alert-outline</v-icon>
+          <v-icon color="#e05252" size="20">mdi-alert-outline</v-icon>
         </div>
         <span>ERROR: Cannot Delete Element</span>
       </v-card-title>
@@ -78,27 +78,27 @@
 </template>
 
 <script setup>
-defineProps({
-  modelValue: {
-    type: Boolean,
-    required: true,
-  },
-  /** Human-readable table name, e.g. "Table #3" */
-  tableName: {
-    type: String,
-    default: "Table #m",
-  },
-  /**
-   * Array of conflicting reservations.
-   * Each item: { id: Number, guest: String, datetime: String }
-   */
-  reservations: {
-    type: Array,
-    default: () => [],
-  },
-});
+  defineProps({
+    modelValue: {
+      type: Boolean,
+      required: true,
+    },
+    /** Human-readable table name, e.g. "Table #3" */
+    tableName: {
+      type: String,
+      default: 'Table #m',
+    },
+    /**
+     * Array of conflicting reservations.
+     * Each item: { id: Number, guest: String, datetime: String }
+     */
+    reservations: {
+      type: Array,
+      default: () => [],
+    },
+  })
 
-defineEmits(["update:modelValue"]);
+  defineEmits(['update:modelValue'])
 </script>
 
 <style scoped>

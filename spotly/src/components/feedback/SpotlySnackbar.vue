@@ -9,9 +9,9 @@
   <v-snackbar
     v-model="snackbar.show"
     :color="snackbar.color"
-    :timeout="timeout"
     :location="location"
     rounded="lg"
+    :timeout="timeout"
   >
     <v-icon v-if="snackbar.icon" start>{{ snackbar.icon }}</v-icon>
     {{ snackbar.text }}
@@ -19,19 +19,19 @@
 </template>
 
 <script setup>
-defineProps({
-  /** The reactive snackbar object from useSnackbar() */
-  snackbar: {
-    type: Object,
-    required: true,
-  },
-  timeout: {
-    type: Number,
-    default: 2500,
-  },
-  location: {
-    type: String,
-    default: "bottom right",
-  },
-});
+  defineProps({
+    /** The reactive snackbar object from useSnackbar() */
+    snackbar: {
+      type: Object,
+      required: true,
+    },
+    timeout: {
+      type: Number,
+      default: 2500,
+    },
+    location: {
+      type: String,
+      default: 'bottom right',
+    },
+  })
 </script>

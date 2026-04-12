@@ -6,30 +6,30 @@
         {{ user.first_name }} {{ user.last_name }}
       </li>
     </ol>
-    <v-text-field label="First name:" v-model="first_name"></v-text-field>
+    <v-text-field v-model="first_name" label="First name:" />
     <v-btn color="primary" @click="doAddUser">Add User</v-btn>
   </div>
 </template>
 
 <script setup>
-import { getAllUsers, User, addUser } from "@/datamodel/User";
-import { ref } from "vue";
+  import { ref } from 'vue'
+  import { addUser, getAllUsers, User } from '@/datamodel/User'
 
-const isDev = import.meta.env.DEV;
+  const isDev = import.meta.env.DEV
 
-let first_name = ref("");
+  const first_name = ref('')
 
-function doAddUser() {
-  // Implement the logic to add a user here
-  let user = new User({
-    first_name: first_name.value,
-    last_name: "Doe",
-    email: `${first_name.value.toLowerCase()}@example.com`,
-    password: "password123",
-  });
+  function doAddUser () {
+    // Implement the logic to add a user here
+    const user = new User({
+      first_name: first_name.value,
+      last_name: 'Doe',
+      email: `${first_name.value.toLowerCase()}@example.com`,
+      password: 'password123',
+    })
 
-  addUser(user);
-}
+    addUser(user)
+  }
 </script>
 
 <style scoped>

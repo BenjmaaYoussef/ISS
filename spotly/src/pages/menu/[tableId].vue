@@ -1,29 +1,36 @@
 <template>
   <!-- top bar -->
   <AppNavbarVenue
+    :compact="true"
+    :show-default-actions="false"
+    :show-powered-by="true"
     :venue-name="venueName"
     :venue-sub-label="subLabel"
-    :compact="true"
-    :show-powered-by="true"
-    :show-default-actions="false"
   >
     <template #actions>
-      <v-btn icon variant="text" class="icon-btn" title="Go back" size="small" @click="$router.back()">
+      <v-btn
+        class="icon-btn"
+        icon
+        size="small"
+        title="Go back"
+        variant="text"
+        @click="$router.back()"
+      >
         <v-icon color="#6b7a8d" size="20">mdi-arrow-left</v-icon>
       </v-btn>
       <!-- Icon-only on mobile -->
       <v-btn
-        icon
         class="call-waiter-btn call-waiter-icon d-flex d-sm-none"
+        icon
         size="small"
-        @click="callWaiter"
         title="Call Waiter"
+        @click="callWaiter"
       >
         <v-icon size="18">mdi-room-service</v-icon>
       </v-btn>
       <!-- Full button on sm+ -->
       <v-btn class="call-waiter-btn d-none d-sm-flex" @click="callWaiter">
-        <v-icon start size="15">mdi-room-service</v-icon>
+        <v-icon size="15" start>mdi-room-service</v-icon>
         Call Waiter
       </v-btn>
     </template>
@@ -35,10 +42,10 @@
     <!-- Not found state -->
     <div v-if="!venueId" class="not-found">
       <div class="not-found-glow" />
-      <v-icon size="64" color="rgba(212,175,55,0.2)">mdi-silverware</v-icon>
+      <v-icon color="rgba(212,175,55,0.2)" size="64">mdi-silverware</v-icon>
       <p class="not-found-title">Menu not found</p>
       <p class="not-found-sub">We couldn't locate a menu for this table.</p>
-      <v-btn variant="outlined" color="#D4AF37" rounded="xl" @click="$router.back()">Go Back</v-btn>
+      <v-btn color="#D4AF37" rounded="xl" variant="outlined" @click="$router.back()">Go Back</v-btn>
     </div>
 
     <template v-else>
@@ -48,12 +55,12 @@
         <div class="hero-content">
           <div class="hero-ornament">
             <span class="ornament-line" />
-            <v-icon size="16" color="rgba(212,175,55,0.6)">mdi-silverware-fork-knife</v-icon>
+            <v-icon color="rgba(212,175,55,0.6)" size="16">mdi-silverware-fork-knife</v-icon>
             <span class="ornament-line" />
           </div>
           <h1 class="hero-title">{{ venueName }}</h1>
           <div class="hero-badge">
-            <v-icon size="12" color="#D4AF37">mdi-map-marker-outline</v-icon>
+            <v-icon color="#D4AF37" size="12">mdi-map-marker-outline</v-icon>
             <span>{{ subLabel }}</span>
           </div>
           <p v-if="subLabel !== 'Full Menu'" class="hero-note">Menu curated for your location</p>
@@ -66,8 +73,8 @@
       <div class="category-sticky">
         <div class="category-sticky-inner">
           <MenuCategoryHero
-            :categories="availableCategories"
             v-model="activeCategory"
+            :categories="availableCategories"
           />
         </div>
       </div>
@@ -81,18 +88,18 @@
           <span class="section-ornament" />
         </div>
 
-        <div v-if="filteredItems.length" class="menu-grid">
+        <div v-if="filteredItems.length > 0" class="menu-grid">
           <MenuItemRow
             v-for="(item, i) in filteredItems"
             :key="item.id"
-            :item="item"
             :anim-delay="`${i * 55}ms`"
+            :item="item"
           />
         </div>
 
         <div v-else class="menu-empty">
           <div class="empty-icon-ring">
-            <v-icon size="36" color="rgba(212,175,55,0.35)">mdi-silverware</v-icon>
+            <v-icon color="rgba(212,175,55,0.35)" size="36">mdi-silverware</v-icon>
           </div>
           <p class="empty-title">Nothing here yet</p>
           <p class="empty-sub">This category has no items for your location.</p>
@@ -103,137 +110,137 @@
   </v-main>
 
   <!-- Snackbar -->
-  <SpotlySnackbar :snackbar="snackbar" location="bottom center" />
+  <SpotlySnackbar location="bottom center" :snackbar="snackbar" />
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { useSnackbar } from '@/composables/useSnackbar'
-import { MENU_ITEM_LIST } from '@/datamodel/MenuItem.js'
-import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
-import { VENUE_LIST } from '@/datamodel/Venue.js'
-import { WaiterCall, addWaiterCall } from '@/datamodel/WaiterCall.js'
+  import { computed, ref } from 'vue'
+  import { useRoute } from 'vue-router'
+  import { useSnackbar } from '@/composables/useSnackbar'
+  import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import { MENU_ITEM_LIST } from '@/datamodel/MenuItem.js'
+  import { VENUE_LIST } from '@/datamodel/Venue.js'
+  import { addWaiterCall, WaiterCall } from '@/datamodel/WaiterCall.js'
 
-const route = useRoute()
-const { snackbar, notify } = useSnackbar()
+  const route = useRoute()
+  const { snackbar, notify } = useSnackbar()
 
-// ── Resolve venueId from tableId param ────────────────────────────────────────
-// The param may be:
-//   a) An element id (e.g. "e1", "et1") — look up environment
-//   b) A venueId directly (e.g. "1") — used by venue/[id].vue "Explore Menu" button
-const tableId = route.params.tableId
+  // ── Resolve venueId from tableId param ────────────────────────────────────────
+  // The param may be:
+  //   a) An element id (e.g. "e1", "et1") — look up environment
+  //   b) A venueId directly (e.g. "1") — used by venue/[id].vue "Explore Menu" button
+  const tableId = route.params.tableId
 
-const resolved = computed(() => {
-  // Try element id lookup first
-  for (const env of ENVIRONMENT_LIST) {
-    const el = env.elements.find(e => e.id === tableId)
-    if (el) {
-      return { venueId: env.venueId, elementLabel: el.label, envName: env.name, envId: env.id }
+  const resolved = computed(() => {
+    // Try element id lookup first
+    for (const env of ENVIRONMENT_LIST) {
+      const el = env.elements.find(e => e.id === tableId)
+      if (el) {
+        return { venueId: env.venueId, elementLabel: el.label, envName: env.name, envId: env.id }
+      }
     }
-  }
-  // Fall back: treat as venueId
-  const numId = parseInt(tableId)
-  if (!isNaN(numId) && VENUE_LIST.find(v => v.id === numId)) {
-    return { venueId: numId, elementLabel: null, envName: null, envId: null }
-  }
-  return null
-})
-
-const venueId = computed(() => resolved.value?.venueId ?? null)
-
-const venueName = computed(() => {
-  if (!venueId.value) return 'Menu'
-  return VENUE_LIST.find(v => v.id === venueId.value)?.name || 'Venue Menu'
-})
-
-const subLabel = computed(() => {
-  const r = resolved.value
-  if (!r) return ''
-  if (r.elementLabel && r.envName) return `${r.elementLabel} — ${r.envName}`
-  return 'Full Menu'
-})
-
-// ── Categories (canonical) ────────────────────────────────────────────────────
-const ALL_CATEGORIES = [
-  {
-    key: 'starters',
-    label: 'Starters',
-    icon: 'mdi-food-fork-drink',
-    gradient: 'linear-gradient(135deg,#0d1f0a,#1e4a14)',
-  },
-  {
-    key: 'mains',
-    label: 'Mains',
-    icon: 'mdi-silverware-variant',
-    gradient: 'linear-gradient(135deg,#1a1208,#3d2a10)',
-  },
-  {
-    key: 'desserts',
-    label: 'Desserts',
-    icon: 'mdi-ice-cream',
-    gradient: 'linear-gradient(135deg,#1f0a0a,#4a1414)',
-  },
-  {
-    key: 'drinks',
-    label: 'Drinks',
-    icon: 'mdi-glass-cocktail',
-    gradient: 'linear-gradient(135deg,#1a0a2e,#3d1a5e)',
-  },
-]
-
-// ── Items for this venue / environment ────────────────────────────────────────
-const envId = computed(() => resolved.value?.envId ?? null)
-
-const venueItems = computed(() => {
-  if (venueId.value == null) return []
-  const eid = envId.value
-  return MENU_ITEM_LIST.filter(m => {
-    if (m.venueId !== venueId.value || m.available === false) return false
-    // Full menu (no element context): show everything for this venue
-    if (eid == null) return true
-    // Element context: show venue-wide items (empty array) + items scoped to this env
-    const ids = m.environmentIds ?? []
-    return ids.length === 0 || ids.includes(eid)
+    // Fall back: treat as venueId
+    const numId = Number.parseInt(tableId)
+    if (!isNaN(numId) && VENUE_LIST.find(v => v.id === numId)) {
+      return { venueId: numId, elementLabel: null, envName: null, envId: null }
+    }
+    return null
   })
-})
 
-// Only show categories that have at least one item
-const availableCategories = computed(() => {
-  const keys = new Set(venueItems.value.map(i => i.category))
-  return ALL_CATEGORIES
-    .filter(c => keys.has(c.key))
-    .map(c => ({ ...c, count: venueItems.value.filter(i => i.category === c.key).length }))
-})
+  const venueId = computed(() => resolved.value?.venueId ?? null)
 
-const activeCategory = ref(availableCategories.value[0]?.key || 'starters')
+  const venueName = computed(() => {
+    if (!venueId.value) return 'Menu'
+    return VENUE_LIST.find(v => v.id === venueId.value)?.name || 'Venue Menu'
+  })
 
-const currentCategory = computed(() =>
-  ALL_CATEGORIES.find(c => c.key === activeCategory.value),
-)
+  const subLabel = computed(() => {
+    const r = resolved.value
+    if (!r) return ''
+    if (r.elementLabel && r.envName) return `${r.elementLabel} — ${r.envName}`
+    return 'Full Menu'
+  })
 
-const filteredItems = computed(() =>
-  venueItems.value.filter(i => i.category === activeCategory.value),
-)
+  // ── Categories (canonical) ────────────────────────────────────────────────────
+  const ALL_CATEGORIES = [
+    {
+      key: 'starters',
+      label: 'Starters',
+      icon: 'mdi-food-fork-drink',
+      gradient: 'linear-gradient(135deg,#0d1f0a,#1e4a14)',
+    },
+    {
+      key: 'mains',
+      label: 'Mains',
+      icon: 'mdi-silverware-variant',
+      gradient: 'linear-gradient(135deg,#1a1208,#3d2a10)',
+    },
+    {
+      key: 'desserts',
+      label: 'Desserts',
+      icon: 'mdi-ice-cream',
+      gradient: 'linear-gradient(135deg,#1f0a0a,#4a1414)',
+    },
+    {
+      key: 'drinks',
+      label: 'Drinks',
+      icon: 'mdi-glass-cocktail',
+      gradient: 'linear-gradient(135deg,#1a0a2e,#3d1a5e)',
+    },
+  ]
 
-// ── Call Waiter ───────────────────────────────────────────────────────────────
-const callWaiter = () => {
-  const r = resolved.value
-  if (r?.elementLabel && r?.venueId != null) {
-    // Element context — create a real waiter call
-    addWaiterCall(new WaiterCall({
-      id: Date.now(),
-      venueId: r.venueId,
-      environmentId: r.envId,
-      elementId: tableId,
-      tableLabel: r.elementLabel,
-      envName: r.envName,
-      timestamp: new Date().toISOString(),
-      status: 'pending',
-    }))
+  // ── Items for this venue / environment ────────────────────────────────────────
+  const envId = computed(() => resolved.value?.envId ?? null)
+
+  const venueItems = computed(() => {
+    if (venueId.value == null) return []
+    const eid = envId.value
+    return MENU_ITEM_LIST.filter(m => {
+      if (m.venueId !== venueId.value || m.available === false) return false
+      // Full menu (no element context): show everything for this venue
+      if (eid == null) return true
+      // Element context: show venue-wide items (empty array) + items scoped to this env
+      const ids = m.environmentIds ?? []
+      return ids.length === 0 || ids.includes(eid)
+    })
+  })
+
+  // Only show categories that have at least one item
+  const availableCategories = computed(() => {
+    const keys = new Set(venueItems.value.map(i => i.category))
+    return ALL_CATEGORIES
+      .filter(c => keys.has(c.key))
+      .map(c => ({ ...c, count: venueItems.value.filter(i => i.category === c.key).length }))
+  })
+
+  const activeCategory = ref(availableCategories.value[0]?.key || 'starters')
+
+  const currentCategory = computed(() =>
+    ALL_CATEGORIES.find(c => c.key === activeCategory.value),
+  )
+
+  const filteredItems = computed(() =>
+    venueItems.value.filter(i => i.category === activeCategory.value),
+  )
+
+  // ── Call Waiter ───────────────────────────────────────────────────────────────
+  function callWaiter () {
+    const r = resolved.value
+    if (r?.elementLabel && r?.venueId != null) {
+      // Element context — create a real waiter call
+      addWaiterCall(new WaiterCall({
+        id: Date.now(),
+        venueId: r.venueId,
+        environmentId: r.envId,
+        elementId: tableId,
+        tableLabel: r.elementLabel,
+        envName: r.envName,
+        timestamp: new Date().toISOString(),
+        status: 'pending',
+      }))
+    }
+    notify('Waiter has been notified — they\'ll be right with you!', '#D4AF37', 'mdi-room-service')
   }
-  notify("Waiter has been notified — they'll be right with you!", '#D4AF37', 'mdi-room-service')
-}
 </script>
 
 <style scoped>

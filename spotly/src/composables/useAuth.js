@@ -1,9 +1,9 @@
 import { useRouter } from 'vue-router'
 
-export function useAuth() {
+export function useAuth () {
   const router = useRouter()
 
-  function getSession() {
+  function getSession () {
     try {
       return JSON.parse(localStorage.getItem('spotly_session') || 'null')
     } catch {
@@ -11,7 +11,7 @@ export function useAuth() {
     }
   }
 
-  function logout() {
+  function logout () {
     localStorage.removeItem('spotly_session')
     router.push('/auth')
   }

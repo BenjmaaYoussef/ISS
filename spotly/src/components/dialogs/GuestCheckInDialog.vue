@@ -14,8 +14,8 @@
       />
   -->
   <v-dialog
-    :model-value="modelValue"
     max-width="480"
+    :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card class="gcid-card">
@@ -29,10 +29,10 @@
           <span class="gcid-res-id">#{{ reservation.id }}</span>
         </span>
         <v-btn
+          class="gcid-close-btn"
           icon
           size="x-small"
           variant="text"
-          class="gcid-close-btn"
           @click="$emit('update:modelValue', false)"
         >
           <v-icon size="16">mdi-close</v-icon>
@@ -71,22 +71,20 @@
         <!-- Staff operational notes (editable) -->
         <div class="gcid-ops-section mt-4">
           <p class="gcid-ops-label mb-2">
-            <v-icon size="13" class="mr-1" style="color: #6b7a8d"
-              >mdi-note-edit-outline</v-icon
-            >
+            <v-icon class="mr-1" size="13" style="color: #6b7a8d">mdi-note-edit-outline</v-icon>
             Staff Operational Notes
             <span class="gcid-ops-hint">(Internal)</span>
           </p>
           <v-textarea
             v-model="staffNotes"
-            variant="outlined"
-            rows="3"
             auto-grow
+            bg-color="#0a0e14"
+            class="gcid-textarea"
+            color="#d4af37"
             hide-details
             :placeholder="'e.g. Guest arrived early. Seated at bar first.'"
-            class="gcid-textarea"
-            bg-color="#0a0e14"
-            color="#d4af37"
+            rows="3"
+            variant="outlined"
           />
         </div>
       </v-card-text>
@@ -97,14 +95,14 @@
           class="gcid-action-btn gcid-btn--arrived flex-grow-1"
           @click="handle('mark-arrived')"
         >
-          <v-icon start size="14">mdi-check-circle-outline</v-icon>
+          <v-icon size="14" start>mdi-check-circle-outline</v-icon>
           Mark as Arrived
         </v-btn>
         <v-btn
           class="gcid-action-btn gcid-btn--noshow flex-grow-1"
           @click="handle('mark-no-show')"
         >
-          <v-icon start size="14">mdi-account-remove-outline</v-icon>
+          <v-icon size="14" start>mdi-account-remove-outline</v-icon>
           Mark as No-Show
         </v-btn>
       </v-card-actions>
@@ -113,55 +111,55 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+  import { ref, watch } from 'vue'
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    required: true,
-  },
-  /**
-   * Reservation object:
-   * {
-   *   id: Number,
-   *   guest: String,
-   *   partySize: Number,
-   *   tableId: String,
-   *   environment: String,
-   *   clientNote: String,
-   *   staffNote: String,
-   * }
-   */
-  reservation: {
-    type: Object,
-    default: () => ({
-      id: 104,
-      guest: "Epon M.",
-      partySize: 2,
-      tableId: "T-12",
-      environment: "Indoor",
-      clientNote: "It's my birthday",
-      staffNote: "",
-    }),
-  },
-});
+  const props = defineProps({
+    modelValue: {
+      type: Boolean,
+      required: true,
+    },
+    /**
+     * Reservation object:
+     * {
+     *   id: Number,
+     *   guest: String,
+     *   partySize: Number,
+     *   tableId: String,
+     *   environment: String,
+     *   clientNote: String,
+     *   staffNote: String,
+     * }
+     */
+    reservation: {
+      type: Object,
+      default: () => ({
+        id: 104,
+        guest: 'Epon M.',
+        partySize: 2,
+        tableId: 'T-12',
+        environment: 'Indoor',
+        clientNote: 'It\'s my birthday',
+        staffNote: '',
+      }),
+    },
+  })
 
-const emit = defineEmits(["update:modelValue", "mark-arrived", "mark-no-show"]);
+  const emit = defineEmits(['update:modelValue', 'mark-arrived', 'mark-no-show'])
 
-const staffNotes = ref(props.reservation.staffNote || "");
+  const staffNotes = ref(props.reservation.staffNote || '')
 
-// Reset notes when dialog opens with a new reservation
-watch(
-  () => props.reservation,
-  (r) => {
-    staffNotes.value = r.staffNote || "";
-  },
-);
+  // Reset notes when dialog opens with a new reservation
+  watch(
+    () => props.reservation,
+    r => {
+      staffNotes.value = r.staffNote || ''
+    },
+  )
 
-function handle(event) {
-  emit(event, { ...props.reservation, staffNote: staffNotes.value });
-  emit("update:modelValue", false);
-}
+  function handle (event) {
+    emit(event, { ...props.reservation, staffNote: staffNotes.value })
+    emit('update:modelValue', false)
+  }
 </script>
 
 <style scoped>

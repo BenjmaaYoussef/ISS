@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref } from 'vue'
 
 /**
  * Reusable toast notification composable.
@@ -10,20 +10,20 @@ import { ref } from "vue";
  * In template, include <SpotlySnackbar :snackbar="snackbar" />
  * or bind directly to v-snackbar.
  */
-export function useSnackbar() {
-  const snackbar = ref({ show: false, text: "", color: "", icon: "" });
+export function useSnackbar () {
+  const snackbar = ref({ show: false, text: '', color: '', icon: '' })
 
   const notify = (
     text,
-    color = "#D4AF37",
-    icon = "mdi-information-outline",
+    color = '#D4AF37',
+    icon = 'mdi-information-outline',
   ) => {
-    snackbar.value = { show: true, text, color, icon };
-  };
+    snackbar.value = { show: true, text, color, icon }
+  }
 
-  const notifySuccess = (text) => notify(text, "#2EBB57", "mdi-check-circle");
-  const notifyError = (text) => notify(text, "#C71585", "mdi-close-circle");
-  const notifyGold = (text) => notify(text, "#D4AF37", "mdi-star-four-points");
+  const notifySuccess = text => notify(text, '#2EBB57', 'mdi-check-circle')
+  const notifyError = text => notify(text, '#C71585', 'mdi-close-circle')
+  const notifyGold = text => notify(text, '#D4AF37', 'mdi-star-four-points')
 
-  return { snackbar, notify, notifySuccess, notifyError, notifyGold };
+  return { snackbar, notify, notifySuccess, notifyError, notifyGold }
 }

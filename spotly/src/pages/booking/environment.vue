@@ -1,28 +1,28 @@
 <template>
   <!-- NAVBAR -->
   <AppNavbarVenue
-    venue-name="Sunset Beach Club"
-    :show-powered-by="true"
     :show-default-actions="false"
+    :show-powered-by="true"
+    venue-name="Sunset Beach Club"
   >
     <template #actions>
       <BookingStepIndicator
+        :current-step="1"
         :steps="[
           { label: 'Environment' },
           { label: 'Select Table' },
           { label: 'Confirm' },
         ]"
-        :current-step="1"
       />
       <v-btn
-        variant="text"
-        :ripple="false"
         class="text-none px-4 ml-4"
+        :ripple="false"
         size="small"
         style="color: rgba(255, 255, 255, 0.55); font-size: 0.78rem"
+        variant="text"
         @click="router.back()"
       >
-        <v-icon size="14" class="mr-1">mdi-arrow-left</v-icon>Back
+        <v-icon class="mr-1" size="14">mdi-arrow-left</v-icon>Back
       </v-btn>
     </template>
   </AppNavbarVenue>
@@ -32,8 +32,6 @@
       <div class="spotly-container spotly-container--narrow">
         <!-- Back -->
         <v-btn
-          variant="text"
-          @click="$router.back()"
           style="
             color: rgba(255, 255, 255, 0.5);
             font-size: 0.82rem;
@@ -42,8 +40,10 @@
             padding: 0;
             margin-bottom: 40px;
           "
+          variant="text"
+          @click="$router.back()"
         >
-          <v-icon start icon="mdi-arrow-left" size="16" />
+          <v-icon icon="mdi-arrow-left" size="16" start />
           Back
         </v-btn>
 
@@ -95,7 +95,6 @@
             <div
               class="env-card"
               :class="{ selected: selected === env.id }"
-              @click="selected = env.id"
               :style="{
                 border:
                   selected === env.id
@@ -108,6 +107,7 @@
                 position: 'relative',
                 overflow: 'hidden',
               }"
+              @click="selected = env.id"
             >
               <!-- Image area -->
               <div
@@ -172,9 +172,8 @@
 
                 <!-- Select Button -->
                 <v-btn
-                  :color="selected === env.id ? 'primary' : ''"
-                  :variant="selected === env.id ? 'flat' : 'outlined'"
                   block
+                  :color="selected === env.id ? 'primary' : ''"
                   style="
                     font-size: 0.78rem;
                     letter-spacing: 2px;
@@ -186,6 +185,7 @@
                       ? 'color:#0A0E14; font-weight:600;'
                       : 'border-color:rgba(212,175,55,0.3); color:rgba(212,175,55,0.8);'
                   "
+                  :variant="selected === env.id ? 'flat' : 'outlined'"
                   @click.stop="selected = env.id"
                 >
                   <v-icon
@@ -213,8 +213,8 @@
         >
           <v-btn
             color="primary"
-            size="large"
             :disabled="!selected"
+            size="large"
             style="
               font-size: 0.85rem;
               letter-spacing: 2px;
@@ -236,24 +236,24 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import AppNavbarVenue from "@/components/layout/AppNavbarVenue.vue";
-import BookingStepIndicator from "@/components/ui/BookingStepIndicator.vue";
-import { ENVIRONMENT_LIST } from "@/datamodel/Environment.js";
+  import { computed, ref } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+  import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
+  import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
+  import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
 
-const route = useRoute();
-const router = useRouter();
-const selected = ref("");
+  const route = useRoute()
+  const router = useRouter()
+  const selected = ref('')
 
-const venueId = computed(() => Number(route.query.venueId) || 1);
-const environments = computed(() => ENVIRONMENT_LIST.filter((e) => e.venueId === venueId.value));
+  const venueId = computed(() => Number(route.query.venueId) || 1)
+  const environments = computed(() => ENVIRONMENT_LIST.filter(e => e.venueId === venueId.value))
 
-function continueBooking() {
-  sessionStorage.setItem("spotly_selected_env", selected.value);
-  sessionStorage.setItem("spotly_booking", JSON.stringify({ venueId: venueId.value, environmentId: selected.value }));
-  router.push("/booking/seats");
-}
+  function continueBooking () {
+    sessionStorage.setItem('spotly_selected_env', selected.value)
+    sessionStorage.setItem('spotly_booking', JSON.stringify({ venueId: venueId.value, environmentId: selected.value }))
+    router.push('/booking/seats')
+  }
 </script>
 
 <style scoped>

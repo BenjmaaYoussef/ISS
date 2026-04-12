@@ -1,8 +1,8 @@
 <template>
   <!-- ── Top Navigation ── -->
   <AppNavbarSpotly
-    :nav-links="adminNavLinks"
     active-link="menu"
+    :nav-links="adminNavLinks"
     @nav="handleNav"
   />
 
@@ -18,11 +18,11 @@
           </p>
         </div>
         <v-btn
-          flat
-          :ripple="false"
           class="gold-btn"
-          size="large"
+          flat
           prepend-icon="mdi-plus"
+          :ripple="false"
+          size="large"
           @click="openAddDialog"
         >
           Add New Item
@@ -34,14 +34,14 @@
         <label class="filter-label mb-2 d-block">Category</label>
         <v-chip-group
           v-model="selectedCategory"
-          selected-class="category-chip--active"
           mandatory
+          selected-class="category-chip--active"
         >
           <v-chip
             v-for="cat in categories"
             :key="cat.value"
-            :value="cat.value"
             class="category-chip"
+            :value="cat.value"
           >
             {{ cat.label }}
           </v-chip>
@@ -50,8 +50,8 @@
 
       <!-- Menu Items Table -->
       <v-card
-        flat
         class="menu-table-card"
+        flat
         style="
           background: var(--color-surface-elevated);
           border: 1px solid rgba(212, 175, 55, 0.18);
@@ -59,32 +59,33 @@
         "
       >
         <v-data-table
+          class="menu-table"
           :headers="headers"
           :items="filteredItems"
           :items-per-page="10"
-          class="menu-table"
           style="background: transparent"
         >
           <!-- Image Column -->
-          <template v-slot:item.image="{ item }">
+          <template #item.image="{ item }">
             <div class="item-image-cell">
               <v-checkbox
                 v-model="item.selected"
-                hide-details
-                density="compact"
-                color="#D4AF37"
                 class="mr-2"
-              ></v-checkbox>
+                color="#D4AF37"
+                density="compact"
+                hide-details
+              />
               <div class="item-image-placeholder">
-                <v-icon size="24" style="color: #6a7080"
-                  >mdi-image-outline</v-icon
-                >
+                <v-icon
+                  size="24"
+                  style="color: #6a7080"
+                >mdi-image-outline</v-icon>
               </div>
             </div>
           </template>
 
           <!-- Name Column -->
-          <template v-slot:item.name="{ item }">
+          <template #item.name="{ item }">
             <div class="d-flex align-center gap-2 flex-wrap">
               <span class="item-name">{{ item.name }}</span>
               <v-chip
@@ -99,18 +100,18 @@
           </template>
 
           <!-- Price Column -->
-          <template v-slot:item.price="{ item }">
+          <template #item.price="{ item }">
             <span class="item-price">{{ item.price }} TND</span>
           </template>
 
           <!-- Allergens Column -->
-          <template v-slot:item.allergens="{ item }">
+          <template #item.allergens="{ item }">
             <div class="allergens-cell">
               <v-chip
                 v-for="allergen in item.allergens"
                 :key="allergen"
-                size="x-small"
                 class="allergen-chip"
+                size="x-small"
                 style="
                   background: rgba(212, 175, 55, 0.1);
                   color: #d4af37;
@@ -122,19 +123,18 @@
               <span
                 v-if="item.allergens.length === 0"
                 style="color: #6a7080; font-size: 0.8rem"
-                >None</span
-              >
+              >None</span>
             </div>
           </template>
 
           <!-- Tags Column -->
-          <template v-slot:item.tags="{ item }">
+          <template #item.tags="{ item }">
             <div class="tags-cell">
               <v-chip
                 v-for="tag in item.tags"
                 :key="tag"
-                size="x-small"
                 class="tag-chip"
+                size="x-small"
                 style="
                   background: rgba(46, 187, 87, 0.15);
                   color: #2ebb57;
@@ -147,40 +147,41 @@
           </template>
 
           <!-- Available Column -->
-          <template v-slot:item.available="{ item }">
+          <template #item.available="{ item }">
             <v-chip
+              size="x-small"
               :style="item.available !== false
                 ? 'background: rgba(46,187,87,0.15); color: #2ebb57; border: 1px solid rgba(46,187,87,0.3);'
                 : 'background: rgba(150,150,150,0.1); color: #888; border: 1px solid rgba(150,150,150,0.2);'"
-              size="x-small"
             >
-              <v-icon start size="10">{{ item.available !== false ? 'mdi-check-circle' : 'mdi-minus-circle' }}</v-icon>
+              <v-icon size="10" start>{{ item.available !== false ? 'mdi-check-circle' : 'mdi-minus-circle' }}</v-icon>
               {{ item.available !== false ? 'Available' : 'Unavailable' }}
             </v-chip>
           </template>
 
           <!-- Actions Column -->
-          <template v-slot:item.actions="{ item }">
+          <template #item.actions="{ item }">
             <div class="actions-cell">
               <v-btn
                 icon
+                :ripple="false"
                 size="small"
                 variant="text"
-                :ripple="false"
                 @click="editItem(item)"
               >
                 <v-icon size="18" style="color: #d4af37">mdi-pencil</v-icon>
               </v-btn>
               <v-btn
                 icon
+                :ripple="false"
                 size="small"
                 variant="text"
-                :ripple="false"
                 @click="deleteItem(item)"
               >
-                <v-icon size="18" style="color: #c71585"
-                  >mdi-delete-outline</v-icon
-                >
+                <v-icon
+                  size="18"
+                  style="color: #c71585"
+                >mdi-delete-outline</v-icon>
               </v-btn>
             </div>
           </template>
@@ -205,11 +206,11 @@
         </h2>
         <v-btn
           icon
-          size="small"
-          variant="text"
           :ripple="false"
-          @click="closeDialog"
+          size="small"
           style="position: absolute; top: 16px; right: 16px"
+          variant="text"
+          @click="closeDialog"
         >
           <v-icon size="20" style="color: #6a7080">mdi-close</v-icon>
         </v-btn>
@@ -218,11 +219,11 @@
       <v-card-text class="pa-6">
         <v-alert
           v-if="formError"
+          class="mb-4"
+          density="compact"
+          style="font-size: 0.85rem;"
           type="error"
           variant="tonal"
-          density="compact"
-          class="mb-4"
-          style="font-size: 0.85rem;"
         >{{ formError }}</v-alert>
         <v-row>
           <!-- Image Upload -->
@@ -232,8 +233,7 @@
               <v-icon
                 size="48"
                 style="color: rgba(212, 175, 55, 0.3); margin-bottom: 8px"
-                >mdi-image-plus</v-icon
-              >
+              >mdi-image-plus</v-icon>
               <p style="color: #6a7080; font-size: 0.85rem; margin: 0">
                 Click to upload or drag and drop
               </p>
@@ -242,51 +242,45 @@
 
           <!-- Name -->
           <v-col cols="12" md="6">
-            <label class="field-label mb-2 d-block"
-              >Name <span style="color: #c71585">*</span></label
-            >
+            <label class="field-label mb-2 d-block">Name <span style="color: #c71585">*</span></label>
             <v-text-field
               v-model="formData.name"
-              variant="outlined"
-              density="comfortable"
-              placeholder="e.g., Truffle Fries"
-              hide-details
               class="spotly-input"
-            ></v-text-field>
+              density="comfortable"
+              hide-details
+              placeholder="e.g., Truffle Fries"
+              variant="outlined"
+            />
           </v-col>
 
           <!-- Price -->
           <v-col cols="12" md="6">
-            <label class="field-label mb-2 d-block"
-              >Price <span style="color: #c71585">*</span></label
-            >
+            <label class="field-label mb-2 d-block">Price <span style="color: #c71585">*</span></label>
             <v-text-field
               v-model="formData.price"
-              variant="outlined"
-              density="comfortable"
-              type="number"
-              suffix="TND"
-              placeholder="0.00"
-              hide-details
               class="spotly-input"
-            ></v-text-field>
+              density="comfortable"
+              hide-details
+              placeholder="0.00"
+              suffix="TND"
+              type="number"
+              variant="outlined"
+            />
           </v-col>
 
           <!-- Category -->
           <v-col cols="12" md="6">
-            <label class="field-label mb-2 d-block"
-              >Category <span style="color: #c71585">*</span></label
-            >
+            <label class="field-label mb-2 d-block">Category <span style="color: #c71585">*</span></label>
             <v-select
               v-model="formData.category"
-              :items="categories"
-              item-title="label"
-              item-value="value"
-              variant="outlined"
+              class="spotly-input"
               density="comfortable"
               hide-details
-              class="spotly-input"
-            ></v-select>
+              item-title="label"
+              item-value="value"
+              :items="categories"
+              variant="outlined"
+            />
           </v-col>
 
           <!-- Environment scope -->
@@ -294,18 +288,18 @@
             <label class="field-label mb-2 d-block">Environments</label>
             <v-select
               v-model="formData.environmentIds"
-              :items="environmentOptions"
+              chips
+              class="spotly-input"
+              closable-chips
+              density="comfortable"
+              hide-details
               item-title="title"
               item-value="value"
-              variant="outlined"
-              density="comfortable"
+              :items="environmentOptions"
               multiple
-              chips
-              closable-chips
-              hide-details
               placeholder="All environments"
-              class="spotly-input"
-            ></v-select>
+              variant="outlined"
+            />
             <p style="font-size: 0.75rem; color: #6a7080; margin-top: 6px;">
               Leave empty to show in all environments.
             </p>
@@ -316,14 +310,14 @@
             <label class="field-label mb-2 d-block">Allergens</label>
             <v-select
               v-model="formData.allergens"
-              :items="allergenOptions"
-              variant="outlined"
-              density="comfortable"
-              multiple
               chips
-              hide-details
               class="spotly-input"
-            ></v-select>
+              density="comfortable"
+              hide-details
+              :items="allergenOptions"
+              multiple
+              variant="outlined"
+            />
           </v-col>
 
           <!-- Tags -->
@@ -331,14 +325,14 @@
             <label class="field-label mb-2 d-block">Tags</label>
             <v-select
               v-model="formData.tags"
-              :items="tagOptions"
-              variant="outlined"
-              density="comfortable"
-              multiple
               chips
-              hide-details
               class="spotly-input"
-            ></v-select>
+              density="comfortable"
+              hide-details
+              :items="tagOptions"
+              multiple
+              variant="outlined"
+            />
           </v-col>
 
           <!-- Description -->
@@ -346,12 +340,12 @@
             <label class="field-label mb-2 d-block">Description</label>
             <v-textarea
               v-model="formData.description"
-              variant="outlined"
-              rows="3"
-              placeholder="Describe this menu item..."
-              hide-details
               class="spotly-input"
-            ></v-textarea>
+              hide-details
+              placeholder="Describe this menu item..."
+              rows="3"
+              variant="outlined"
+            />
           </v-col>
 
           <!-- Available toggle -->
@@ -359,8 +353,8 @@
             <v-switch
               v-model="formData.available"
               color="#D4AF37"
-              hide-details
               density="compact"
+              hide-details
             >
               <template #label>
                 <span class="field-label" style="text-transform: none; font-size: 0.85rem; color: #b8bcc8;">
@@ -373,16 +367,16 @@
       </v-card-text>
 
       <v-card-actions class="pa-6 pt-0">
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn
-          variant="outlined"
-          :ripple="false"
           class="secondary-btn mr-2"
+          :ripple="false"
+          variant="outlined"
           @click="closeDialog"
         >
           Cancel
         </v-btn>
-        <v-btn flat :ripple="false" class="gold-btn" @click="saveItem">
+        <v-btn class="gold-btn" flat :ripple="false" @click="saveItem">
           {{ isEditing ? "Save Changes" : "Add Item" }}
         </v-btn>
       </v-card-actions>
@@ -400,25 +394,25 @@
       "
     >
       <v-card-text class="pa-6 text-center">
-        <v-icon size="64" style="color: #c71585; margin-bottom: 16px"
-          >mdi-alert-circle-outline</v-icon
-        >
+        <v-icon
+          size="64"
+          style="color: #c71585; margin-bottom: 16px"
+        >mdi-alert-circle-outline</v-icon>
         <h2 class="dialog-title mb-2">Delete Menu Item?</h2>
         <p class="dialog-text mb-4">
           Are you sure you want to delete
-          <strong style="color: #d4af37">{{ itemToDelete?.name }}</strong
-          >? This action cannot be undone.
+          <strong style="color: #d4af37">{{ itemToDelete?.name }}</strong>? This action cannot be undone.
         </p>
         <div class="d-flex gap-2 justify-center">
           <v-btn
-            variant="outlined"
-            :ripple="false"
             class="secondary-btn"
+            :ripple="false"
+            variant="outlined"
             @click="showDeleteDialog = false"
           >
             Cancel
           </v-btn>
-          <v-btn flat :ripple="false" class="danger-btn" @click="confirmDelete">
+          <v-btn class="danger-btn" flat :ripple="false" @click="confirmDelete">
             Delete
           </v-btn>
         </div>
@@ -428,186 +422,186 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
-import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
-import { useAdminNav } from "@/composables/useAdminNav";
-import { useAuth } from "@/composables/useAuth";
-import { MENU_ITEM_LIST, MenuItem, addMenuItem, updateMenuItem, deleteMenuItem } from "@/datamodel/MenuItem";
-import { ENVIRONMENT_LIST } from "@/datamodel/Environment";
+  import { computed, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
+  import { useAdminNav } from '@/composables/useAdminNav'
+  import { useAuth } from '@/composables/useAuth'
+  import { ENVIRONMENT_LIST } from '@/datamodel/Environment'
+  import { addMenuItem, deleteMenuItem, MENU_ITEM_LIST, MenuItem, updateMenuItem } from '@/datamodel/MenuItem'
 
-const router = useRouter();
+  const router = useRouter()
 
-// ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
-const { adminNavLinks, handleNav } = useAdminNav();
-const { getSession } = useAuth();
-const session = getSession();
+  // ─── Admin Nav ───────────────────────────────────────────────────────────────────────────────
+  const { adminNavLinks, handleNav } = useAdminNav()
+  const { getSession } = useAuth()
+  const session = getSession()
 
-const currentTab = ref("menu");
-const selectedCategory = ref("starters");
-const showItemDialog = ref(false);
-const showDeleteDialog = ref(false);
-const isEditing = ref(false);
-const itemToDelete = ref(null);
-const formError = ref("");
+  const currentTab = ref('menu')
+  const selectedCategory = ref('starters')
+  const showItemDialog = ref(false)
+  const showDeleteDialog = ref(false)
+  const isEditing = ref(false)
+  const itemToDelete = ref(null)
+  const formError = ref('')
 
-const tabs = [
-  { label: "Dashboard", value: "dashboard", route: "/admin/dashboard" },
-  { label: "Builder", value: "builder", route: "/admin/floor-plan" },
-  { label: "Menu", value: "menu", route: null },
-  {
-    label: "Reservations",
-    value: "reservations",
-    route: "/admin/reservations",
-  },
-];
+  const tabs = [
+    { label: 'Dashboard', value: 'dashboard', route: '/admin/dashboard' },
+    { label: 'Builder', value: 'builder', route: '/admin/floor-plan' },
+    { label: 'Menu', value: 'menu', route: null },
+    {
+      label: 'Reservations',
+      value: 'reservations',
+      route: '/admin/reservations',
+    },
+  ]
 
-const handleTabClick = (tab) => {
-  if (tab.route) {
-    router.push(tab.route);
-  } else {
-    currentTab.value = tab.value;
+  function handleTabClick (tab) {
+    if (tab.route) {
+      router.push(tab.route)
+    } else {
+      currentTab.value = tab.value
+    }
   }
-};
 
-const categories = [
-  { label: "Starters", value: "starters" },
-  { label: "Mains", value: "mains" },
-  { label: "Desserts", value: "desserts" },
-  { label: "Drinks", value: "drinks" },
-];
+  const categories = [
+    { label: 'Starters', value: 'starters' },
+    { label: 'Mains', value: 'mains' },
+    { label: 'Desserts', value: 'desserts' },
+    { label: 'Drinks', value: 'drinks' },
+  ]
 
-const allergenOptions = [
-  "Gluten",
-  "Dairy",
-  "Nuts",
-  "Shellfish",
-  "Eggs",
-  "Soy",
-  "Fish",
-];
-const tagOptions = [
-  "Vegetarian",
-  "Vegan",
-  "Gluten-Free",
-  "Spicy",
-  "Chef Special",
-  "Popular",
-];
+  const allergenOptions = [
+    'Gluten',
+    'Dairy',
+    'Nuts',
+    'Shellfish',
+    'Eggs',
+    'Soy',
+    'Fish',
+  ]
+  const tagOptions = [
+    'Vegetarian',
+    'Vegan',
+    'Gluten-Free',
+    'Spicy',
+    'Chef Special',
+    'Popular',
+  ]
 
-const headers = [
-  { title: "Image", key: "image", sortable: false, width: "120px" },
-  { title: "Name", key: "name", sortable: true },
-  { title: "Price", key: "price", sortable: true },
-  { title: "Allergens", key: "allergens", sortable: false },
-  { title: "Tags", key: "tags", sortable: false },
-  { title: "Status", key: "available", sortable: true, width: "110px" },
-  { title: "Actions", key: "actions", sortable: false, align: "end" },
-];
+  const headers = [
+    { title: 'Image', key: 'image', sortable: false, width: '120px' },
+    { title: 'Name', key: 'name', sortable: true },
+    { title: 'Price', key: 'price', sortable: true },
+    { title: 'Allergens', key: 'allergens', sortable: false },
+    { title: 'Tags', key: 'tags', sortable: false },
+    { title: 'Status', key: 'available', sortable: true, width: '110px' },
+    { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
+  ]
 
-// Live list from datamodel — filtered by the admin's own venue
-const VENUE_ID = session?.venueId ?? null;
+  // Live list from datamodel — filtered by the admin's own venue
+  const VENUE_ID = session?.venueId ?? null
 
-// Environments for this venue — used in the scope dropdown
-const venueEnvironments = computed(() =>
-  ENVIRONMENT_LIST.filter(e => e.venueId === VENUE_ID),
-);
+  // Environments for this venue — used in the scope dropdown
+  const venueEnvironments = computed(() =>
+    ENVIRONMENT_LIST.filter(e => e.venueId === VENUE_ID),
+  )
 
-const environmentOptions = computed(() =>
-  venueEnvironments.value.map(e => ({ title: e.name, value: e.id })),
-);
+  const environmentOptions = computed(() =>
+    venueEnvironments.value.map(e => ({ title: e.name, value: e.id })),
+  )
 
-const formData = ref({
-  name: "",
-  price: "",
-  category: "starters",
-  allergens: [],
-  tags: [],
-  description: "",
-  available: true,
-  environmentIds: [],
-});
-
-const filteredItems = computed(() => {
-  if (VENUE_ID === null) return [];
-  return MENU_ITEM_LIST.filter(
-    (item) => item.venueId === VENUE_ID && item.category === selectedCategory.value,
-  );
-});
-
-const openAddDialog = () => {
-  isEditing.value = false;
-  formError.value = "";
-  formData.value = {
-    name: "",
-    price: "",
-    category: selectedCategory.value,
+  const formData = ref({
+    name: '',
+    price: '',
+    category: 'starters',
     allergens: [],
     tags: [],
-    description: "",
+    description: '',
     available: true,
     environmentIds: [],
-  };
-  showItemDialog.value = true;
-};
+  })
 
-const editItem = (item) => {
-  isEditing.value = true;
-  formError.value = "";
-  formData.value = { ...item, description: item.desc, available: item.available ?? true, environmentIds: item.environmentIds ?? [] };
-  showItemDialog.value = true;
-};
+  const filteredItems = computed(() => {
+    if (VENUE_ID === null) return []
+    return MENU_ITEM_LIST.filter(
+      item => item.venueId === VENUE_ID && item.category === selectedCategory.value,
+    )
+  })
 
-const deleteItem = (item) => {
-  itemToDelete.value = item;
-  showDeleteDialog.value = true;
-};
-
-const confirmDelete = () => {
-  deleteMenuItem(itemToDelete.value.id);
-  showDeleteDialog.value = false;
-  itemToDelete.value = null;
-};
-
-const saveItem = () => {
-  const { name, price, category, allergens, tags, description, available, environmentIds } = formData.value;
-  if (!name || !price) {
-    formError.value = !name ? "Item name is required." : "Price is required.";
-    return;
+  function openAddDialog () {
+    isEditing.value = false
+    formError.value = ''
+    formData.value = {
+      name: '',
+      price: '',
+      category: selectedCategory.value,
+      allergens: [],
+      tags: [],
+      description: '',
+      available: true,
+      environmentIds: [],
+    }
+    showItemDialog.value = true
   }
-  formError.value = "";
-  if (isEditing.value) {
-    updateMenuItem(formData.value.id, { name, price: Number(price), category, allergens, tags, desc: description, available, environmentIds });
-  } else {
-    addMenuItem(new MenuItem({
-      id: Date.now(),
-      venueId: VENUE_ID,
-      name,
-      price: Number(price),
-      category,
-      allergens,
-      tags,
-      desc: description,
-      available,
-      environmentIds,
-    }));
-  }
-  closeDialog();
-};
 
-const closeDialog = () => {
-  showItemDialog.value = false;
-  formData.value = {
-    name: "",
-    price: "",
-    category: "starters",
-    allergens: [],
-    tags: [],
-    description: "",
-    available: true,
-    environmentIds: [],
-  };
-};
+  function editItem (item) {
+    isEditing.value = true
+    formError.value = ''
+    formData.value = { ...item, description: item.desc, available: item.available ?? true, environmentIds: item.environmentIds ?? [] }
+    showItemDialog.value = true
+  }
+
+  function deleteItem (item) {
+    itemToDelete.value = item
+    showDeleteDialog.value = true
+  }
+
+  function confirmDelete () {
+    deleteMenuItem(itemToDelete.value.id)
+    showDeleteDialog.value = false
+    itemToDelete.value = null
+  }
+
+  function saveItem () {
+    const { name, price, category, allergens, tags, description, available, environmentIds } = formData.value
+    if (!name || !price) {
+      formError.value = name ? 'Price is required.' : 'Item name is required.'
+      return
+    }
+    formError.value = ''
+    if (isEditing.value) {
+      updateMenuItem(formData.value.id, { name, price: Number(price), category, allergens, tags, desc: description, available, environmentIds })
+    } else {
+      addMenuItem(new MenuItem({
+        id: Date.now(),
+        venueId: VENUE_ID,
+        name,
+        price: Number(price),
+        category,
+        allergens,
+        tags,
+        desc: description,
+        available,
+        environmentIds,
+      }))
+    }
+    closeDialog()
+  }
+
+  function closeDialog () {
+    showItemDialog.value = false
+    formData.value = {
+      name: '',
+      price: '',
+      category: 'starters',
+      allergens: [],
+      tags: [],
+      description: '',
+      available: true,
+      environmentIds: [],
+    }
+  }
 </script>
 
 <style scoped>

@@ -1,8 +1,8 @@
 <template>
   <!-- Top Navigation Bar -->
   <AppNavbarSpotly
-    :nav-links="adminNavLinks"
     active-link="reservations"
+    :nav-links="adminNavLinks"
     @nav="handleNav"
   />
 
@@ -21,13 +21,13 @@
           <!-- Filter Dropdown -->
           <v-select
             v-model="statusFilter"
-            :items="filterOptions"
-            variant="outlined"
-            density="compact"
             class="filter-select"
-            prepend-inner-icon="mdi-filter-variant"
+            density="compact"
             hide-details
+            :items="filterOptions"
+            prepend-inner-icon="mdi-filter-variant"
             style="max-width: 200px"
+            variant="outlined"
           />
         </div>
         <!-- Decorative line -->
@@ -39,9 +39,9 @@
         <StatCard
           v-for="stat in stats"
           :key="stat.label"
-          :value="stat.value"
-          :label="stat.label"
           :color="stat.color"
+          :label="stat.label"
+          :value="stat.value"
         />
       </div>
 
@@ -79,9 +79,7 @@
               </td>
               <td class="table-td">
                 <div class="party-size">
-                  <v-icon size="14" class="mr-1" color="#D4AF37"
-                    >mdi-account-group</v-icon
-                  >
+                  <v-icon class="mr-1" color="#D4AF37" size="14">mdi-account-group</v-icon>
                   {{ res.guests }}
                 </div>
               </td>
@@ -108,22 +106,22 @@
               <td class="table-td text-center">
                 <div class="action-btns d-flex justify-center ga-2">
                   <v-btn
+                    class="action-btn action-btn--approve"
+                    :disabled="res.status === 'APPROVED'"
                     icon
                     size="small"
-                    class="action-btn action-btn--approve"
-                    @click="approve(res)"
-                    :disabled="res.status === 'APPROVED'"
                     title="Approve"
+                    @click="approve(res)"
                   >
                     <v-icon size="16">mdi-check</v-icon>
                   </v-btn>
                   <v-btn
+                    class="action-btn action-btn--reject"
+                    :disabled="res.status === 'REJECTED'"
                     icon
                     size="small"
-                    class="action-btn action-btn--reject"
-                    @click="confirmReject(res)"
-                    :disabled="res.status === 'REJECTED'"
                     title="Reject"
+                    @click="confirmReject(res)"
                   >
                     <v-icon size="16">mdi-close</v-icon>
                   </v-btn>
@@ -132,10 +130,8 @@
             </tr>
             <!-- Empty state -->
             <tr v-if="filteredReservations.length === 0">
-              <td colspan="8" class="empty-state text-center pa-12">
-                <v-icon size="48" color="#D4AF37" class="mb-4"
-                  >mdi-calendar-check</v-icon
-                >
+              <td class="empty-state text-center pa-12" colspan="8">
+                <v-icon class="mb-4" color="#D4AF37" size="48">mdi-calendar-check</v-icon>
                 <div class="empty-text">
                   No reservations found for this filter
                 </div>
@@ -147,19 +143,17 @@
 
       <!-- Footer note -->
       <div class="footer-note mt-6 d-flex align-center justify-space-between">
-        <span
-          >Showing {{ filteredReservations.length }} of
-          {{ venueReservations.length }} reservations</span
-        >
+        <span>Showing {{ filteredReservations.length }} of
+          {{ venueReservations.length }} reservations</span>
         <div class="legend d-flex align-center ga-4">
           <div class="legend-item">
-            <span class="dot dot--pending"></span> Pending
+            <span class="dot dot--pending" /> Pending
           </div>
           <div class="legend-item">
-            <span class="dot dot--approved"></span> Approved
+            <span class="dot dot--approved" /> Approved
           </div>
           <div class="legend-item">
-            <span class="dot dot--rejected"></span> Rejected
+            <span class="dot dot--rejected" /> Rejected
           </div>
         </div>
       </div>
@@ -176,8 +170,8 @@
           Reject reservation <strong style="color: #d4af37">#{{ pendingRejectRes?.id }}</strong> for <strong style="color: #fff">{{ pendingRejectRes?.name }}</strong>?
         </p>
         <div class="d-flex gap-3 justify-center">
-          <v-btn variant="outlined" class="secondary-btn" @click="rejectDialog = false">Cancel</v-btn>
-          <v-btn flat class="danger-btn" @click="doReject">Reject</v-btn>
+          <v-btn class="secondary-btn" variant="outlined" @click="rejectDialog = false">Cancel</v-btn>
+          <v-btn class="danger-btn" flat @click="doReject">Reject</v-btn>
         </div>
       </v-card-text>
     </v-card>
@@ -188,97 +182,97 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
-import { useSnackbar } from "@/composables/useSnackbar";
-import AppNavbarSpotly from "@/components/layout/AppNavbarSpotly.vue";
-import StatCard from "@/components/ui/StatCard.vue";
-import ReservationStatusChip from "@/components/feedback/ReservationStatusChip.vue";
-import SpotlySnackbar from "@/components/feedback/SpotlySnackbar.vue";
-import { useAdminNav } from "@/composables/useAdminNav";
-import { useAuth } from "@/composables/useAuth";
-import { getVenueByAdminEmail } from "@/datamodel/Venue.js";
-import { RESERVATION_LIST, updateReservationStatus } from "@/datamodel/Reservation";
-import { ReservationLog, addReservationLog } from "@/datamodel/ReservationLog";
+  import { computed, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import ReservationStatusChip from '@/components/feedback/ReservationStatusChip.vue'
+  import SpotlySnackbar from '@/components/feedback/SpotlySnackbar.vue'
+  import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
+  import StatCard from '@/components/ui/StatCard.vue'
+  import { useAdminNav } from '@/composables/useAdminNav'
+  import { useAuth } from '@/composables/useAuth'
+  import { useSnackbar } from '@/composables/useSnackbar'
+  import { RESERVATION_LIST, updateReservationStatus } from '@/datamodel/Reservation'
+  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog'
+  import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
 
-const router = useRouter();
-const { snackbar, notifySuccess, notifyError } = useSnackbar();
+  const router = useRouter()
+  const { snackbar, notifySuccess, notifyError } = useSnackbar()
 
-// ─── Nav ──────────────────────────────────────────────────────────────────────
-const { adminNavLinks, handleNav } = useAdminNav();
-const { getSession } = useAuth();
-const session = getSession();
-const actorRole = getVenueByAdminEmail(session?.email) ? 'admin' : 'staff';
+  // ─── Nav ──────────────────────────────────────────────────────────────────────
+  const { adminNavLinks, handleNav } = useAdminNav()
+  const { getSession } = useAuth()
+  const session = getSession()
+  const actorRole = getVenueByAdminEmail(session?.email) ? 'admin' : 'staff'
 
-// ─── Venue-scoped reservations ────────────────────────────────────────────────
-const venueReservations = computed(() =>
-  session?.venueId != null
-    ? RESERVATION_LIST.filter(r => r.venueId === session.venueId)
-    : []
-);
+  // ─── Venue-scoped reservations ────────────────────────────────────────────────
+  const venueReservations = computed(() =>
+    session?.venueId == null
+      ? []
+      : RESERVATION_LIST.filter(r => r.venueId === session.venueId),
+  )
 
-// ─── State ────────────────────────────────────────────────────────────────────
-const statusFilter = ref("All");
-const filterOptions = ["All", "Pending", "Approved", "Rejected", "Cancelled"];
-// Map display labels → canonical statuses
-const displayToStatus = { Pending: "REQUESTED", Approved: "APPROVED", Rejected: "REJECTED", Cancelled: "CANCELLED" };
+  // ─── State ────────────────────────────────────────────────────────────────────
+  const statusFilter = ref('All')
+  const filterOptions = ['All', 'Pending', 'Approved', 'Rejected', 'Cancelled']
+  // Map display labels → canonical statuses
+  const displayToStatus = { Pending: 'REQUESTED', Approved: 'APPROVED', Rejected: 'REJECTED', Cancelled: 'CANCELLED' }
 
-// ─── Reject confirmation dialog ────────────────────────────────────────────────
-const rejectDialog = ref(false);
-const pendingRejectRes = ref(null);
+  // ─── Reject confirmation dialog ────────────────────────────────────────────────
+  const rejectDialog = ref(false)
+  const pendingRejectRes = ref(null)
 
-const confirmReject = (res) => {
-  pendingRejectRes.value = res;
-  rejectDialog.value = true;
-};
-const doReject = () => {
-  const res = pendingRejectRes.value;
-  if (!res) return;
-  const prev = res.status;
-  updateReservationStatus(res.id, "REJECTED");
-  addReservationLog(new ReservationLog({
-    id: Date.now(),
-    reservationId: res.id,
-    previousStatus: prev,
-    newStatus: "REJECTED",
-    timestamp: new Date().toISOString(),
-    actorRole,
-  }));
-  notifyError(`Reservation #${res.id} rejected`);
-  rejectDialog.value = false;
-  pendingRejectRes.value = null;
-};
+  function confirmReject (res) {
+    pendingRejectRes.value = res
+    rejectDialog.value = true
+  }
+  function doReject () {
+    const res = pendingRejectRes.value
+    if (!res) return
+    const prev = res.status
+    updateReservationStatus(res.id, 'REJECTED')
+    addReservationLog(new ReservationLog({
+      id: Date.now(),
+      reservationId: res.id,
+      previousStatus: prev,
+      newStatus: 'REJECTED',
+      timestamp: new Date().toISOString(),
+      actorRole,
+    }))
+    notifyError(`Reservation #${res.id} rejected`)
+    rejectDialog.value = false
+    pendingRejectRes.value = null
+  }
 
-const stats = computed(() => [
-  { label: "Total", value: venueReservations.value.length, color: "#D4AF37" },
-  { label: "Pending", value: venueReservations.value.filter((r) => r.status === "REQUESTED").length, color: "#C71585" },
-  { label: "Approved", value: venueReservations.value.filter((r) => r.status === "APPROVED").length, color: "#2EBB57" },
-  { label: "Rejected", value: venueReservations.value.filter((r) => r.status === "REJECTED").length, color: "#888" },
-]);
+  const stats = computed(() => [
+    { label: 'Total', value: venueReservations.value.length, color: '#D4AF37' },
+    { label: 'Pending', value: venueReservations.value.filter(r => r.status === 'REQUESTED').length, color: '#C71585' },
+    { label: 'Approved', value: venueReservations.value.filter(r => r.status === 'APPROVED').length, color: '#2EBB57' },
+    { label: 'Rejected', value: venueReservations.value.filter(r => r.status === 'REJECTED').length, color: '#888' },
+  ])
 
-const filteredReservations = computed(() => {
-  if (statusFilter.value === "All") return venueReservations.value;
-  const canonical = displayToStatus[statusFilter.value];
-  return venueReservations.value.filter((r) => r.status === canonical);
-});
+  const filteredReservations = computed(() => {
+    if (statusFilter.value === 'All') return venueReservations.value
+    const canonical = displayToStatus[statusFilter.value]
+    return venueReservations.value.filter(r => r.status === canonical)
+  })
 
-// ─── Snackbar ─────────────────────────────────────────────────────────────────
-// snackbar state managed by useSnackbar composable
+  // ─── Snackbar ─────────────────────────────────────────────────────────────────
+  // snackbar state managed by useSnackbar composable
 
-// ─── Actions ──────────────────────────────────────────────────────────────────
-const approve = (res) => {
-  const prev = res.status;
-  updateReservationStatus(res.id, "APPROVED");
-  addReservationLog(new ReservationLog({
-    id: Date.now(),
-    reservationId: res.id,
-    previousStatus: prev,
-    newStatus: "APPROVED",
-    timestamp: new Date().toISOString(),
-    actorRole,
-  }));
-  notifySuccess(`Reservation #${res.id} approved`);
-};
+  // ─── Actions ──────────────────────────────────────────────────────────────────
+  function approve (res) {
+    const prev = res.status
+    updateReservationStatus(res.id, 'APPROVED')
+    addReservationLog(new ReservationLog({
+      id: Date.now(),
+      reservationId: res.id,
+      previousStatus: prev,
+      newStatus: 'APPROVED',
+      timestamp: new Date().toISOString(),
+      actorRole,
+    }))
+    notifySuccess(`Reservation #${res.id} approved`)
+  }
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 // statusIcon + statusColor now provided by ReservationStatusChip via useTableStatus
 </script>

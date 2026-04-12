@@ -10,7 +10,7 @@
     Emits:
       table-click(tableUiObject)
   -->
-  <div class="vfm-outer" ref="outerRef" :style="{ height: scaledHeight + 'px' }">
+  <div ref="outerRef" class="vfm-outer" :style="{ height: scaledHeight + 'px' }">
     <div v-if="environment" class="vfm-canvas" :style="canvasStyle">
 
       <!-- Decor elements (entrance, bar, plants — capacity 0) -->
@@ -20,7 +20,7 @@
         class="vfm-decor"
         :style="{ left: el.x + 'px', top: el.y + 'px' }"
       >
-        <v-icon size="18" color="rgba(255,255,255,0.18)">{{ decorIcon(el.type) }}</v-icon>
+        <v-icon color="rgba(255,255,255,0.18)" size="18">{{ decorIcon(el.type) }}</v-icon>
         <span class="vfm-decor-label">{{ el.label }}</span>
       </div>
 
@@ -32,11 +32,11 @@
         :style="slotStyle(table)"
       >
         <TableCard
-          :table="table"
           :readonly="mode === 'readonly'"
-          @click="$emit('table-click', table)"
+          :table="table"
           @check-in="$emit('table-click', table)"
           @check-out="$emit('table-click', table)"
+          @click="$emit('table-click', table)"
           @details="$emit('table-click', table)"
         />
       </div>
@@ -44,97 +44,97 @@
 
     <!-- Empty state -->
     <div v-else class="vfm-empty">
-      <v-icon size="40" color="rgba(212,175,55,0.3)">mdi-floor-plan</v-icon>
+      <v-icon color="rgba(212,175,55,0.3)" size="40">mdi-floor-plan</v-icon>
       <p>No environment selected</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import TableCard from './TableCard.vue'
+  import { computed, onMounted, onUnmounted, ref } from 'vue'
+  import TableCard from './TableCard.vue'
 
-const props = defineProps({
-  /** Full environment object with canvas dimensions and elements array */
-  environment: {
-    type: Object,
-    default: null,
-  },
-  /** Pre-computed UI table array from useFloorTables (includes x, y, rotation) */
-  tables: {
-    type: Array,
-    default: () => [],
-  },
-  /** 'staff' = clickable action buttons; 'readonly' = display only */
-  mode: {
-    type: String,
-    default: 'readonly',
-  },
-})
-
-defineEmits(['table-click'])
-
-// ── Container measurement ─────────────────────────────────────────────────────
-const outerRef = ref(null)
-const containerWidth = ref(1000) // default until measured
-
-let ro = null
-onMounted(() => {
-  if (!outerRef.value) return
-  containerWidth.value = outerRef.value.clientWidth || 1000
-  ro = new ResizeObserver(entries => {
-    containerWidth.value = entries[0].contentRect.width || 1000
+  const props = defineProps({
+    /** Full environment object with canvas dimensions and elements array */
+    environment: {
+      type: Object,
+      default: null,
+    },
+    /** Pre-computed UI table array from useFloorTables (includes x, y, rotation) */
+    tables: {
+      type: Array,
+      default: () => [],
+    },
+    /** 'staff' = clickable action buttons; 'readonly' = display only */
+    mode: {
+      type: String,
+      default: 'readonly',
+    },
   })
-  ro.observe(outerRef.value)
-})
-onUnmounted(() => ro?.disconnect())
 
-// ── Scale computation ─────────────────────────────────────────────────────────
-const canvasW = computed(() => props.environment?.canvas?.width || 1000)
-const canvasH = computed(() => props.environment?.canvas?.height || 660)
-const scale = computed(() => Math.min(1, containerWidth.value / canvasW.value))
-const scaledHeight = computed(() => Math.ceil(canvasH.value * scale.value))
+  defineEmits(['table-click'])
 
-const canvasStyle = computed(() => ({
-  position: 'relative',
-  width: `${canvasW.value}px`,
-  height: `${canvasH.value}px`,
-  transform: `scale(${scale.value})`,
-  transformOrigin: 'top left',
-}))
+  // ── Container measurement ─────────────────────────────────────────────────────
+  const outerRef = ref(null)
+  const containerWidth = ref(1000) // default until measured
 
-// ── Table slot positioning ────────────────────────────────────────────────────
-const CARD_WIDTH = 130 // px — matches seed element spacing (~140px between elements)
+  let ro = null
+  onMounted(() => {
+    if (!outerRef.value) return
+    containerWidth.value = outerRef.value.clientWidth || 1000
+    ro = new ResizeObserver(entries => {
+      containerWidth.value = entries[0].contentRect.width || 1000
+    })
+    ro.observe(outerRef.value)
+  })
+  onUnmounted(() => ro?.disconnect())
 
-const slotStyle = (table) => {
-  const style = {
-    position: 'absolute',
-    left: `${table.x}px`,
-    top: `${table.y}px`,
-    width: `${CARD_WIDTH}px`,
-    transformOrigin: 'center center',
+  // ── Scale computation ─────────────────────────────────────────────────────────
+  const canvasW = computed(() => props.environment?.canvas?.width || 1000)
+  const canvasH = computed(() => props.environment?.canvas?.height || 660)
+  const scale = computed(() => Math.min(1, containerWidth.value / canvasW.value))
+  const scaledHeight = computed(() => Math.ceil(canvasH.value * scale.value))
+
+  const canvasStyle = computed(() => ({
+    position: 'relative',
+    width: `${canvasW.value}px`,
+    height: `${canvasH.value}px`,
+    transform: `scale(${scale.value})`,
+    transformOrigin: 'top left',
+  }))
+
+  // ── Table slot positioning ────────────────────────────────────────────────────
+  const CARD_WIDTH = 130 // px — matches seed element spacing (~140px between elements)
+
+  function slotStyle (table) {
+    const style = {
+      position: 'absolute',
+      left: `${table.x}px`,
+      top: `${table.y}px`,
+      width: `${CARD_WIDTH}px`,
+      transformOrigin: 'center center',
+    }
+    if (table.rotation) {
+      style.transform = `rotate(${table.rotation}deg)`
+    }
+    return style
   }
-  if (table.rotation) {
-    style.transform = `rotate(${table.rotation}deg)`
+
+  // ── Decor elements ────────────────────────────────────────────────────────────
+  const DECOR_ICONS = {
+    entrance: 'mdi-door-open',
+    bar_counter: 'mdi-glass-mug-variant',
+    plant: 'mdi-flower-outline',
+    sofa: 'mdi-sofa-outline',
+    stage: 'mdi-star-outline',
+    dj_booth: 'mdi-music',
   }
-  return style
-}
 
-// ── Decor elements ────────────────────────────────────────────────────────────
-const DECOR_ICONS = {
-  entrance: 'mdi-door-open',
-  bar_counter: 'mdi-glass-mug-variant',
-  plant: 'mdi-flower-outline',
-  sofa: 'mdi-sofa-outline',
-  stage: 'mdi-star-outline',
-  dj_booth: 'mdi-music',
-}
+  const decorIcon = type => DECOR_ICONS[type] || 'mdi-circle-small'
 
-const decorIcon = (type) => DECOR_ICONS[type] || 'mdi-circle-small'
-
-const decorElements = computed(() =>
-  props.environment?.elements?.filter(el => el.capacity === 0) || [],
-)
+  const decorElements = computed(() =>
+    props.environment?.elements?.filter(el => el.capacity === 0) || [],
+  )
 </script>
 
 <style scoped>

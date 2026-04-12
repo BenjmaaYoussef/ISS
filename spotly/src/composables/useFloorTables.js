@@ -16,10 +16,12 @@ import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
  * @param {import('vue').Ref<string>} environmentId
  * @param {import('vue').Ref<string>} date — ISO date string (YYYY-MM-DD)
  */
-export function useFloorTables(environmentId, date) {
+export function useFloorTables (environmentId, date) {
   return computed(() => {
     const env = ENVIRONMENT_LIST.find(e => e.id === environmentId.value)
-    if (!env) return []
+    if (!env) {
+      return []
+    }
 
     return env.elements
       .filter(el => el.capacity > 0)
@@ -29,20 +31,23 @@ export function useFloorTables(environmentId, date) {
         // This handles the case where a walk-in is seated while a future
         // approved reservation also exists on the same table.
         const allRes = RESERVATION_LIST.filter(r =>
-          r.environmentId === env.id &&
-          r.elementId === el.id &&
-          r.date === date.value &&
-          ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
+          r.environmentId === env.id
+          && r.elementId === el.id
+          && r.date === date.value
+          && ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
         )
-        const res =
-          allRes.find(r => r.status === 'CHECKED_IN') ??
-          allRes.find(r => r.status === 'APPROVED') ??
-          allRes.find(r => r.status === 'REQUESTED') ??
-          null
+        const res
+          = allRes.find(r => r.status === 'CHECKED_IN')
+            ?? allRes.find(r => r.status === 'APPROVED')
+            ?? allRes.find(r => r.status === 'REQUESTED')
+            ?? null
 
         let status = 'free'
-        if (res?.status === 'CHECKED_IN') status = 'occupied'
-        else if (res?.status === 'APPROVED' || res?.status === 'REQUESTED') status = 'reserved'
+        if (res?.status === 'CHECKED_IN') {
+          status = 'occupied'
+        } else if (res?.status === 'APPROVED' || res?.status === 'REQUESTED') {
+          status = 'reserved'
+        }
 
         return {
           id: el.label,

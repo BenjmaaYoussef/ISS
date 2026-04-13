@@ -180,9 +180,15 @@
               </div>
 
               <div class="past-right">
-                <v-chip class="completed-chip" size="x-small">
-                  <v-icon size="10" start>mdi-check-circle</v-icon>
-                  Completed
+                <v-chip
+                  class="completed-chip"
+                  size="x-small"
+                  :class="visit.status === 'CANCELLED' ? 'chip--cancelled' : visit.status === 'REJECTED' ? 'chip--rejected' : visit.status === 'NO_SHOW' ? 'chip--noshow' : ''"
+                >
+                  <v-icon size="10" start>
+                    {{ visit.status === 'CANCELLED' ? 'mdi-close-circle' : visit.status === 'REJECTED' ? 'mdi-cancel' : visit.status === 'NO_SHOW' ? 'mdi-account-off' : 'mdi-check-circle' }}
+                  </v-icon>
+                  {{ visit.status === 'CANCELLED' ? 'Cancelled' : visit.status === 'REJECTED' ? 'Rejected' : visit.status === 'NO_SHOW' ? 'No Show' : 'Completed' }}
                 </v-chip>
               </div>
             </div>
@@ -367,6 +373,7 @@
           rawDate:   r.date,
           venueId:   r.venueId,
           venueName: venueNameById(r.venueId),
+          status:    r.status,
         }
       })
       .sort((a, b) => b.rawDate.localeCompare(a.rawDate)),
@@ -818,6 +825,21 @@
   font-weight: 600 !important;
   border: 1px solid rgba(46, 187, 87, 0.2);
   flex-shrink: 0;
+}
+.completed-chip.chip--cancelled {
+  background: rgba(255, 82, 82, 0.12) !important;
+  color: #ff5252 !important;
+  border-color: rgba(255, 82, 82, 0.2) !important;
+}
+.completed-chip.chip--rejected {
+  background: rgba(255, 152, 0, 0.12) !important;
+  color: #ff9800 !important;
+  border-color: rgba(255, 152, 0, 0.2) !important;
+}
+.completed-chip.chip--noshow {
+  background: rgba(107, 122, 141, 0.15) !important;
+  color: #6b7a8d !important;
+  border-color: rgba(107, 122, 141, 0.2) !important;
 }
 
 /* ── Loyalty Card ── */

@@ -4,6 +4,7 @@
     :show-default-actions="false"
     :show-powered-by="false"
     :venue-name="venueName"
+    :venue-id="bookingVenueId"
   >
     <template #actions>
       <BookingStepIndicator

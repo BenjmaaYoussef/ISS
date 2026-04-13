@@ -17,8 +17,11 @@
       <!-- ── Left: Venue Branding ── -->
       <div class="d-flex align-center" style="gap: 12px; min-width: 0">
         <!-- Venue name + optional sub-label (e.g. table number) -->
-        <div style="min-width: 0">
-          <div class="venue-name" :class="{ 'venue-name--sm': mobile }">{{ venueName }}</div>
+        <div style="min-width: 0" @click="venueId ? goToVenue() : undefined">
+          <div
+            class="venue-name"
+            :class="[{ 'venue-name--sm': mobile }, { 'venue-name--link': !!venueId }]"
+          >{{ venueName }}</div>
           <div v-if="venueSubLabel" class="venue-sub">{{ venueSubLabel }}</div>
         </div>
 
@@ -60,10 +63,12 @@
 
 <script setup>
   import { useDisplay } from 'vuetify'
+  import { useRouter } from 'vue-router'
 
   const { mobile } = useDisplay()
+  const router = useRouter()
 
-  defineProps({
+  const props = defineProps({
     /** Primary venue name displayed as the main heading */
     venueName: {
       type: String,
@@ -89,7 +94,20 @@
       type: Boolean,
       default: false,
     },
+    /** When provided, venue name becomes a link that aborts booking and returns to the venue page */
+    venueId: {
+      type: Number,
+      default: null,
+    },
   })
+
+  function goToVenue () {
+    sessionStorage.removeItem('spotly_cart')
+    sessionStorage.removeItem('spotly_booking')
+    sessionStorage.removeItem('spotly_selected_env')
+    sessionStorage.removeItem('spotly_pending_reservation_id')
+    router.push(`/venue/${props.venueId}`)
+  }
 
 </script>
 
@@ -107,6 +125,13 @@
 }
 .venue-name--sm {
   font-size: 1rem;
+}
+.venue-name--link {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.venue-name--link:hover {
+  opacity: 0.75;
 }
 .venue-sub {
   font-size: 0.62rem;

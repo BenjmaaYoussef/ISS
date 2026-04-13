@@ -12,6 +12,7 @@
       :show-default-actions="false"
       :show-powered-by="false"
       :venue-name="venueName"
+      :venue-id="currentReservation?.venueId ?? null"
       venue-sub-label="Awaiting Decision"
     >
       <template #actions>

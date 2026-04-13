@@ -9,37 +9,37 @@
       class="d-flex align-center"
       fluid
       :style="
-        compact ? 'padding: 0 16px !important' : 'padding: 0 48px !important'
+        mobile || compact
+          ? 'padding: 0 12px !important'
+          : 'padding: 0 48px !important'
       "
     >
       <!-- ── Left: Venue Branding ── -->
-      <div class="d-flex align-center" style="gap: 16px">
+      <div class="d-flex align-center" style="gap: 12px; min-width: 0">
         <!-- Venue name + optional sub-label (e.g. table number) -->
-        <div>
-          <div class="venue-name">{{ venueName }}</div>
+        <div style="min-width: 0">
+          <div class="venue-name" :class="{ 'venue-name--sm': mobile }">{{ venueName }}</div>
           <div v-if="venueSubLabel" class="venue-sub">{{ venueSubLabel }}</div>
         </div>
 
-        <!-- Powered by Spotly badge -->
+        <!-- Powered by Spotly badge — logo only on mobile -->
         <div
           v-if="showPoweredBy"
           class="d-flex align-center"
           style="
             border-left: 1px solid rgba(212, 175, 55, 0.25);
-            padding-left: 14px;
+            padding-left: 12px;
             gap: 6px;
+            flex-shrink: 0;
           "
         >
           <img
             alt="Spotly"
-            :height="compact ? 18 : 22"
+            :height="mobile ? 16 : compact ? 18 : 22"
             src="@/assets/spotlyLogo.png"
             style="object-fit: contain; opacity: 0.65"
           >
-          <span
-            class="powered-text"
-            :class="compact ? 'd-none d-sm-inline' : ''"
-          >
+          <span v-if="!mobile" class="powered-text">
             Powered by Spotly
           </span>
         </div>
@@ -59,6 +59,10 @@
 </template>
 
 <script setup>
+  import { useDisplay } from 'vuetify'
+
+  const { mobile } = useDisplay()
+
   defineProps({
     /** Primary venue name displayed as the main heading */
     venueName: {
@@ -98,6 +102,11 @@
   letter-spacing: 0.5px;
   line-height: 1.2;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.venue-name--sm {
+  font-size: 1rem;
 }
 .venue-sub {
   font-size: 0.62rem;

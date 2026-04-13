@@ -15,7 +15,7 @@
         ]"
       />
       <v-btn
-        class="text-none px-4 ml-4 nav-back-btn"
+        class="text-none px-4 ml-4 nav-back-btn d-none d-sm-flex"
         :ripple="false"
         size="small"
         variant="text"
@@ -292,15 +292,16 @@
   const route = useRoute()
   const router = useRouter()
 
-  const venueName = computed(() => {
-    try {
-      const booking = JSON.parse(sessionStorage.getItem('spotly_booking') || '{}')
-      const id = Number(booking.venueId)
-      return VENUE_LIST.find(v => v.id === id)?.name ?? 'Venue'
-    } catch {
-      return 'Venue'
-    }
-  })
+  const booking = (() => {
+    try { return JSON.parse(sessionStorage.getItem('spotly_booking') || '{}') }
+    catch { return {} }
+  })()
+  const bookingVenueId = Number(booking.venueId) || null
+  const bookingEnvId   = booking.environmentId   || null
+
+  const venueName = computed(() =>
+    VENUE_LIST.find(v => v.id === bookingVenueId)?.name ?? 'Venue',
+  )
 
   // Read cart passed from seats page via sessionStorage
   const cart = ref([])
@@ -320,7 +321,9 @@
       return
     }
     if (cart.value.length === 0) {
-      router.replace('/booking/seats')
+      router.replace(bookingVenueId
+        ? `/booking/seats?venueId=${bookingVenueId}&envId=${bookingEnvId ?? ''}`
+        : '/booking/seats')
     }
   })
 
@@ -351,7 +354,9 @@
     )
   })
 
-  const goBack = () => router.push('/booking/seats')
+  const goBack = () => router.push(bookingVenueId
+    ? `/booking/seats?venueId=${bookingVenueId}&envId=${bookingEnvId ?? ''}`
+    : '/booking/seats')
   function requestReservation () {
     if (!isFormValid.value || submitting.value) return
     submitting.value = true

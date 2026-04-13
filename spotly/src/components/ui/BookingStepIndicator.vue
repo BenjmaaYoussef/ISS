@@ -21,8 +21,8 @@
         <span v-else>{{ index + 1 }}</span>
       </div>
 
-      <!-- Step label (only on active) -->
-      <span v-if="index + 1 === currentStep" class="step-lbl ml-2 mr-2">
+      <!-- Step label (only on active, hidden on mobile) -->
+      <span v-if="index + 1 === currentStep" class="step-lbl ml-2 mr-2 d-none d-sm-inline">
         {{ step.label }}
       </span>
 

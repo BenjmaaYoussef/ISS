@@ -15,7 +15,7 @@
         ]"
       />
       <v-btn
-        class="text-none px-4 ml-4 nav-back-btn"
+        class="text-none px-4 ml-4 nav-back-btn d-none d-sm-flex"
         :ripple="false"
         size="small"
         variant="text"
@@ -169,7 +169,7 @@
   function continueBooking () {
     sessionStorage.setItem('spotly_selected_env', selected.value)
     sessionStorage.setItem('spotly_booking', JSON.stringify({ venueId: venueId.value, environmentId: selected.value }))
-    router.push('/booking/seats')
+    router.push(`/booking/seats?venueId=${venueId.value}&envId=${selected.value}`)
   }
 </script>
 
@@ -395,9 +395,23 @@
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 600px) {
+  .back-btn {
+    margin-bottom: 24px;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+  }
+
+  .env-card-visual {
+    height: 160px;
+  }
+
   .continue-row {
     justify-content: stretch;
+    margin-top: 28px;
   }
+
   .continue-btn {
     width: 100% !important;
     padding: 0 24px !important;

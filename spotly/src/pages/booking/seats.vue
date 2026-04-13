@@ -15,11 +15,11 @@
         ]"
       />
       <v-btn
-        class="text-none px-4 ml-4 nav-back-btn"
+        class="text-none px-4 ml-4 nav-back-btn d-none d-sm-flex"
         :ripple="false"
         size="small"
         variant="text"
-        @click="$router.push('/booking/environment')"
+        @click="router.push(`/booking/environment?venueId=${bookingVenueId}`)"
       >
         <v-icon class="mr-1" size="14">mdi-arrow-left</v-icon>Back
       </v-btn>
@@ -35,7 +35,7 @@
         <div class="env-tab-bar">
           <div class="env-tabs">
             <v-btn
-              v-for="env in ENVIRONMENT_LIST"
+              v-for="env in venueEnvironments"
               :key="env.id"
               :class="['env-tab-btn', { 'env-tab-btn--active': currentEnvId === env.id }]"
               :ripple="false"
@@ -175,9 +175,9 @@
         </div>
       </div>
 
-      <!-- RIGHT: Table detail panel -->
-      <transition name="panel-in">
-        <div v-if="selectedTable" class="detail-panel">
+      <!-- RIGHT: Table detail panel (sidebar on desktop, bottom sheet on mobile) -->
+      <transition :name="mobile ? 'sheet-in' : 'panel-in'">
+        <div v-if="selectedTable" class="detail-panel" :class="{ 'detail-panel--sheet': mobile }">
           <div class="dp-head">
             <div>
               <div class="dp-title">{{ selectedTable.label }}</div>
@@ -349,8 +349,8 @@
           </template>
         </div>
 
-        <!-- Idle prompt when nothing selected -->
-        <div v-else class="detail-panel detail-panel--idle">
+        <!-- Idle prompt when nothing selected (desktop only) -->
+        <div v-else-if="!mobile" class="detail-panel detail-panel--idle">
           <v-icon
             size="44"
             style="color: rgba(212, 175, 55, 0.18); margin-bottom: 14px"
@@ -476,225 +476,44 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, ref } from 'vue'
-  import { useRouter } from 'vue-router'
+  import { computed, ref } from 'vue'
+  import { useDisplay } from 'vuetify'
+  import { useRoute, useRouter } from 'vue-router'
   import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
   import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
   import { VENUE_LIST } from '@/datamodel/Venue.js'
 
+  const route = useRoute()
   const router = useRouter()
+  const { mobile } = useDisplay()
 
-  // ── Venue name (from sessionStorage set in environment step) ─────────────────
-  const venueName = computed(() => {
+  // ── Venue context — route query is canonical, sessionStorage is fallback ──────
+  const bookingVenueId = (() => {
+    const fromQuery = Number(route.query.venueId) || null
+    if (fromQuery) return fromQuery
     try {
-      const booking = JSON.parse(sessionStorage.getItem('spotly_booking') || '{}')
-      const id = Number(booking.venueId)
-      return VENUE_LIST.find(v => v.id === id)?.name ?? 'Venue'
+      return Number(JSON.parse(sessionStorage.getItem('spotly_booking') || '{}').venueId) || null
     } catch {
-      return 'Venue'
+      return null
     }
-  })
+  })()
 
-  // ── Mock floor plan (same JSON format as P10 output) ─────────────────────────
-  const floorPlan = {
-    venueId: 'venue_demo',
-    environments: [
-      {
-        id: 'env_indoor',
-        name: 'Indoor Lounge',
-        icon: 'mdi-sofa-outline',
-        canvas: { width: 1000, height: 660 },
-        elements: [
-          {
-            id: 'e1',
-            type: 'table_rect_4',
-            shape: 'rect',
-            label: 'Table A1',
-            capacity: 4,
-            x: 100,
-            y: 90,
-            rotation: 0,
-            status: 'available',
-          },
-          {
-            id: 'e2',
-            type: 'table_rect_4',
-            shape: 'rect',
-            label: 'Table A2',
-            capacity: 4,
-            x: 240,
-            y: 90,
-            rotation: 0,
-            status: 'reserved',
-          },
-          {
-            id: 'e3',
-            type: 'table_rect_4',
-            shape: 'rect',
-            label: 'Table A3',
-            capacity: 4,
-            x: 100,
-            y: 230,
-            rotation: 0,
-            status: 'available',
-          },
-          {
-            id: 'e4',
-            type: 'table_rect_6',
-            shape: 'rect',
-            label: 'Table B1',
-            capacity: 6,
-            x: 80,
-            y: 390,
-            rotation: 0,
-            status: 'available',
-          },
-          {
-            id: 'e5',
-            type: 'table_rect_6',
-            shape: 'rect',
-            label: 'Table B2',
-            capacity: 6,
-            x: 270,
-            y: 390,
-            rotation: 0,
-            status: 'reserved',
-          },
-          {
-            id: 'e6',
-            type: 'table_large_8',
-            shape: 'round',
-            label: 'VIP 1',
-            capacity: 8,
-            x: 540,
-            y: 80,
-            rotation: 0,
-            status: 'available',
-          },
-          {
-            id: 'e7',
-            type: 'table_round_2',
-            shape: 'round',
-            label: 'VIP 2',
-            capacity: 2,
-            x: 720,
-            y: 80,
-            rotation: 0,
-            status: 'available',
-          },
-          {
-            id: 'e8',
-            type: 'table_large_8',
-            shape: 'round',
-            label: 'VIP 3',
-            capacity: 8,
-            x: 540,
-            y: 330,
-            rotation: 0,
-            status: 'available',
-          },
-          {
-            id: 'e9',
-            type: 'entrance',
-            label: 'Entrance',
-            capacity: 0,
-            w: 1,
-            h: 1,
-            x: 440,
-            y: 590,
-            rotation: 0,
-          },
-          {
-            id: 'e10',
-            type: 'bar_counter',
-            label: 'Bar',
-            capacity: 0,
-            w: 3,
-            h: 1,
-            x: 780,
-            y: 550,
-            rotation: 0,
-          },
-          {
-            id: 'e11',
-            type: 'plant',
-            label: 'Plant',
-            capacity: 0,
-            w: 1,
-            h: 1,
-            x: 910,
-            y: 100,
-            rotation: 0,
-          },
-        ],
-      },
-      {
-        id: 'env_terrace',
-        name: 'Outdoor Terrace',
-        icon: 'mdi-umbrella-beach-outline',
-        canvas: { width: 1000, height: 660 },
-        elements: [
-          {
-            id: 'et1',
-            type: 'table_rect_4',
-            shape: 'rect',
-            label: 'T1',
-            capacity: 4,
-            x: 120,
-            y: 80,
-            rotation: 0,
-            status: 'available',
-          },
-          {
-            id: 'et2',
-            type: 'table_rect_4',
-            shape: 'rect',
-            label: 'T2',
-            capacity: 4,
-            x: 280,
-            y: 80,
-            rotation: 0,
-            status: 'reserved',
-          },
-          {
-            id: 'et3',
-            type: 'table_rect_4',
-            shape: 'rect',
-            label: 'T3',
-            capacity: 4,
-            x: 440,
-            y: 80,
-            rotation: 0,
-            status: 'available',
-          },
-          {
-            id: 'et4',
-            type: 'table_rect_6',
-            shape: 'rect',
-            label: 'T4',
-            capacity: 6,
-            x: 120,
-            y: 320,
-            rotation: 0,
-            status: 'available',
-          },
-          {
-            id: 'et5',
-            type: 'table_rect_6',
-            shape: 'rect',
-            label: 'T5',
-            capacity: 6,
-            x: 360,
-            y: 320,
-            rotation: 0,
-            status: 'available',
-          },
-        ],
-      },
-    ],
-  }
+  const initialEnvId = (() => {
+    const fromQuery = route.query.envId || null
+    if (fromQuery) return fromQuery
+    return sessionStorage.getItem('spotly_selected_env') || null
+  })()
+
+  const venueName = computed(() =>
+    VENUE_LIST.find(v => v.id === bookingVenueId)?.name ?? 'Venue',
+  )
+
+  // ── Environments scoped to this venue ─────────────────────────────────────────
+  const venueEnvironments = computed(() =>
+    ENVIRONMENT_LIST.filter(e => e.venueId === bookingVenueId),
+  )
 
   // ── Element catalog ───────────────────────────────────────────────────────────
   const elementDefs = {
@@ -707,22 +526,22 @@
   const getElementDef = type => elementDefs[type] ?? null
 
   // ── Environment ───────────────────────────────────────────────────────────────
-  const currentEnvId = ref(ENVIRONMENT_LIST[0]?.id ?? '')
+  const resolvedInitialEnvId = (() => {
+    if (initialEnvId && venueEnvironments.value.some(e => e.id === initialEnvId)) {
+      return initialEnvId
+    }
+    return venueEnvironments.value[0]?.id ?? ''
+  })()
+
+  const currentEnvId = ref(resolvedInitialEnvId)
   const currentEnv = computed(() =>
-    ENVIRONMENT_LIST.find(e => e.id === currentEnvId.value),
+    venueEnvironments.value.find(e => e.id === currentEnvId.value),
   )
   const currentEnvElements = computed(() => currentEnv.value?.elements ?? [])
   function switchEnv (id) {
     currentEnvId.value = id
     selectedTable.value = null
   }
-
-  onMounted(() => {
-    const saved = sessionStorage.getItem('spotly_selected_env')
-    if (saved && ENVIRONMENT_LIST.some(e => e.id === saved)) {
-      currentEnvId.value = saved
-    }
-  })
 
   // ── Canvas helpers ────────────────────────────────────────────────────────────
   const GRID = 40
@@ -774,7 +593,8 @@
     if (!bookingDate.value || !bookingTime.value) return 'available'
     return RESERVATION_LIST.some(
       r =>
-        r.environmentId === envId
+        r.venueId === bookingVenueId
+        && r.environmentId === envId
         && r.elementId === elementId
         && r.date === bookingDate.value
         && r.time === bookingTime.value
@@ -868,6 +688,7 @@
     } else {
       cart.value.splice(existing, 1, item)
     }
+    if (mobile.value) selectedTable.value = null
   }
 
   function removeFromCart (id) {
@@ -1445,6 +1266,7 @@
   align-items: center !important;
   justify-content: center !important;
   width: calc(100% - 28px) !important;
+  min-width: 0 !important;
   margin: 10px 14px 14px !important;
   font-family: var(--font-body) !important;
   font-size: 0.78rem !important;
@@ -1698,4 +1520,93 @@
 }
 
 .gap-2 { gap: 8px; }
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+
+/* Env tabs: scroll horizontally, hide legend on small screens */
+@media (max-width: 600px) {
+  .env-tab-bar {
+    padding: 6px 10px;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .env-tabs {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+  }
+
+  .env-tabs::-webkit-scrollbar { display: none; }
+
+  .legend {
+    flex-shrink: 0;
+  }
+}
+
+/* ─── Bottom sheet (mobile) — driven by JS class, not media query ────────── */
+.detail-panel--sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100% !important;
+  min-width: unset !important;
+  max-height: 75vh;
+  border-left: none;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 20px 20px 0 0;
+  z-index: 150;
+  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.65);
+}
+
+/* Drag handle */
+.detail-panel--sheet::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  background: rgba(212, 175, 55, 0.25);
+  border-radius: 2px;
+  margin: 10px auto 2px;
+  flex-shrink: 0;
+}
+
+/* Sheet slide-up transition (mobile) */
+.sheet-in-enter-active,
+.sheet-in-leave-active {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sheet-in-enter-from,
+.sheet-in-leave-to {
+  transform: translateY(105%);
+}
+
+/* Cart bar: stack actions on very small screens */
+@media (max-width: 500px) {
+  .cart-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 16px;
+  }
+
+  .cart-bar-info {
+    font-size: 0.78rem;
+    justify-content: center;
+  }
+
+  .cart-bar-actions {
+    width: 100%;
+  }
+
+  .cart-outline-btn,
+  .cart-confirm-btn {
+    flex: 1;
+  }
+}
 </style>

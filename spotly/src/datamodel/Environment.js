@@ -1,7 +1,7 @@
 import { reactive, watch } from 'vue'
 
 export class Environment {
-  constructor ({ id, venueId = 1, name, desc = '', icon, gradient = '', canvas = { width: 1000, height: 660 }, elements = [] }) {
+  constructor ({ id, venueId = 1, name, desc = '', icon, gradient = '', canvas = { width: 1000, height: 660 }, shape = 'rect', elements = [] }) {
     this.id = id
     this.venueId = venueId
     this.name = name
@@ -9,6 +9,7 @@ export class Environment {
     this.icon = icon
     this.gradient = gradient
     this.canvas = canvas
+    this.shape = shape
     // Strip computed `status` field — it must not be stored
     this.elements = elements.map(({ status: _s, ...el }) => el)
   }

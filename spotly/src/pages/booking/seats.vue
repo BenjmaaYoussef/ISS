@@ -61,7 +61,14 @@
 
         <!-- Canvas -->
         <div class="canvas-scroll">
-          <div class="canvas-wrap">
+          <div
+            class="canvas-wrap"
+            :style="{
+              width: (currentEnv?.canvas.width ?? 1000) + 'px',
+              height: (currentEnv?.canvas.height ?? 660) + 'px',
+              clipPath: envClipPath(currentEnv?.shape, currentEnv?.canvas.width ?? 1000, currentEnv?.canvas.height ?? 660) ?? undefined,
+            }"
+          >
             <!-- Grid -->
             <svg
               class="grid-svg"
@@ -482,6 +489,7 @@
   import { useRoute, useRouter } from 'vue-router'
   import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
   import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
+  import { envClipPath } from '@/composables/useEnvShape'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
   import { VENUE_LIST } from '@/datamodel/Venue.js'
@@ -818,8 +826,7 @@
   margin: 16px;
   border-radius: 12px;
   overflow: hidden;
-  width: 1000px;
-  height: 660px;
+  flex-shrink: 0;
 }
 
 .grid-svg {

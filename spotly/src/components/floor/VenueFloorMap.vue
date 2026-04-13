@@ -53,6 +53,7 @@
 <script setup>
   import { computed, onMounted, onUnmounted, ref } from 'vue'
   import TableCard from './TableCard.vue'
+  import { envClipPath } from '@/composables/useEnvShape'
 
   const props = defineProps({
     /** Full environment object with canvas dimensions and elements array */
@@ -95,13 +96,17 @@
   const scale = computed(() => Math.min(1, containerWidth.value / canvasW.value))
   const scaledHeight = computed(() => Math.ceil(canvasH.value * scale.value))
 
-  const canvasStyle = computed(() => ({
-    position: 'relative',
-    width: `${canvasW.value}px`,
-    height: `${canvasH.value}px`,
-    transform: `scale(${scale.value})`,
-    transformOrigin: 'top left',
-  }))
+  const canvasStyle = computed(() => {
+    const clip = envClipPath(props.environment?.shape, canvasW.value, canvasH.value)
+    return {
+      position: 'relative',
+      width: `${canvasW.value}px`,
+      height: `${canvasH.value}px`,
+      transform: `scale(${scale.value})`,
+      transformOrigin: 'top left',
+      ...(clip ? { clipPath: clip } : {}),
+    }
+  })
 
   // ── Table slot positioning ────────────────────────────────────────────────────
   const CARD_WIDTH = 130 // px — matches seed element spacing (~140px between elements)

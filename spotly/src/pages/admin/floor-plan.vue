@@ -252,6 +252,7 @@
           <div
             ref="canvasViewport"
             class="canvas-viewport"
+            :class="{ 'canvas-viewport--oob': outOfBoundsFlash }"
             tabindex="0"
             @click="onCanvasClick"
             @keydown.backspace.prevent="deleteSelected"
@@ -271,6 +272,7 @@
                 transformOrigin: '0 0',
                 width: (currentEnv?.canvas.width ?? 1000) + 'px',
                 height: (currentEnv?.canvas.height ?? 660) + 'px',
+                clipPath: envClipPath(currentEnv?.shape, currentEnv?.canvas.width ?? 1000, currentEnv?.canvas.height ?? 660) ?? undefined,
               }"
             >
               <!-- Grid SVG -->
@@ -426,20 +428,21 @@
                 >mdi-plus</v-icon>
               </div>
 
-              <!-- Empty hint -->
-              <div
-                v-if="currentEnvElements.length === 0 && !armedType"
-                class="canvas-empty-hint"
-              >
-                <v-icon
-                  size="40"
-                  style="color: rgba(212, 175, 55, 0.18); margin-bottom: 12px"
-                >mdi-floor-plan</v-icon>
-                <p>
-                  Select an element from the palette<br>and click the grid to
-                  place it
-                </p>
-              </div>
+            </div>
+
+            <!-- Empty hint — outside canvas-scaler so clip-path doesn't hide it -->
+            <div
+              v-if="currentEnvElements.length === 0 && !armedType"
+              class="canvas-empty-hint"
+            >
+              <v-icon
+                size="40"
+                style="color: rgba(212, 175, 55, 0.18); margin-bottom: 12px"
+              >mdi-floor-plan</v-icon>
+              <p>
+                Select an element from the palette<br>and click the grid to
+                place it
+              </p>
             </div>
           </div>
         </div>
@@ -722,36 +725,74 @@
     </v-dialog>
 
     <!-- Add environment dialog -->
-    <v-dialog v-model="showAddEnvDialog" max-width="360">
-      <v-card
-        flat
-        style="
-        background: var(--color-surface);
-        border: 1px solid rgba(212, 175, 55, 0.18);
-        border-radius: 16px;
-      "
-      >
+    <v-dialog v-model="showAddEnvDialog" max-width="480">
+      <v-card flat style="background: var(--color-surface); border: 1px solid rgba(212, 175, 55, 0.18); border-radius: 16px;">
         <v-card-text class="pa-6">
-          <div class="dlg-heading mb-4">New Environment</div>
+          <div class="dlg-heading mb-5">New Environment</div>
+
+          <!-- Name -->
           <v-text-field
             v-model="newEnvName"
-            class="prop-tf mb-4"
+            class="prop-tf mb-5"
             density="compact"
             hide-details
             label="Name (e.g. Rooftop Bar)"
             variant="outlined"
             @keydown.enter="confirmAddEnv"
           />
-          <div class="d-flex" style="gap: 8px">
+
+          <!-- Shape picker -->
+          <div class="dlg-label mb-2">Room Shape</div>
+          <div class="shape-picker mb-5">
             <button
-              class="outline-btn flex-grow-1"
-              @click="showAddEnvDialog = false"
+              v-for="preset in SHAPE_PRESETS"
+              :key="preset.id"
+              class="shape-opt"
+              :class="{ 'shape-opt--active': newEnvShape === preset.id }"
+              @click="newEnvShape = preset.id"
             >
-              Cancel
+              <svg class="shape-svg" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+                <!-- Rectangle -->
+                <polygon v-if="preset.id === 'rect'" points="4,4 56,4 56,36 4,36" />
+                <!-- L-Shape -->
+                <polygon v-if="preset.id === 'l-shape'" points="4,4 36,4 36,18 56,18 56,36 4,36" />
+                <!-- U-Shape -->
+                <polygon v-if="preset.id === 'u-shape'" points="4,4 56,4 56,36 40,36 40,20 20,20 20,36 4,36" />
+              </svg>
+              <span class="shape-label">{{ preset.label }}</span>
             </button>
-            <button class="gold-btn flex-grow-1" @click="confirmAddEnv">
-              Create
-            </button>
+          </div>
+
+          <!-- Dimensions -->
+          <div class="dlg-label mb-2">Canvas Size <span class="dlg-hint">(px)</span></div>
+          <div class="d-flex mb-5" style="gap: 12px">
+            <v-text-field
+              v-model.number="newEnvWidth"
+              class="prop-tf"
+              density="compact"
+              hide-details
+              label="Width"
+              min="400"
+              max="2400"
+              type="number"
+              variant="outlined"
+            />
+            <v-text-field
+              v-model.number="newEnvHeight"
+              class="prop-tf"
+              density="compact"
+              hide-details
+              label="Height"
+              min="300"
+              max="1600"
+              type="number"
+              variant="outlined"
+            />
+          </div>
+
+          <div class="d-flex" style="gap: 8px">
+            <button class="outline-btn flex-grow-1" @click="showAddEnvDialog = false">Cancel</button>
+            <button class="gold-btn flex-grow-1" @click="confirmAddEnv">Create</button>
           </div>
         </v-card-text>
       </v-card>
@@ -807,6 +848,7 @@
   import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
   import { useAdminNav } from '@/composables/useAdminNav'
   import { useAuth } from '@/composables/useAuth'
+  import { envClipPath, isInsideShape } from '@/composables/useEnvShape'
   import { Environment, ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
   const router = useRouter()
@@ -957,12 +999,24 @@
     }
   }
 
+  const outOfBoundsFlash = ref(false)
+  function flashOutOfBounds () {
+    outOfBoundsFlash.value = true
+    setTimeout(() => { outOfBoundsFlash.value = false }, 600)
+  }
+
   function onCanvasClick (e) {
     if (!armedType.value) {
       selectedId.value = null
       return
     }
     const { x, y } = getCanvasCoords(e)
+    const env = currentEnv.value
+    if (!env) return
+    if (!isInsideShape(env.shape, env.canvas.width, env.canvas.height, x, y)) {
+      flashOutOfBounds()
+      return
+    }
     const def = getElementDef(armedType.value)
     const isTableType = armedType.value.startsWith('table_')
     const newEl = {
@@ -989,8 +1043,7 @@
       rotation: 0,
       status: 'available',
     }
-    if (!currentEnv.value) return
-    currentEnv.value.elements.push(newEl)
+    env.elements.push(newEl)
     selectedId.value = newEl.id
     pushHistory()
   }
@@ -1009,7 +1062,16 @@
 
   function onMouseUp () {
     if (isDragging.value) {
-      pushHistory()
+      const env = currentEnv.value
+      const el = dragTarget.value
+      if (env && el && !isInsideShape(env.shape, env.canvas.width, env.canvas.height, el.x, el.y)) {
+        // Snap back to origin
+        el.x = dragOrigin.elX
+        el.y = dragOrigin.elY
+        flashOutOfBounds()
+      } else {
+        pushHistory()
+      }
       isDragging.value = false
       dragTarget.value = null
     }
@@ -1216,10 +1278,22 @@
   // ── Environment management ────────────────────────────────────────────────────
   const showAddEnvDialog = ref(false)
   const showDeleteEnvDialog = ref(false)
-  const newEnvName = ref('')
+  const newEnvName   = ref('')
+  const newEnvShape  = ref('rect')
+  const newEnvWidth  = ref(1000)
+  const newEnvHeight = ref(660)
+
+  const SHAPE_PRESETS = [
+    { id: 'rect',    label: 'Rectangle' },
+    { id: 'l-shape', label: 'L-Shape'   },
+    { id: 'u-shape', label: 'U-Shape'   },
+  ]
 
   function openAddEnv () {
-    newEnvName.value = ''
+    newEnvName.value   = ''
+    newEnvShape.value  = 'rect'
+    newEnvWidth.value  = 1000
+    newEnvHeight.value = 660
     showAddEnvDialog.value = true
   }
   function openDeleteEnv () {
@@ -1229,13 +1303,16 @@
   function confirmAddEnv () {
     const name = newEnvName.value.trim()
     if (!name) return
+    const w = Math.max(400, Math.min(2400, Number(newEnvWidth.value)  || 1000))
+    const h = Math.max(300, Math.min(1600, Number(newEnvHeight.value) || 660))
     const id = 'env_' + Date.now()
     environments.value.push({
       id,
       venueId: session?.venueId ?? null,
       name,
       icon: 'mdi-map-outline',
-      canvas: { width: 1000, height: 660 },
+      shape:  newEnvShape.value,
+      canvas: { width: w, height: h },
       elements: [],
     })
     currentEnvId.value = id
@@ -1790,6 +1867,19 @@
   overflow: auto;
   position: relative;
   outline: none;
+  transition: box-shadow 0.15s ease;
+}
+.canvas-viewport--oob {
+  box-shadow: inset 0 0 0 3px rgba(255, 80, 80, 0.6);
+  animation: oob-shake 0.35s ease;
+}
+@keyframes oob-shake {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-5px); }
+  40%  { transform: translateX(5px); }
+  60%  { transform: translateX(-4px); }
+  80%  { transform: translateX(4px); }
+  100% { transform: translateX(0); }
 }
 .canvas-viewport::-webkit-scrollbar {
   width: 6px;
@@ -2364,5 +2454,68 @@
   font-family: var(--font-body);
   font-size: 0.82rem;
   color: #8a8fa8;
+}
+.dlg-label {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a8fa8;
+}
+.dlg-hint {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #555e6e;
+}
+
+/* Shape picker */
+.shape-picker {
+  display: flex;
+  gap: 10px;
+}
+.shape-opt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(212,175,55,0.15);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.shape-opt:hover {
+  border-color: rgba(212,175,55,0.35);
+  background: rgba(212,175,55,0.04);
+}
+.shape-opt--active {
+  border-color: #d4af37 !important;
+  background: rgba(212,175,55,0.08) !important;
+}
+.shape-svg {
+  width: 60px;
+  height: 40px;
+}
+.shape-svg polygon {
+  fill: rgba(212,175,55,0.15);
+  stroke: rgba(212,175,55,0.5);
+  stroke-width: 1.5;
+  transition: fill 0.2s, stroke 0.2s;
+}
+.shape-opt--active .shape-svg polygon {
+  fill: rgba(212,175,55,0.28);
+  stroke: #d4af37;
+}
+.shape-label {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: #8a8fa8;
+}
+.shape-opt--active .shape-label {
+  color: #d4af37;
 }
 </style>

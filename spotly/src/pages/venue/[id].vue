@@ -243,7 +243,7 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, onUnmounted, ref } from 'vue'
+  import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
@@ -302,13 +302,21 @@
   let timer = null
 
   function nextSlide () {
+    if (slides.value.length <= 1) return
     prevSlideIndex.value = currentSlide.value
     currentSlide.value = (currentSlide.value + 1) % slides.value.length
   }
   function prevSlide () {
+    if (slides.value.length <= 1) return
     prevSlideIndex.value = currentSlide.value
     currentSlide.value = (currentSlide.value - 1 + slides.value.length) % slides.value.length
   }
+
+  // Reset slideshow when venue slides load/change
+  watch(() => slides.value.length, () => {
+    currentSlide.value = 0
+    prevSlideIndex.value = -1
+  })
 
   // Parallax scroll
   const parallaxY = ref(0)

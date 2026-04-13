@@ -61,10 +61,10 @@ router.beforeEach(to => {
     session = null
   }
 
-  // No session — redirect gated routes to /auth
+  // No session — redirect gated routes to /auth, preserving the intended destination
   if (!session) {
     if (!isPublic(to.path)) {
-      return '/auth'
+      return `/auth?redirect=${encodeURIComponent(to.fullPath)}`
     }
     return true
   }

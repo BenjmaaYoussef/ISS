@@ -3,7 +3,7 @@
   <AppNavbarVenue
     :show-default-actions="false"
     :show-powered-by="false"
-    venue-name="Sunset Beach Club"
+    :venue-name="venueName"
   >
     <template #actions>
       <BookingStepIndicator
@@ -47,7 +47,7 @@
         <v-col cols="12" md="8">
           <!-- Venue Header -->
           <div class="venue-header mb-6">
-            <h1 class="venue-title">Sunset Beach Club</h1>
+            <h1 class="venue-title">{{ venueName }}</h1>
             <div class="venue-location mt-1">
               <v-icon size="15" style="color: #6a7080">mdi-map-marker</v-icon>
               <span class="ml-1">Sidi Bou Said, Tunisia</span>
@@ -282,13 +282,25 @@
 
 <script setup>
   import { computed, onMounted, ref } from 'vue'
-  import { useRouter } from 'vue-router'
+  import { useRoute, useRouter } from 'vue-router'
   import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
   import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
   import { addReservation, Reservation, RESERVATION_LIST } from '@/datamodel/Reservation.js'
   import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
+  import { VENUE_LIST } from '@/datamodel/Venue.js'
 
+  const route = useRoute()
   const router = useRouter()
+
+  const venueName = computed(() => {
+    try {
+      const booking = JSON.parse(sessionStorage.getItem('spotly_booking') || '{}')
+      const id = Number(booking.venueId)
+      return VENUE_LIST.find(v => v.id === id)?.name ?? 'Venue'
+    } catch {
+      return 'Venue'
+    }
+  })
 
   // Read cart passed from seats page via sessionStorage
   const cart = ref([])
@@ -298,6 +310,15 @@
   } catch {}
 
   onMounted(() => {
+    // Auth guard: must be logged in to confirm a booking
+    const session = (() => {
+      try { return JSON.parse(localStorage.getItem('spotly_session') || 'null') }
+      catch { return null }
+    })()
+    if (!session?.userId) {
+      router.replace(`/auth?redirect=${encodeURIComponent(route.fullPath)}`)
+      return
+    }
     if (cart.value.length === 0) {
       router.replace('/booking/seats')
     }

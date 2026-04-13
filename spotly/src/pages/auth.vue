@@ -340,7 +340,8 @@
         venueId,
       }),
     )
-    router.push('/home')
+    const redirect = route.query.redirect
+    router.push(redirect && redirect.startsWith('/') ? redirect : '/home')
   }
 
   async function login () {

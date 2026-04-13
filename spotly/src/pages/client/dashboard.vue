@@ -335,8 +335,8 @@
   }
 
   // ── Computed lists ───────────────────────────────────────────────────────────
-  const ACTIVE_STATUSES = new Set(['REQUESTED', 'APPROVED', 'CHECKED_IN', 'CANCELLED', 'REJECTED'])
-  const PAST_STATUSES   = new Set(['COMPLETED', 'NO_SHOW'])
+  const ACTIVE_STATUSES = new Set(['REQUESTED', 'APPROVED', 'CHECKED_IN'])
+  const PAST_STATUSES   = new Set(['COMPLETED', 'NO_SHOW', 'CANCELLED', 'REJECTED'])
 
   const baseList = computed(() =>
     sessionUserId
@@ -412,7 +412,7 @@
   // ── Actions (unchanged logic) ────────────────────────────────────────────────
   function confirmCancel () {
     if (!selectedRes.value) return
-    const res = RESERVATION_LIST.find(r => r.id === selectedRes.value.id)
+    const res = RESERVATION_LIST.find(r => r.id === selectedRes.value.id && r.userId === sessionUserId)
     if (res) {
       const prev = res.status
       updateReservationStatus(res.id, 'CANCELLED')

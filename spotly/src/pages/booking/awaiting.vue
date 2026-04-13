@@ -11,7 +11,7 @@
     <AppNavbarVenue
       :show-default-actions="false"
       :show-powered-by="false"
-      venue-name="Sunset Beach Club"
+      :venue-name="venueName"
       venue-sub-label="Awaiting Decision"
     >
       <template #actions>
@@ -37,7 +37,7 @@
             <!-- Venue Badge -->
             <div class="venue-badge mb-8">
               <v-icon class="mr-1" color="#D4AF37" size="15">mdi-map-marker</v-icon>
-              <span>Sunset Beach Club · Sidi Bou Said</span>
+              <span>{{ venueName }}{{ venueLocation ? ' · ' + venueLocation : '' }}</span>
             </div>
 
             <!-- Pulsing Ring -->
@@ -130,7 +130,7 @@
                   </div>
                   <div>
                     <div class="summary-row-label">Venue</div>
-                    <div class="summary-row-value">Sunset Beach Club</div>
+                    <div class="summary-row-value">{{ venueName }}</div>
                   </div>
                 </div>
                 <div class="summary-row-item">
@@ -270,7 +270,7 @@
 
               <h1 class="approved-title mb-4">Your evening<br>is reserved</h1>
               <p class="approved-sub mb-6">
-                Welcome to Sunset Beach Club.<br>
+                Welcome to {{ venueName }}.<br>
                 We look forward to hosting you.
               </p>
               <p class="approved-sub" style="font-size: 0.82rem">
@@ -284,7 +284,7 @@
               <!-- Keepsake Card -->
               <div class="keepsake-card mb-6">
                 <div class="keepsake-header">
-                  <span class="keepsake-venue">Sunset Beach Club</span>
+                  <span class="keepsake-venue">{{ venueName }}</span>
                   <div class="keepsake-divider-h" />
                   <span class="keepsake-env">{{ reservationEnv }}</span>
                 </div>
@@ -422,6 +422,7 @@
     updateReservationStatus,
   } from '@/datamodel/Reservation.js'
   import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
+  import { VENUE_LIST } from '@/datamodel/Venue.js'
 
   const router = useRouter()
 
@@ -459,6 +460,16 @@
   const reservationGuests = computed(() => currentReservation.value?.guests ?? 0)
   const guestName = computed(() => currentReservation.value?.name ?? '')
   const guestEmail = computed(() => currentReservation.value?.email ?? '')
+
+  const venueName = computed(() => {
+    const id = currentReservation.value?.venueId
+    return VENUE_LIST.find(v => v.id === id)?.name ?? 'Venue'
+  })
+
+  const venueLocation = computed(() => {
+    const id = currentReservation.value?.venueId
+    return VENUE_LIST.find(v => v.id === id)?.location ?? ''
+  })
 
   const reservationEnv = computed(() => {
     const envId = currentReservation.value?.environmentId

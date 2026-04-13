@@ -3,7 +3,7 @@
   <AppNavbarVenue
     :show-default-actions="false"
     :show-powered-by="true"
-    venue-name="Sunset Beach Club"
+    :venue-name="venueName"
   >
     <template #actions>
       <BookingStepIndicator
@@ -482,8 +482,20 @@
   import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
+  import { VENUE_LIST } from '@/datamodel/Venue.js'
 
   const router = useRouter()
+
+  // ── Venue name (from sessionStorage set in environment step) ─────────────────
+  const venueName = computed(() => {
+    try {
+      const booking = JSON.parse(sessionStorage.getItem('spotly_booking') || '{}')
+      const id = Number(booking.venueId)
+      return VENUE_LIST.find(v => v.id === id)?.name ?? 'Venue'
+    } catch {
+      return 'Venue'
+    }
+  })
 
   // ── Mock floor plan (same JSON format as P10 output) ─────────────────────────
   const floorPlan = {
@@ -766,7 +778,7 @@
         && r.elementId === elementId
         && r.date === bookingDate.value
         && r.time === bookingTime.value
-        && (r.status === 'APPROVED' || r.status === 'REQUESTED'),
+        && (r.status === 'APPROVED' || r.status === 'REQUESTED' || r.status === 'CHECKED_IN'),
     )
       ? 'reserved'
       : 'available'

@@ -3,7 +3,7 @@
   <AppNavbarVenue
     :show-default-actions="false"
     :show-powered-by="true"
-    venue-name="Sunset Beach Club"
+    :venue-name="venueName"
   >
     <template #actions>
       <BookingStepIndicator
@@ -134,18 +134,37 @@
 </template>
 
 <script setup>
-  import { computed, ref } from 'vue'
+  import { computed, onMounted, ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
   import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import { VENUE_LIST } from '@/datamodel/Venue.js'
 
   const route = useRoute()
   const router = useRouter()
   const selected = ref('')
 
-  const venueId = computed(() => Number(route.query.venueId) || 1)
+  const venueId = computed(() => Number(route.query.venueId) || null)
+  const venue = computed(() => venueId.value ? VENUE_LIST.find(v => v.id === venueId.value) : null)
+  const venueName = computed(() => venue.value?.name ?? 'Venue')
   const environments = computed(() => ENVIRONMENT_LIST.filter(e => e.venueId === venueId.value))
+
+  onMounted(() => {
+    // Auth guard: must be logged in to book
+    const session = (() => {
+      try { return JSON.parse(localStorage.getItem('spotly_session') || 'null') }
+      catch { return null }
+    })()
+    if (!session?.userId) {
+      router.replace(`/auth?redirect=${encodeURIComponent(route.fullPath)}`)
+      return
+    }
+    // VenueId guard: must be a valid venue
+    if (!venue.value) {
+      router.replace('/home')
+    }
+  })
 
   function continueBooking () {
     sessionStorage.setItem('spotly_selected_env', selected.value)

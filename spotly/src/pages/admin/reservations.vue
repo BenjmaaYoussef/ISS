@@ -120,13 +120,12 @@
 
             <!-- Actions -->
             <div class="rq-cell rq-col-center">
-              <div class="rq-actions">
+              <div v-if="res.status === 'REQUESTED'" class="rq-actions">
                 <v-tooltip location="top" text="Approve">
                   <template #activator="{ props }">
                     <v-btn
                       v-bind="props"
                       class="rq-btn rq-btn--approve"
-                      :disabled="res.status === 'APPROVED'"
                       icon
                       size="small"
                       @click="approve(res)"
@@ -140,7 +139,6 @@
                     <v-btn
                       v-bind="props"
                       class="rq-btn rq-btn--reject"
-                      :disabled="res.status === 'REJECTED'"
                       icon
                       size="small"
                       @click="confirmReject(res)"
@@ -150,6 +148,7 @@
                   </template>
                 </v-tooltip>
               </div>
+              <span v-else class="rq-no-action">—</span>
             </div>
           </div>
         </template>
@@ -213,10 +212,9 @@
             </div>
 
             <!-- Action buttons -->
-            <div class="rq-card__actions">
+            <div v-if="res.status === 'REQUESTED'" class="rq-card__actions">
               <button
                 class="rq-card__btn rq-card__btn--approve"
-                :disabled="res.status === 'APPROVED'"
                 @click="approve(res)"
               >
                 <v-icon size="16">mdi-check</v-icon>
@@ -224,7 +222,6 @@
               </button>
               <button
                 class="rq-card__btn rq-card__btn--reject"
-                :disabled="res.status === 'REJECTED'"
                 @click="confirmReject(res)"
               >
                 <v-icon size="16">mdi-close</v-icon>
@@ -531,7 +528,7 @@
 /* 8-column grid: ID | Guest | Date | Guests | Table | Notes | Status | Actions */
 .rq-grid {
   display: grid;
-  grid-template-columns: 80px 1fr 110px 70px 90px 1fr 110px 96px;
+  grid-template-columns: 120px 1fr 110px 70px 90px 1fr 110px 96px;
   align-items: center;
 }
 
@@ -590,6 +587,9 @@
   font-size: 0.8rem;
   flex-direction: row;
   align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .rq-cell--name {
   font-weight: 500;
@@ -674,6 +674,7 @@
   box-shadow: 0 0 10px rgba(199, 21, 133, 0.28);
 }
 .rq-btn:disabled { opacity: 0.28 !important; cursor: not-allowed; }
+.rq-no-action { color: rgba(255,255,255,0.2); font-size: 0.9rem; }
 
 /* ═══════════════════════════════════════════════════════════════
    MOBILE CARDS  (hidden on desktop)

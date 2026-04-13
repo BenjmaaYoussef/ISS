@@ -313,10 +313,6 @@
 
   onMounted(() => {
     // Auth guard: must be logged in to confirm a booking
-    const session = (() => {
-      try { return JSON.parse(localStorage.getItem('spotly_session') || 'null') }
-      catch { return null }
-    })()
     if (!session?.userId) {
       router.replace(`/auth?redirect=${encodeURIComponent(route.fullPath)}`)
       return
@@ -335,9 +331,14 @@
 
   const submitting = ref(false)
 
+  const session = (() => {
+    try { return JSON.parse(localStorage.getItem('spotly_session') || 'null') }
+    catch { return null }
+  })()
+
   const form = ref({
-    name: '',
-    email: '',
+    name:  session?.name  ?? '',
+    email: session?.email ?? '',
     phone: '',
     notes: '',
   })
@@ -379,13 +380,7 @@
           })(),
           environmentId: item.envId,
           elementId: item.id,
-          userId: (() => {
-            try {
-              return JSON.parse(localStorage.getItem('spotly_session') || '{}').userId || ''
-            } catch {
-              return ''
-            }
-          })(),
+          userId: session?.userId || '',
           name: form.value.name,
           email: form.value.email,
           phone: form.value.phone,

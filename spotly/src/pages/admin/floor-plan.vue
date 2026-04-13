@@ -27,57 +27,7 @@
       active-link="builder"
       :nav-links="adminNavLinks"
       @nav="handleNav"
-    >
-      <template #actions>
-        <!-- Mode toggle -->
-        <div class="mode-segmented mr-4">
-          <button
-            class="mode-seg-btn"
-            :class="{ 'mode-seg-btn--active': !isPreviewMode }"
-            @click="isPreviewMode = false"
-          >
-            <v-icon class="mr-1" size="13">mdi-pencil-ruler</v-icon>Edit
-          </button>
-          <button
-            class="mode-seg-btn"
-            :class="{ 'mode-seg-btn--active': isPreviewMode }"
-            @click="isPreviewMode = true"
-          >
-            <v-icon class="mr-1" size="13">mdi-eye-outline</v-icon>Preview
-          </button>
-        </div>
-        <v-btn
-          class="mr-1"
-          :disabled="historyIndex <= 0"
-          icon
-          :ripple="false"
-          size="x-small"
-          style="color: #6a7080"
-          title="Undo"
-          variant="text"
-          @click="undo"
-        >
-          <v-icon size="17">mdi-undo</v-icon>
-        </v-btn>
-        <v-btn
-          class="mr-3"
-          :disabled="historyIndex >= history.length - 1"
-          icon
-          :ripple="false"
-          size="x-small"
-          style="color: #6a7080"
-          title="Redo"
-          variant="text"
-          @click="redo"
-        >
-          <v-icon size="17">mdi-redo</v-icon>
-        </v-btn>
-        <button class="gold-btn" @click="saveLayout">
-          <v-icon class="mr-1" size="14">mdi-content-save-outline</v-icon>Save
-          Layout
-        </button>
-      </template>
-    </AppNavbarSpotly>
+    />
 
     <!-- MAIN 3-COLUMN BUILDER -->
     <v-main class="spotly-main">
@@ -94,14 +44,6 @@
       "
       >
         <div class="d-flex align-center" style="height: 44px; gap: 4px">
-          <button
-            class="dash-back-btn"
-            title="Admin Dashboard"
-            @click="router.push('/admin/dashboard')"
-          >
-            <v-icon class="mr-1" size="12">mdi-view-dashboard-outline</v-icon>Dashboard
-          </button>
-          <div class="bar-divider mx-4" />
           <div class="env-tabs">
             <button
               v-for="env in environments"
@@ -125,6 +67,55 @@
               @click="openAddEnv"
             >
               <v-icon size="14">mdi-plus</v-icon>
+            </button>
+          </div>
+
+          <!-- Right side: mode toggle + undo/redo + save -->
+          <div class="d-flex align-center ml-auto" style="gap: 6px">
+            <div class="mode-segmented">
+              <button
+                class="mode-seg-btn"
+                :class="{ 'mode-seg-btn--active': !isPreviewMode }"
+                @click="isPreviewMode = false"
+              >
+                <v-icon class="mr-1" size="13">mdi-pencil-ruler</v-icon>Edit
+              </button>
+              <button
+                class="mode-seg-btn"
+                :class="{ 'mode-seg-btn--active': isPreviewMode }"
+                @click="isPreviewMode = true"
+              >
+                <v-icon class="mr-1" size="13">mdi-eye-outline</v-icon>Preview
+              </button>
+            </div>
+            <div class="bar-divider mx-2" />
+            <v-btn
+              :disabled="historyIndex <= 0"
+              icon
+              :ripple="false"
+              size="x-small"
+              style="color: #6a7080"
+              title="Undo"
+              variant="text"
+              @click="undo"
+            >
+              <v-icon size="17">mdi-undo</v-icon>
+            </v-btn>
+            <v-btn
+              :disabled="historyIndex >= history.length - 1"
+              icon
+              :ripple="false"
+              size="x-small"
+              style="color: #6a7080"
+              title="Redo"
+              variant="text"
+              @click="redo"
+            >
+              <v-icon size="17">mdi-redo</v-icon>
+            </v-btn>
+            <div class="bar-divider mx-2" />
+            <button class="gold-btn gold-btn--sm" @click="saveLayout">
+              <v-icon class="mr-1" size="13">mdi-content-save-outline</v-icon>Save
             </button>
           </div>
         </div>
@@ -1463,6 +1454,11 @@
 .gold-btn:hover {
   background: #e9c74a;
   box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35);
+}
+.gold-btn--sm {
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  border-radius: 6px;
 }
 .gold-btn.w-100 {
   width: 100%;

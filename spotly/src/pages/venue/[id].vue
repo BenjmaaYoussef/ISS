@@ -5,21 +5,21 @@
     :venue-name="venue?.name ?? 'Venue'"
   />
 
-  <!-- OWNER PREVIEW BANNER -->
-  <Transition name="banner-slide">
-    <div v-if="isOwnVenue" class="owner-banner">
-      <div class="owner-banner__left">
-        <v-icon color="#d4af37" size="16">mdi-crown</v-icon>
-        <span>You are previewing your own venue — reservations are disabled</span>
-      </div>
-      <button class="owner-banner__btn" @click="router.push('/admin/dashboard')">
-        <v-icon size="13">mdi-cog-outline</v-icon>
-        Go to Admin Panel
-      </button>
-    </div>
-  </Transition>
-
   <v-main>
+    <!-- OWNER PREVIEW BANNER -->
+    <Transition name="banner-slide">
+      <div v-if="isOwnVenue" class="owner-banner">
+        <div class="owner-banner__left">
+          <v-icon color="#d4af37" size="16">mdi-crown</v-icon>
+          <span>You are previewing your own venue — reservations are disabled</span>
+        </div>
+        <button class="owner-banner__btn" @click="router.push('/admin/dashboard')">
+          <v-icon size="13">mdi-cog-outline</v-icon>
+          Go to Admin Panel
+        </button>
+      </div>
+    </Transition>
+
     <div class="venue-page">
 
       <!-- ═══════════════════════════════════════════
@@ -96,24 +96,6 @@
               </template>
             </v-tooltip>
 
-            <v-tooltip
-              :disabled="!isOwnVenue && hasEnvironments"
-              :text="isOwnVenue ? 'You cannot book your own venue' : (!hasEnvironments ? 'No environments configured yet' : '')"
-            >
-              <template #activator="{ props: tooltipProps }">
-                <span v-bind="tooltipProps" style="display:contents">
-                  <button
-                    class="hero__cta-ghost"
-                    :class="{ 'hero__cta--disabled': isOwnVenue || !hasEnvironments }"
-                    :disabled="isOwnVenue || !hasEnvironments"
-                    @click="goToBooking"
-                  >
-                    <v-icon size="17">mdi-beach</v-icon>
-                    Choose Your Environment
-                  </button>
-                </span>
-              </template>
-            </v-tooltip>
           </div>
         </div>
 
@@ -203,6 +185,39 @@
       </section>
 
       <!-- ═══════════════════════════════════════════
+           GUEST REVIEWS
+           ═══════════════════════════════════════════ -->
+      <section class="reviews-section">
+        <div class="reviews-section__inner">
+          <div class="section-eyebrow">Guest Voices</div>
+          <h2 class="section-title">What Our Guests Say</h2>
+
+          <!-- Summary bar -->
+          <ReviewSummaryBar
+            v-if="visibleReviews.length > 0"
+            :reviews="visibleReviews"
+            class="mb-8"
+          />
+
+          <!-- Review cards grid -->
+          <div v-if="visibleReviews.length > 0" class="reviews-grid">
+            <ReviewCard
+              v-for="review in visibleReviews"
+              :key="review.id"
+              :review="review"
+            />
+          </div>
+
+          <!-- Empty state -->
+          <div v-else class="reviews-empty">
+            <v-icon class="mb-3" color="rgba(212,175,55,0.3)" size="40">mdi-star-outline</v-icon>
+            <div class="reviews-empty__title">No reviews yet</div>
+            <div class="reviews-empty__sub">Be the first to share your experience at this venue</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
            BOTTOM CTA STRIP
            ═══════════════════════════════════════════ -->
       <section class="bottom-cta">
@@ -246,7 +261,10 @@
   import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
+  import ReviewCard from '@/components/reviews/ReviewCard.vue'
+  import ReviewSummaryBar from '@/components/reviews/ReviewSummaryBar.vue'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
+  import { REVIEW_LIST } from '@/datamodel/Review.js'
   import { getVenueById } from '@/datamodel/Venue.js'
 
   let _session = null
@@ -262,6 +280,14 @@
 
   const tags = computed(() => venue.value?.ambienceTags ?? [])
   const activities = computed(() => venue.value?.activities ?? [])
+
+  // ── Reviews ──────────────────────────────────────────────────────────────────
+  const visibleReviews = computed(() =>
+    REVIEW_LIST
+      .filter(r => r.venueId === venueId.value && r.status === 'VISIBLE')
+      .slice()
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+  )
 
   const _fallbackSlides = [
     {
@@ -1021,6 +1047,53 @@
 
 @media (prefers-reduced-motion: reduce) {
   .activity-tag { transform: none !important; }
+}
+
+/* ─────────────────────────────────────────────
+   GUEST REVIEWS
+───────────────────────────────────────────── */
+.reviews-section {
+  padding: 80px max(5vw, 24px);
+  background: var(--color-bg, #0a0e14);
+}
+
+.reviews-section__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .reviews-section { padding: 56px 20px; }
+  .reviews-grid { grid-template-columns: 1fr; }
+}
+
+.reviews-empty {
+  text-align: center;
+  padding: 48px 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(212, 175, 55, 0.15);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.reviews-empty__title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: rgba(245, 240, 232, 0.5);
+  margin-bottom: 6px;
+}
+
+.reviews-empty__sub {
+  font-size: 0.82rem;
+  color: #4a5568;
 }
 
 /* ─────────────────────────────────────────────

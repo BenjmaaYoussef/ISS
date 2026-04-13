@@ -190,6 +190,28 @@
                   </v-icon>
                   {{ visit.status === 'CANCELLED' ? 'Cancelled' : visit.status === 'REJECTED' ? 'Rejected' : visit.status === 'NO_SHOW' ? 'No Show' : 'Completed' }}
                 </v-chip>
+
+                <!-- Review action (COMPLETED visits only) -->
+                <template v-if="visit.status === 'COMPLETED'">
+                  <v-chip
+                    v-if="visit.hasReview"
+                    class="reviewed-chip mt-1"
+                    size="x-small"
+                    title="You reviewed this visit"
+                  >
+                    <StarRating :model-value="visit.reviewRating" readonly size="small" />
+                  </v-chip>
+                  <v-btn
+                    v-else
+                    class="review-btn mt-1"
+                    size="x-small"
+                    variant="outlined"
+                    @click="openReviewDialog(visit)"
+                  >
+                    <v-icon size="11" start>mdi-star-plus-outline</v-icon>
+                    Review
+                  </v-btn>
+                </template>
               </div>
             </div>
           </div>
@@ -258,6 +280,13 @@
     </div>
   </v-main>
 
+  <!-- ── Submit Review Dialog ── -->
+  <SubmitReviewDialog
+    v-model="showReviewDialog"
+    :reservation="selectedVisit"
+    @submitted="onReviewSubmitted"
+  />
+
   <!-- ── Cancel Confirmation Dialog ── -->
   <v-dialog v-model="cancelDialog" class="spotly-dialog" max-width="420">
     <v-card class="dialog-card">
@@ -289,12 +318,15 @@
   import { useRouter } from 'vue-router'
   import ReservationStatusChip from '@/components/feedback/ReservationStatusChip.vue'
   import SpotlySnackbar from '@/components/feedback/SpotlySnackbar.vue'
+  import SubmitReviewDialog from '@/components/dialogs/SubmitReviewDialog.vue'
   import SectionHeader from '@/components/ui/SectionHeader.vue'
+  import StarRating from '@/components/ui/StarRating.vue'
   import { useAuth } from '@/composables/useAuth'
   import { useSnackbar } from '@/composables/useSnackbar'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { RESERVATION_LIST, updateReservationStatus } from '@/datamodel/Reservation.js'
   import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
+  import { getReviewByReservation, REVIEW_LIST } from '@/datamodel/Review.js'
   import { VENUE_LIST } from '@/datamodel/Venue.js'
 
   const router = useRouter()
@@ -309,8 +341,10 @@
   const sessionName   = session.name   || 'Guest'
 
   // ── Dialogs & state ─────────────────────────────────────────────────────────
-  const cancelDialog = ref(false)
-  const selectedRes  = ref(null)
+  const cancelDialog     = ref(false)
+  const selectedRes      = ref(null)
+  const showReviewDialog = ref(false)
+  const selectedVisit    = ref(null)
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
   function formatDate (dateStr) {
@@ -357,27 +391,34 @@
       .sort((a, b) => a.rawDate.localeCompare(b.rawDate)),
   )
 
-  const pastVisits = computed(() =>
-    baseList.value
+  const pastVisits = computed(() => {
+    // Depend on REVIEW_LIST so review state stays reactive
+    void REVIEW_LIST.length
+    return baseList.value
       .filter(r => PAST_STATUSES.has(r.status))
       .map(r => {
-        const d   = new Date(r.date + 'T00:00:00')
-        const env = ENVIRONMENT_LIST.find(e => e.id === r.environmentId)
-        const el  = env?.elements.find(el => el.id === r.elementId)
+        const d      = new Date(r.date + 'T00:00:00')
+        const env    = ENVIRONMENT_LIST.find(e => e.id === r.environmentId)
+        const el     = env?.elements.find(el => el.id === r.elementId)
+        const review = getReviewByReservation(r.id)
         return {
-          day:       String(d.getDate()).padStart(2, '0'),
-          month:     d.toLocaleString('en-US', { month: 'short' }),
-          area:      env?.name || r.environmentId || 'Unknown',
-          table:     el?.label || r.elementId     || 'TBD',
-          guests:    r.guests,
-          rawDate:   r.date,
-          venueId:   r.venueId,
-          venueName: venueNameById(r.venueId),
-          status:    r.status,
+          reservationId: r.id,
+          day:           String(d.getDate()).padStart(2, '0'),
+          month:         d.toLocaleString('en-US', { month: 'short' }),
+          area:          env?.name || r.environmentId || 'Unknown',
+          table:         el?.label || r.elementId     || 'TBD',
+          guests:        r.guests,
+          rawDate:       r.date,
+          venueId:       r.venueId,
+          venueName:     venueNameById(r.venueId),
+          status:        r.status,
+          hasReview:     !!review,
+          reviewRating:  review?.rating ?? 0,
+          userId:        r.userId,
         }
       })
-      .sort((a, b) => b.rawDate.localeCompare(a.rawDate)),
-  )
+      .sort((a, b) => b.rawDate.localeCompare(a.rawDate))
+  })
 
   // ── Loyalty tier (unchanged logic) ──────────────────────────────────────────
   const completedCount = computed(() =>
@@ -415,6 +456,22 @@
     { label: 'Completed',     value: completedCount.value,   icon: 'mdi-check-decagram-outline',   color: '#6b9fff' },
     { label: 'Venues Visited', value: venuesVisitedCount.value, icon: 'mdi-domain',               color: '#c471ed' },
   ])
+
+  // ── Review actions ───────────────────────────────────────────────────────────
+  function openReviewDialog (visit) {
+    selectedVisit.value = {
+      reservationId: visit.reservationId,
+      venueId:       visit.venueId,
+      venueName:     visit.venueName,
+      userId:        visit.userId,
+      reviewerName:  sessionName,
+    }
+    showReviewDialog.value = true
+  }
+
+  function onReviewSubmitted () {
+    notify('Thank you for your review!', '#D4AF37', 'mdi-star-check')
+  }
 
   // ── Actions (unchanged logic) ────────────────────────────────────────────────
   function confirmCancel () {
@@ -798,6 +855,13 @@
   margin-top: 2px;
 }
 .past-mid { flex: 1; min-width: 0; }
+.past-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
 .past-venue-name {
   font-size: 0.82rem;
   font-weight: 600;
@@ -840,6 +904,26 @@
   background: rgba(107, 122, 141, 0.15) !important;
   color: #6b7a8d !important;
   border-color: rgba(107, 122, 141, 0.2) !important;
+}
+
+.review-btn {
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+  border-color: rgba(212, 175, 55, 0.3) !important;
+  color: #d4af37 !important;
+  border-radius: 6px !important;
+  letter-spacing: 0.03em;
+  padding: 0 8px !important;
+}
+.review-btn:hover {
+  background: rgba(212, 175, 55, 0.1) !important;
+  border-color: rgba(212, 175, 55, 0.5) !important;
+}
+
+.reviewed-chip {
+  background: rgba(212, 175, 55, 0.08) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  padding: 2px 6px !important;
 }
 
 /* ── Loyalty Card ── */

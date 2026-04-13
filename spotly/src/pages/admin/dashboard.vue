@@ -277,6 +277,7 @@
   import { useAuth } from '@/composables/useAuth'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
+  import { REVIEW_LIST } from '@/datamodel/Review.js'
 
   // ─── Nav ──────────────────────────────────────────────────────────────────────
   const { adminNavLinks, handleNav } = useAdminNav()
@@ -409,6 +410,23 @@
         border: 'rgba(93,184,196,0.25)',
         icon: 'mdi-floor-plan',
       },
+      {
+        label: 'Guest Reviews',
+        value: (() => {
+          const venueReviews = REVIEW_LIST.filter(r => r.venueId === session?.venueId)
+          const visible = venueReviews.filter(r => r.status === 'VISIBLE')
+          if (!venueReviews.length) return '—'
+          const avg = visible.length
+            ? (visible.reduce((s, r) => s + r.rating, 0) / visible.length).toFixed(1)
+            : '—'
+          return `${venueReviews.length} · ★${avg}`
+        })(),
+        color: '#D4AF37',
+        iconColor: '#D4AF37',
+        bg: 'rgba(212,175,55,0.08)',
+        border: 'rgba(212,175,55,0.2)',
+        icon: 'mdi-star-half-full',
+      },
     ]
   })
 
@@ -453,6 +471,12 @@
       icon: 'mdi-pencil-ruler',
       title: 'Venue Settings',
       desc: 'Update identity, description & images',
+    },
+    {
+      key: 'reviews',
+      icon: 'mdi-star-check-outline',
+      title: 'Guest Reviews',
+      desc: 'View and moderate guest feedback',
     },
   ]
 

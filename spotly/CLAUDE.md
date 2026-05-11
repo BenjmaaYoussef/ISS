@@ -24,6 +24,18 @@ VITE_CLOUDINARY_UPLOAD_PRESET=spotly_uploads
 
 This file is gitignored and must not be committed. Without it, the "Upload Photo" button in Venue Settings will throw a "credentials missing" error.
 
+## AI Features (Phases AI-1 through AI-4)
+
+`VITE_GROQ_API_KEY` is required for all AI features (phases AI-2, AI-3, AI-4). Add to `.env.local`:
+
+```
+VITE_GROQ_API_KEY=gsk_...
+```
+
+Without it, any call to `useAI()` composable methods will throw "VITE_GROQ_API_KEY is not set in .env.local".
+
+Provider: **Groq** (`api.groq.com`) — free tier, no rate-limit surprises. Model: `llama-3.1-8b-instant` (8B, tool-calling capable, ~500 tok/s).
+
 ## Phase Testing Protocol (REQUIRED)
 
 Every phase implementation must be verified before being marked complete. Follow this sequence without exception:

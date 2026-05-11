@@ -38,6 +38,7 @@ declare module 'vue' {
     TableCard: typeof import('./src/components/floor/TableCard.vue')['default']
     TableDetailDialog: typeof import('./src/components/floor/TableDetailDialog.vue')['default']
     VenueFloorMap: typeof import('./src/components/floor/VenueFloorMap.vue')['default']
+    VoiceCallModal: typeof import('./src/components/ai/VoiceCallModal.vue')['default']
     WalkInDialog: typeof import('./src/components/dialogs/WalkInDialog.vue')['default']
   }
 }

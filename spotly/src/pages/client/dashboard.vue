@@ -12,7 +12,7 @@
         <div class="welcome-glow welcome-glow--right" />
         <div class="welcome-content">
           <div class="welcome-eyebrow">
-            <v-icon color="#D4AF37" size="14" class="mr-1">mdi-map-marker-multiple-outline</v-icon>
+            <v-icon class="mr-1" color="#D4AF37" size="14">mdi-map-marker-multiple-outline</v-icon>
             Your Spotly Journey
           </div>
           <div class="welcome-greeting">Welcome back, {{ sessionName }}!</div>
@@ -20,7 +20,7 @@
             You have reservations across <strong class="text-gold">{{ venueCount }}</strong> venue{{ venueCount !== 1 ? 's' : '' }} — here's everything at a glance.
           </div>
         </div>
-        <div class="welcome-avatar" aria-hidden="true">
+        <div aria-hidden="true" class="welcome-avatar">
           <div class="avatar-ring">{{ initials }}</div>
         </div>
       </div>
@@ -86,7 +86,7 @@
             <div class="card-body">
               <!-- Venue name pill -->
               <div class="venue-pill mb-3">
-                <v-icon color="#D4AF37" size="11" class="mr-1">mdi-domain</v-icon>
+                <v-icon class="mr-1" color="#D4AF37" size="11">mdi-domain</v-icon>
                 {{ res.venueName }}
               </div>
 
@@ -155,7 +155,7 @@
 
           <!-- Empty past visits -->
           <div v-if="pastVisits.length === 0" class="empty-card empty-card--compact mb-4">
-            <v-icon color="#6b7a8d" size="28" class="mb-2">mdi-clock-outline</v-icon>
+            <v-icon class="mb-2" color="#6b7a8d" size="28">mdi-clock-outline</v-icon>
             <div class="empty-sub">Your completed visits will appear here</div>
           </div>
 
@@ -166,7 +166,7 @@
               class="past-item"
               :style="{ animationDelay: `${i * 60}ms` }"
             >
-              <div class="past-date-badge" aria-hidden="true">
+              <div aria-hidden="true" class="past-date-badge">
                 <span class="badge-day">{{ visit.day }}</span>
                 <span class="badge-month">{{ visit.month }}</span>
               </div>
@@ -182,8 +182,8 @@
               <div class="past-right">
                 <v-chip
                   class="completed-chip"
-                  size="x-small"
                   :class="visit.status === 'CANCELLED' ? 'chip--cancelled' : visit.status === 'REJECTED' ? 'chip--rejected' : visit.status === 'NO_SHOW' ? 'chip--noshow' : ''"
+                  size="x-small"
                 >
                   <v-icon size="10" start>
                     {{ visit.status === 'CANCELLED' ? 'mdi-close-circle' : visit.status === 'REJECTED' ? 'mdi-cancel' : visit.status === 'NO_SHOW' ? 'mdi-account-off' : 'mdi-check-circle' }}
@@ -227,8 +227,8 @@
                 </div>
                 <v-chip
                   class="tier-badge"
-                  size="x-small"
                   :class="`tier--${loyaltyTier.key}`"
+                  size="x-small"
                 >
                   {{ loyaltyTier.label }}
                 </v-chip>
@@ -250,7 +250,7 @@
 
               <!-- Venues visited inline stat -->
               <div class="loyalty-venues-row mt-4">
-                <v-icon color="#D4AF37" size="13" class="mr-1">mdi-domain</v-icon>
+                <v-icon class="mr-1" color="#D4AF37" size="13">mdi-domain</v-icon>
                 <span class="loyalty-venues-text">Venues visited: <strong class="text-gold">{{ venuesVisitedCount }}</strong></span>
               </div>
             </div>
@@ -259,7 +259,7 @@
           <!-- ── Visited Venues Chips ── -->
           <div v-if="visitedVenueNames.length > 0" class="venues-visited-section mt-5">
             <div class="venues-visited-label mb-3">
-              <v-icon color="#6b7a8d" size="13" class="mr-1">mdi-map-marker-check</v-icon>
+              <v-icon class="mr-1" color="#6b7a8d" size="13">mdi-map-marker-check</v-icon>
               Venues You've Explored
             </div>
             <div class="venues-chip-row">
@@ -316,9 +316,9 @@
 <script setup>
   import { computed, ref } from 'vue'
   import { useRouter } from 'vue-router'
+  import SubmitReviewDialog from '@/components/dialogs/SubmitReviewDialog.vue'
   import ReservationStatusChip from '@/components/feedback/ReservationStatusChip.vue'
   import SpotlySnackbar from '@/components/feedback/SpotlySnackbar.vue'
-  import SubmitReviewDialog from '@/components/dialogs/SubmitReviewDialog.vue'
   import SectionHeader from '@/components/ui/SectionHeader.vue'
   import StarRating from '@/components/ui/StarRating.vue'
   import { useAuth } from '@/composables/useAuth'
@@ -334,17 +334,20 @@
 
   // ── Session ─────────────────────────────────────────────────────────────────
   const session = (() => {
-    try { return JSON.parse(localStorage.getItem('spotly_session') || '{}') }
-    catch { return {} }
+    try {
+      return JSON.parse(localStorage.getItem('spotly_session') || '{}')
+    } catch {
+      return {}
+    }
   })()
   const sessionUserId = session.userId || ''
-  const sessionName   = session.name   || 'Guest'
+  const sessionName = session.name || 'Guest'
 
   // ── Dialogs & state ─────────────────────────────────────────────────────────
-  const cancelDialog     = ref(false)
-  const selectedRes      = ref(null)
+  const cancelDialog = ref(false)
+  const selectedRes = ref(null)
   const showReviewDialog = ref(false)
-  const selectedVisit    = ref(null)
+  const selectedVisit = ref(null)
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
   function formatDate (dateStr) {
@@ -358,25 +361,25 @@
 
   function enrichReservation (r) {
     const env = ENVIRONMENT_LIST.find(e => e.id === r.environmentId)
-    const el  = env?.elements.find(el => el.id === r.elementId)
+    const el = env?.elements.find(el => el.id === r.elementId)
     return {
-      id:        r.id,
-      rawDate:   r.date,
-      date:      formatDate(r.date),
-      time:      r.time,
-      area:      env?.name    || r.environmentId || 'Unknown',
-      table:     el?.label    || r.elementId     || 'TBD',
-      guests:    r.guests,
-      notes:     r.notes,
-      status:    r.status,
-      venueId:   r.venueId,
+      id: r.id,
+      rawDate: r.date,
+      date: formatDate(r.date),
+      time: r.time,
+      area: env?.name || r.environmentId || 'Unknown',
+      table: el?.label || r.elementId || 'TBD',
+      guests: r.guests,
+      notes: r.notes,
+      status: r.status,
+      venueId: r.venueId,
       venueName: venueNameById(r.venueId),
     }
   }
 
   // ── Computed lists ───────────────────────────────────────────────────────────
   const ACTIVE_STATUSES = new Set(['REQUESTED', 'APPROVED', 'CHECKED_IN'])
-  const PAST_STATUSES   = new Set(['COMPLETED', 'NO_SHOW', 'CANCELLED', 'REJECTED'])
+  const PAST_STATUSES = new Set(['COMPLETED', 'NO_SHOW', 'CANCELLED', 'REJECTED'])
 
   const baseList = computed(() =>
     sessionUserId
@@ -397,24 +400,24 @@
     return baseList.value
       .filter(r => PAST_STATUSES.has(r.status))
       .map(r => {
-        const d      = new Date(r.date + 'T00:00:00')
-        const env    = ENVIRONMENT_LIST.find(e => e.id === r.environmentId)
-        const el     = env?.elements.find(el => el.id === r.elementId)
+        const d = new Date(r.date + 'T00:00:00')
+        const env = ENVIRONMENT_LIST.find(e => e.id === r.environmentId)
+        const el = env?.elements.find(el => el.id === r.elementId)
         const review = getReviewByReservation(r.id)
         return {
           reservationId: r.id,
-          day:           String(d.getDate()).padStart(2, '0'),
-          month:         d.toLocaleString('en-US', { month: 'short' }),
-          area:          env?.name || r.environmentId || 'Unknown',
-          table:         el?.label || r.elementId     || 'TBD',
-          guests:        r.guests,
-          rawDate:       r.date,
-          venueId:       r.venueId,
-          venueName:     venueNameById(r.venueId),
-          status:        r.status,
-          hasReview:     !!review,
-          reviewRating:  review?.rating ?? 0,
-          userId:        r.userId,
+          day: String(d.getDate()).padStart(2, '0'),
+          month: d.toLocaleString('en-US', { month: 'short' }),
+          area: env?.name || r.environmentId || 'Unknown',
+          table: el?.label || r.elementId || 'TBD',
+          guests: r.guests,
+          rawDate: r.date,
+          venueId: r.venueId,
+          venueName: venueNameById(r.venueId),
+          status: r.status,
+          hasReview: !!review,
+          reviewRating: review?.rating ?? 0,
+          userId: r.userId,
         }
       })
       .sort((a, b) => b.rawDate.localeCompare(a.rawDate))
@@ -427,9 +430,9 @@
 
   const loyaltyTier = computed(() => {
     const n = completedCount.value
-    if (n >= 10) return { key: 'gold',   label: 'Gold Member',   progress: 100,           next: "You've reached Gold!" }
-    if (n >= 3)  return { key: 'silver', label: 'Silver Member', progress: (n / 10) * 100, next: `${10 - n} more visits to Gold` }
-    return              { key: 'bronze', label: 'Bronze Member', progress: (n / 3)  * 100, next: `${3 - n} more visits to Silver` }
+    if (n >= 10) return { key: 'gold', label: 'Gold Member', progress: 100, next: 'You\'ve reached Gold!' }
+    if (n >= 3) return { key: 'silver', label: 'Silver Member', progress: (n / 10) * 100, next: `${10 - n} more visits to Gold` }
+    return { key: 'bronze', label: 'Bronze Member', progress: (n / 3) * 100, next: `${3 - n} more visits to Silver` }
   })
 
   // ── Multi-venue derived stats ────────────────────────────────────────────────
@@ -451,20 +454,20 @@
   )
 
   const statsCards = computed(() => [
-    { label: 'Total',         value: baseList.value.length,  icon: 'mdi-calendar-check-outline',  color: '#D4AF37' },
-    { label: 'Upcoming',      value: upcoming.value.length,  icon: 'mdi-calendar-clock',           color: '#2ebb57' },
-    { label: 'Completed',     value: completedCount.value,   icon: 'mdi-check-decagram-outline',   color: '#6b9fff' },
-    { label: 'Venues Visited', value: venuesVisitedCount.value, icon: 'mdi-domain',               color: '#c471ed' },
+    { label: 'Total', value: baseList.value.length, icon: 'mdi-calendar-check-outline', color: '#D4AF37' },
+    { label: 'Upcoming', value: upcoming.value.length, icon: 'mdi-calendar-clock', color: '#2ebb57' },
+    { label: 'Completed', value: completedCount.value, icon: 'mdi-check-decagram-outline', color: '#6b9fff' },
+    { label: 'Venues Visited', value: venuesVisitedCount.value, icon: 'mdi-domain', color: '#c471ed' },
   ])
 
   // ── Review actions ───────────────────────────────────────────────────────────
   function openReviewDialog (visit) {
     selectedVisit.value = {
       reservationId: visit.reservationId,
-      venueId:       visit.venueId,
-      venueName:     visit.venueName,
-      userId:        visit.userId,
-      reviewerName:  sessionName,
+      venueId: visit.venueId,
+      venueName: visit.venueName,
+      userId: visit.userId,
+      reviewerName: sessionName,
     }
     showReviewDialog.value = true
   }
@@ -482,12 +485,12 @@
       updateReservationStatus(res.id, 'CANCELLED')
       addReservationLog(
         new ReservationLog({
-          id:              Date.now(),
-          reservationId:   res.id,
-          previousStatus:  prev,
-          newStatus:       'CANCELLED',
-          timestamp:       new Date().toISOString(),
-          actorRole:       'client',
+          id: Date.now(),
+          reservationId: res.id,
+          previousStatus: prev,
+          newStatus: 'CANCELLED',
+          timestamp: new Date().toISOString(),
+          actorRole: 'client',
         }),
       )
     }

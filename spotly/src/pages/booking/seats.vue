@@ -3,8 +3,8 @@
   <AppNavbarVenue
     :show-default-actions="false"
     :show-powered-by="true"
-    :venue-name="venueName"
     :venue-id="bookingVenueId"
+    :venue-name="venueName"
   >
     <template #actions>
       <BookingStepIndicator
@@ -46,8 +46,8 @@
             >
               <v-icon
                 class="mr-1"
-                size="13"
                 :color="currentEnvId === env.id ? '#D4AF37' : '#6A7080'"
+                size="13"
               >{{ env.icon }}</v-icon>
               {{ env.name }}
             </v-btn>
@@ -196,10 +196,10 @@
             </div>
             <v-btn
               class="dp-close-btn"
+              icon
               :ripple="false"
               size="x-small"
               variant="text"
-              icon
               @click="selectedTable = null"
             >
               <v-icon size="16">mdi-close</v-icon>
@@ -274,21 +274,21 @@
               <div class="guest-stepper">
                 <v-btn
                   class="gs-btn"
+                  icon
                   :ripple="false"
                   size="x-small"
                   variant="text"
-                  icon
                   @click="guestCount = Math.max(1, guestCount - 1)"
                 >
-                  <v-icon size="16" color="#d4af37">mdi-minus</v-icon>
+                  <v-icon color="#d4af37" size="16">mdi-minus</v-icon>
                 </v-btn>
                 <span class="gs-val">{{ guestCount }}</span>
                 <v-btn
                   class="gs-btn"
+                  icon
                   :ripple="false"
                   size="x-small"
                   variant="text"
-                  icon
                   @click="
                     guestCount = Math.min(
                       selectedTable.capacity,
@@ -296,7 +296,7 @@
                     )
                   "
                 >
-                  <v-icon size="16" color="#d4af37">mdi-plus</v-icon>
+                  <v-icon color="#d4af37" size="16">mdi-plus</v-icon>
                 </v-btn>
               </div>
             </div>
@@ -317,10 +317,10 @@
             <!-- Add to cart -->
             <v-btn
               v-if="!isInCart(selectedTable.id)"
+              block
               class="add-cart-btn"
               :disabled="!bookingDate || !bookingTime"
               flat
-              block
               @click="addToCart"
             >
               <v-icon class="mr-2" size="16">mdi-cart-plus</v-icon>
@@ -396,10 +396,10 @@
         </v-btn>
         <v-btn
           class="cart-confirm-btn"
-          :ripple="false"
-          flat
-          size="small"
           color="primary"
+          flat
+          :ripple="false"
+          size="small"
           @click="goToConfirm"
         >
           Continue to Confirmation
@@ -411,16 +411,16 @@
 
   <!-- CART SHEET -->
   <v-dialog v-model="showCartSheet" max-width="480" :scrim-opacity="0.6">
-    <v-card flat class="cart-sheet-card">
+    <v-card class="cart-sheet-card" flat>
       <v-card-text class="pa-0">
         <div class="cs-head">
           <div class="cs-title">Your Cart</div>
           <v-btn
             class="dp-close-btn"
+            icon
             :ripple="false"
             size="x-small"
             variant="text"
-            icon
             @click="showCartSheet = false"
           >
             <v-icon size="18">mdi-close</v-icon>
@@ -450,10 +450,10 @@
             </div>
             <v-btn
               class="cs-remove-btn"
+              icon
               :ripple="false"
               size="x-small"
               variant="text"
-              icon
               @click="removeFromCart(item.id)"
             >
               <v-icon size="16">mdi-delete-outline</v-icon>
@@ -468,10 +468,10 @@
               {{ totalGuests }} guests</span>
           </div>
           <v-btn
-            class="cart-confirm-btn cs-confirm-btn"
-            flat
             block
+            class="cart-confirm-btn cs-confirm-btn"
             color="primary"
+            flat
             @click="goToConfirm"
           >
             Continue to Confirmation
@@ -485,8 +485,8 @@
 
 <script setup>
   import { computed, ref } from 'vue'
-  import { useDisplay } from 'vuetify'
   import { useRoute, useRouter } from 'vue-router'
+  import { useDisplay } from 'vuetify'
   import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
   import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
   import { envClipPath } from '@/composables/useEnvShape'

@@ -415,8 +415,8 @@
         value: (() => {
           const venueReviews = REVIEW_LIST.filter(r => r.venueId === session?.venueId)
           const visible = venueReviews.filter(r => r.status === 'VISIBLE')
-          if (!venueReviews.length) return '—'
-          const avg = visible.length
+          if (venueReviews.length === 0) return '—'
+          const avg = visible.length > 0
             ? (visible.reduce((s, r) => s + r.rating, 0) / visible.length).toFixed(1)
             : '—'
           return `${venueReviews.length} · ★${avg}`

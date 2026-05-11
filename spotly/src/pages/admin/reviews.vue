@@ -90,7 +90,7 @@
             <!-- Status -->
             <div class="rv-cell">
               <span class="rv-status-badge" :class="`rv-status--${review.status.toLowerCase()}`">
-                <v-icon size="10" class="mr-1">
+                <v-icon class="mr-1" size="10">
                   {{ review.status === 'VISIBLE' ? 'mdi-eye-outline' : 'mdi-eye-off-outline' }}
                 </v-icon>
                 {{ review.status }}
@@ -228,27 +228,27 @@
 
   // ── Stats ─────────────────────────────────────────────────────────────────────
   const stats = computed(() => {
-    const all     = venueReviews.value
+    const all = venueReviews.value
     const visible = all.filter(r => r.status === 'VISIBLE')
-    const avg     = visible.length
+    const avg = visible.length > 0
       ? (visible.reduce((s, r) => s + r.rating, 0) / visible.length).toFixed(1)
       : '—'
     return [
-      { label: 'Total Reviews',  value: all.length,                                   color: '#D4AF37' },
-      { label: 'Average Rating', value: avg,                                           color: '#6B9FD4' },
-      { label: 'Visible',        value: visible.length,                               color: '#2EBB57' },
-      { label: 'Hidden',         value: all.filter(r => r.status === 'HIDDEN').length, color: '#6b7a8d' },
+      { label: 'Total Reviews', value: all.length, color: '#D4AF37' },
+      { label: 'Average Rating', value: avg, color: '#6B9FD4' },
+      { label: 'Visible', value: visible.length, color: '#2EBB57' },
+      { label: 'Hidden', value: all.filter(r => r.status === 'HIDDEN').length, color: '#6b7a8d' },
     ]
   })
 
   // ── Filters ───────────────────────────────────────────────────────────────────
   const filterOptions = ['All', 'Visible', 'Hidden']
-  const statusFilter  = ref('All')
+  const statusFilter = ref('All')
 
   const filteredReviews = computed(() => {
     const reviews = venueReviews.value
     if (statusFilter.value === 'Visible') return reviews.filter(r => r.status === 'VISIBLE')
-    if (statusFilter.value === 'Hidden')  return reviews.filter(r => r.status === 'HIDDEN')
+    if (statusFilter.value === 'Hidden') return reviews.filter(r => r.status === 'HIDDEN')
     return reviews
   })
 
@@ -257,7 +257,7 @@
     updateReviewStatus(review.id, status)
     const msgs = {
       VISIBLE: { text: 'Review restored to visible', color: '#2EBB57', icon: 'mdi-eye-outline' },
-      HIDDEN:  { text: 'Review hidden from guests',  color: '#6b7a8d', icon: 'mdi-eye-off-outline' },
+      HIDDEN: { text: 'Review hidden from guests', color: '#6b7a8d', icon: 'mdi-eye-off-outline' },
     }
     const m = msgs[status]
     notify(m.text, m.color, m.icon)
@@ -267,7 +267,9 @@
   function formatDate (iso) {
     try {
       return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    } catch { return '' }
+    } catch {
+      return ''
+    }
   }
 </script>
 

@@ -3,15 +3,15 @@ import { reactive, watch } from 'vue'
 // status: 'VISIBLE' | 'HIDDEN'
 export class Review {
   constructor ({ id, reservationId, venueId, userId, reviewerName, rating, body = '', createdAt, status = 'VISIBLE' }) {
-    this.id           = id
+    this.id = id
     this.reservationId = reservationId
-    this.venueId      = venueId
-    this.userId       = userId
+    this.venueId = venueId
+    this.userId = userId
     this.reviewerName = reviewerName
-    this.rating       = rating
-    this.body         = body
-    this.createdAt    = createdAt
-    this.status       = status
+    this.rating = rating
+    this.body = body
+    this.createdAt = createdAt
+    this.status = status
   }
 }
 
@@ -29,7 +29,9 @@ export const REVIEW_LIST = reactive(_initial)
 
 watch(REVIEW_LIST, val => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 window.addEventListener('storage', e => {
-  if (e.key !== STORAGE_KEY || !e.newValue) return
+  if (e.key !== STORAGE_KEY || !e.newValue) {
+    return
+  }
   try {
     REVIEW_LIST.splice(0, REVIEW_LIST.length, ...JSON.parse(e.newValue).map(r => new Review(r)))
   } catch { /* ignore corrupted cross-tab data */ }
@@ -67,14 +69,18 @@ export function getReviewByReservation (reservationId) {
 
 export function updateReviewStatus (id, status) {
   const review = getReviewById(id)
-  if (!review) return null
+  if (!review) {
+    return null
+  }
   review.status = status
   return review
 }
 
 export function updateReview (id, newData) {
   const review = getReviewById(id)
-  if (!review) return null
+  if (!review) {
+    return null
+  }
   Object.assign(review, newData)
   return review
 }
@@ -83,7 +89,9 @@ export function updateReview (id, newData) {
 
 export function deleteReview (id) {
   const index = REVIEW_LIST.findIndex(r => r.id === id)
-  if (index === -1) return false
+  if (index === -1) {
+    return false
+  }
   REVIEW_LIST.splice(index, 1)
   return true
 }

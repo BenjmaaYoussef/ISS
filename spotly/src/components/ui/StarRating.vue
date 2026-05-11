@@ -1,25 +1,25 @@
 <template>
   <div
+    :aria-label="readonly ? `Rating: ${modelValue} out of 5` : 'Select a rating'"
     class="star-rating"
     :class="[`star-rating--${size}`, { 'star-rating--interactive': !readonly }]"
-    :aria-label="readonly ? `Rating: ${modelValue} out of 5` : 'Select a rating'"
     role="group"
   >
     <button
       v-for="n in 5"
       :key="n"
-      class="star-btn"
-      :class="{ 'star-btn--filled': n <= (hovered > 0 ? hovered : modelValue) }"
       :aria-label="readonly ? undefined : `Rate ${n} star${n !== 1 ? 's' : ''}`"
       :aria-pressed="!readonly ? (n === modelValue) : undefined"
+      class="star-btn"
+      :class="{ 'star-btn--filled': n <= (hovered > 0 ? hovered : modelValue) }"
       :disabled="readonly"
       :tabindex="readonly ? -1 : 0"
       type="button"
+      @blur="!readonly && (hovered = 0)"
       @click="!readonly && emit('update:modelValue', n)"
+      @focus="!readonly && (hovered = n)"
       @mouseenter="!readonly && (hovered = n)"
       @mouseleave="!readonly && (hovered = 0)"
-      @focus="!readonly && (hovered = n)"
-      @blur="!readonly && (hovered = 0)"
     >
       <v-icon
         :color="n <= (hovered > 0 ? hovered : modelValue) ? '#D4AF37' : 'rgba(212,175,55,0.22)'"
@@ -63,8 +63,8 @@
   const hovered = ref(0)
 
   const iconSize = computed(() => {
-    if (props.size === 'small')  return 14
-    if (props.size === 'large')  return 26
+    if (props.size === 'small') return 14
+    if (props.size === 'large') return 26
     return 20
   })
 </script>

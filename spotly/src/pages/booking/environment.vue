@@ -3,8 +3,8 @@
   <AppNavbarVenue
     :show-default-actions="false"
     :show-powered-by="true"
-    :venue-name="venueName"
     :venue-id="venueId"
+    :venue-name="venueName"
   >
     <template #actions>
       <BookingStepIndicator
@@ -28,7 +28,7 @@
   </AppNavbarVenue>
 
   <v-main class="spotly-main">
-    <v-sheet color="background" class="page-sheet">
+    <v-sheet class="page-sheet" color="background">
       <div class="spotly-container spotly-container--narrow">
 
         <!-- Back -->
@@ -74,15 +74,15 @@
 
                 <!-- Icon -->
                 <v-icon
-                  :icon="env.icon"
                   class="env-icon"
                   :class="{ 'env-icon--selected': selected === env.id }"
+                  :icon="env.icon"
                   size="64"
                 />
 
                 <!-- Selected badge -->
                 <div v-if="selected === env.id" class="selected-badge">
-                  <v-icon icon="mdi-check" size="16" class="check-icon" />
+                  <v-icon class="check-icon" icon="mdi-check" size="16" />
                 </div>
 
                 <!-- Gold glow overlay when selected -->
@@ -97,10 +97,10 @@
                 <!-- Select Button -->
                 <v-btn
                   block
-                  :color="selected === env.id ? 'primary' : ''"
-                  :variant="selected === env.id ? 'flat' : 'outlined'"
                   class="env-select-btn"
                   :class="selected === env.id ? 'env-select-btn--active' : 'env-select-btn--idle'"
+                  :color="selected === env.id ? 'primary' : ''"
+                  :variant="selected === env.id ? 'flat' : 'outlined'"
                   @click.stop="selected = env.id"
                 >
                   <v-icon
@@ -118,10 +118,10 @@
         <!-- Continue Button -->
         <div class="continue-row">
           <v-btn
+            class="continue-btn"
             color="primary"
             :disabled="!selected"
             size="large"
-            class="continue-btn"
             @click="continueBooking"
           >
             Continue
@@ -154,8 +154,11 @@
   onMounted(() => {
     // Auth guard: must be logged in to book
     const session = (() => {
-      try { return JSON.parse(localStorage.getItem('spotly_session') || 'null') }
-      catch { return null }
+      try {
+        return JSON.parse(localStorage.getItem('spotly_session') || 'null')
+      } catch {
+        return null
+      }
     })()
     if (!session?.userId) {
       router.replace(`/auth?redirect=${encodeURIComponent(route.fullPath)}`)

@@ -6,7 +6,7 @@
     <div class="review-card__body">
       <!-- Top row: reviewer + date -->
       <div class="review-card__header">
-        <div class="reviewer-avatar" aria-hidden="true">
+        <div aria-hidden="true" class="reviewer-avatar">
           {{ initials }}
         </div>
         <div class="reviewer-info">
@@ -29,7 +29,7 @@
       <!-- Status badge (only shown if HIDDEN, e.g. in admin views) -->
       <div v-if="showStatus && review.status === 'HIDDEN'" class="review-card__status-row">
         <span class="review-card__status-badge badge--hidden">
-          <v-icon size="10" class="mr-1">mdi-eye-off-outline</v-icon>
+          <v-icon class="mr-1" size="10">mdi-eye-off-outline</v-icon>
           HIDDEN
         </span>
       </div>

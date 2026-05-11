@@ -46,7 +46,7 @@
             </span>
           </div>
           <div v-if="showRatingError" class="srd-field-error mt-1">
-            <v-icon size="12" class="mr-1">mdi-alert-circle-outline</v-icon>
+            <v-icon class="mr-1" size="12">mdi-alert-circle-outline</v-icon>
             Please select a rating before submitting.
           </div>
         </div>
@@ -114,9 +114,9 @@
 
   const emit = defineEmits(['update:modelValue', 'submitted'])
 
-  const rating       = ref(0)
-  const body         = ref('')
-  const submitting   = ref(false)
+  const rating = ref(0)
+  const body = ref('')
+  const submitting = ref(false)
   const showRatingError = ref(false)
 
   const RATING_LABELS = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent']
@@ -126,7 +126,7 @@
   watch(() => props.modelValue, open => {
     if (open) {
       rating.value = 0
-      body.value   = ''
+      body.value = ''
       showRatingError.value = false
     }
   })
@@ -150,15 +150,15 @@
     submitting.value = true
 
     addReview(new Review({
-      id:            Date.now(),
+      id: Date.now(),
       reservationId: props.reservation.reservationId,
-      venueId:       props.reservation.venueId,
-      userId:        props.reservation.userId,
-      reviewerName:  props.reservation.reviewerName,
-      rating:        rating.value,
-      body:          body.value.trim(),
-      createdAt:     new Date().toISOString(),
-      status:        'VISIBLE',
+      venueId: props.reservation.venueId,
+      userId: props.reservation.userId,
+      reviewerName: props.reservation.reviewerName,
+      rating: rating.value,
+      body: body.value.trim(),
+      createdAt: new Date().toISOString(),
+      status: 'VISIBLE',
     }))
 
     submitting.value = false

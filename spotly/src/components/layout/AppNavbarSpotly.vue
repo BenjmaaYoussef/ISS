@@ -14,8 +14,8 @@
       </div>
       <span class="drawer-brand__pill">Admin</span>
       <v-btn
-        class="drawer-close"
         aria-label="Close menu"
+        class="drawer-close"
         density="compact"
         icon
         :ripple="false"
@@ -57,8 +57,8 @@
 
       <!-- Hamburger — mobile only -->
       <v-btn
-        class="bar-hamburger"
         aria-label="Open navigation menu"
+        class="bar-hamburger"
         density="compact"
         icon
         :ripple="false"
@@ -69,14 +69,20 @@
       </v-btn>
 
       <!-- Brand -->
-      <div class="bar-brand" role="button" tabindex="0" @click="router.push('/home')" @keydown.enter="router.push('/home')">
+      <div
+        class="bar-brand"
+        role="button"
+        tabindex="0"
+        @click="router.push('/home')"
+        @keydown.enter="router.push('/home')"
+      >
         <img alt="Spotly" height="28" src="@/assets/spotlyLogo.png" style="object-fit:contain">
         <span class="bar-brand__sep" />
         <span class="bar-brand__admin">Admin</span>
       </div>
 
       <!-- Desktop nav -->
-      <nav v-if="navLinks.length" class="bar-nav" aria-label="Admin navigation">
+      <nav v-if="navLinks.length > 0" aria-label="Admin navigation" class="bar-nav">
         <v-btn
           v-for="link in navLinks"
           :key="link.key"
@@ -120,12 +126,12 @@
 
   /* Fallback icon map — used only when navLinks items don't carry an icon field */
   const navIcons = {
-    dashboard:       'mdi-view-dashboard-outline',
-    builder:         'mdi-floor-plan',
-    menu:            'mdi-silverware-fork-knife',
-    reservations:    'mdi-calendar-clock-outline',
-    'qr-codes':      'mdi-qrcode',
-    'venue-settings':'mdi-tune-vertical',
+    'dashboard': 'mdi-view-dashboard-outline',
+    'builder': 'mdi-floor-plan',
+    'menu': 'mdi-silverware-fork-knife',
+    'reservations': 'mdi-calendar-clock-outline',
+    'qr-codes': 'mdi-qrcode',
+    'venue-settings': 'mdi-tune-vertical',
   }
 </script>
 

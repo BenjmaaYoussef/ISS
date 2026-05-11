@@ -62,8 +62,8 @@
 </template>
 
 <script setup>
-  import { useDisplay } from 'vuetify'
   import { useRouter } from 'vue-router'
+  import { useDisplay } from 'vuetify'
 
   const { mobile } = useDisplay()
   const router = useRouter()

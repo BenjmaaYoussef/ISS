@@ -195,8 +195,8 @@
           <!-- Summary bar -->
           <ReviewSummaryBar
             v-if="visibleReviews.length > 0"
-            :reviews="visibleReviews"
             class="mb-8"
+            :reviews="visibleReviews"
           />
 
           <!-- Review cards grid -->
@@ -254,6 +254,7 @@
       </section>
 
     </div>
+
   </v-main>
 </template>
 

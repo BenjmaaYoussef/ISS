@@ -3,8 +3,8 @@
   <AppNavbarVenue
     :show-default-actions="false"
     :show-powered-by="false"
-    :venue-name="venueName"
     :venue-id="bookingVenueId"
+    :venue-name="venueName"
   >
     <template #actions>
       <BookingStepIndicator
@@ -204,7 +204,7 @@
                 <template v-if="firstItem">
                   <div class="d-flex align-start">
                     <div class="preview-icon mr-4">
-                      <v-icon size="26" color="#d4af37">mdi-seat</v-icon>
+                      <v-icon color="#d4af37" size="26">mdi-seat</v-icon>
                     </div>
                     <div style="flex: 1">
                       <div class="preview-title">
@@ -294,11 +294,14 @@
   const router = useRouter()
 
   const booking = (() => {
-    try { return JSON.parse(sessionStorage.getItem('spotly_booking') || '{}') }
-    catch { return {} }
+    try {
+      return JSON.parse(sessionStorage.getItem('spotly_booking') || '{}')
+    } catch {
+      return {}
+    }
   })()
   const bookingVenueId = Number(booking.venueId) || null
-  const bookingEnvId   = booking.environmentId   || null
+  const bookingEnvId = booking.environmentId || null
 
   const venueName = computed(() =>
     VENUE_LIST.find(v => v.id === bookingVenueId)?.name ?? 'Venue',
@@ -332,12 +335,15 @@
   const submitting = ref(false)
 
   const session = (() => {
-    try { return JSON.parse(localStorage.getItem('spotly_session') || 'null') }
-    catch { return null }
+    try {
+      return JSON.parse(localStorage.getItem('spotly_session') || 'null')
+    } catch {
+      return null
+    }
   })()
 
   const form = ref({
-    name:  session?.name  ?? '',
+    name: session?.name ?? '',
     email: session?.email ?? '',
     phone: '',
     notes: '',
@@ -356,9 +362,11 @@
     )
   })
 
-  const goBack = () => router.push(bookingVenueId
-    ? `/booking/seats?venueId=${bookingVenueId}&envId=${bookingEnvId ?? ''}`
-    : '/booking/seats')
+  function goBack () {
+    return router.push(bookingVenueId
+      ? `/booking/seats?venueId=${bookingVenueId}&envId=${bookingEnvId ?? ''}`
+      : '/booking/seats')
+  }
   function requestReservation () {
     if (!isFormValid.value || submitting.value) return
     submitting.value = true

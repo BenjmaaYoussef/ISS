@@ -772,8 +772,8 @@
               density="compact"
               hide-details
               label="Width"
-              min="400"
               max="2400"
+              min="400"
               type="number"
               variant="outlined"
             />
@@ -783,8 +783,8 @@
               density="compact"
               hide-details
               label="Height"
-              min="300"
               max="1600"
+              min="300"
               type="number"
               variant="outlined"
             />
@@ -1002,7 +1002,9 @@
   const outOfBoundsFlash = ref(false)
   function flashOutOfBounds () {
     outOfBoundsFlash.value = true
-    setTimeout(() => { outOfBoundsFlash.value = false }, 600)
+    setTimeout(() => {
+      outOfBoundsFlash.value = false
+    }, 600)
   }
 
   function onCanvasClick (e) {
@@ -1278,21 +1280,21 @@
   // ── Environment management ────────────────────────────────────────────────────
   const showAddEnvDialog = ref(false)
   const showDeleteEnvDialog = ref(false)
-  const newEnvName   = ref('')
-  const newEnvShape  = ref('rect')
-  const newEnvWidth  = ref(1000)
+  const newEnvName = ref('')
+  const newEnvShape = ref('rect')
+  const newEnvWidth = ref(1000)
   const newEnvHeight = ref(660)
 
   const SHAPE_PRESETS = [
-    { id: 'rect',    label: 'Rectangle' },
-    { id: 'l-shape', label: 'L-Shape'   },
-    { id: 'u-shape', label: 'U-Shape'   },
+    { id: 'rect', label: 'Rectangle' },
+    { id: 'l-shape', label: 'L-Shape' },
+    { id: 'u-shape', label: 'U-Shape' },
   ]
 
   function openAddEnv () {
-    newEnvName.value   = ''
-    newEnvShape.value  = 'rect'
-    newEnvWidth.value  = 1000
+    newEnvName.value = ''
+    newEnvShape.value = 'rect'
+    newEnvWidth.value = 1000
     newEnvHeight.value = 660
     showAddEnvDialog.value = true
   }
@@ -1303,7 +1305,7 @@
   function confirmAddEnv () {
     const name = newEnvName.value.trim()
     if (!name) return
-    const w = Math.max(400, Math.min(2400, Number(newEnvWidth.value)  || 1000))
+    const w = Math.max(400, Math.min(2400, Number(newEnvWidth.value) || 1000))
     const h = Math.max(300, Math.min(1600, Number(newEnvHeight.value) || 660))
     const id = 'env_' + Date.now()
     environments.value.push({
@@ -1311,7 +1313,7 @@
       venueId: session?.venueId ?? null,
       name,
       icon: 'mdi-map-outline',
-      shape:  newEnvShape.value,
+      shape: newEnvShape.value,
       canvas: { width: w, height: h },
       elements: [],
     })

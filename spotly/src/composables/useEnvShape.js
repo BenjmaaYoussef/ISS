@@ -19,17 +19,23 @@ export function envClipPath (shape, w, h) {
  * Used to block element placement outside the room boundary.
  */
 export function isInsideShape (shape, w, h, x, y) {
-  if (!shape || shape === 'rect') return x >= 0 && y >= 0 && x <= w && y <= h
+  if (!shape || shape === 'rect') {
+    return x >= 0 && y >= 0 && x <= w && y <= h
+  }
   if (shape === 'l-shape') {
     const cx = w * 0.6, cy = h * 0.4
     // Invalid zone: top-right rectangle (x > cx AND y < cy)
-    if (x > cx && y < cy) return false
+    if (x > cx && y < cy) {
+      return false
+    }
     return x >= 0 && y >= 0 && x <= w && y <= h
   }
   if (shape === 'u-shape') {
     const x1 = w * 0.35, x2 = w * 0.65, my = h * 0.45
     // Invalid zone: center-bottom cutout (x between x1..x2 AND y > my)
-    if (x > x1 && x < x2 && y > my) return false
+    if (x > x1 && x < x2 && y > my) {
+      return false
+    }
     return x >= 0 && y >= 0 && x <= w && y <= h
   }
   return true

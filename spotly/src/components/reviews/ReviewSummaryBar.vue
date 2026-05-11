@@ -10,7 +10,7 @@
     </div>
 
     <!-- Rating distribution bars -->
-    <div class="summary-bars" aria-hidden="true">
+    <div aria-hidden="true" class="summary-bars">
       <div v-for="n in [5, 4, 3, 2, 1]" :key="n" class="bar-row">
         <span class="bar-label">{{ n }}</span>
         <v-icon color="rgba(212,175,55,0.5)" size="11">mdi-star</v-icon>

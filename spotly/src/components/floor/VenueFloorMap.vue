@@ -52,8 +52,8 @@
 
 <script setup>
   import { computed, onMounted, onUnmounted, ref } from 'vue'
-  import TableCard from './TableCard.vue'
   import { envClipPath } from '@/composables/useEnvShape'
+  import TableCard from './TableCard.vue'
 
   const props = defineProps({
     /** Full environment object with canvas dimensions and elements array */

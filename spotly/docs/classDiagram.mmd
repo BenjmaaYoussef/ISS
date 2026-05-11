@@ -1,0 +1,122 @@
+classDiagram
+class Venue {
+  +id
+  +name
+  +description
+  +ambienceTags[]
+  +activities[]
+  +images[]
+  +dressCode
+  +supportedLanguages[]
+  +tagline
+  +location
+  +venueType
+  +hours[]
+  +slides[]
+  +adminEmail
+}
+
+class Environment {
+  +id
+  +venueId
+  +name
+  +desc
+  +icon
+  +gradient
+  +canvas
+  +shape
+  +elements[]
+}
+
+class MenuItem {
+  +id
+  +venueId
+  +category
+  +name
+  +price
+  +desc
+  +tags[]
+  +allergens[]
+  +available
+  +environmentIds[]
+}
+
+class Reservation {
+  +id
+  +venueId
+  +environmentId
+  +elementId
+  +userId
+  +name
+  +email
+  +phone
+  +date
+  +time
+  +guests
+  +notes
+  +status
+}
+
+class ReservationLog {
+  +id
+  +reservationId
+  +previousStatus
+  +newStatus
+  +timestamp
+  +actorRole
+}
+
+class Review {
+  +id
+  +reservationId
+  +venueId
+  +userId
+  +reviewerName
+  +rating
+  +body
+  +createdAt
+  +status
+}
+
+class User {
+  +first_name
+  +last_name
+  +email
+  +password
+}
+
+class VenueStaff {
+  +id
+  +venueId
+  +userEmail
+}
+
+class WaiterCall {
+  +id
+  +venueId
+  +environmentId
+  +elementId
+  +tableLabel
+  +envName
+  +timestamp
+  +status
+}
+
+Venue "1" --> "0..*" Environment : venueId
+Venue "1" --> "0..*" MenuItem : venueId
+Venue "1" --> "0..*" Reservation : venueId
+Venue "1" --> "0..*" Review : venueId
+Venue "1" --> "0..*" WaiterCall : venueId
+Venue "1" --> "0..*" VenueStaff : venueId
+
+User "1" --> "0..*" Venue : adminEmail
+User "1" --> "0..*" VenueStaff : userEmail
+User "1" --> "0..*" Reservation : userId
+User "1" --> "0..*" Review : userId
+
+Reservation "1" --> "0..*" ReservationLog : reservationId
+Reservation "1" --> "0..1" Review : reservationId
+
+Environment "1" --> "0..*" Reservation : environmentId
+Environment "1" --> "0..*" WaiterCall : environmentId
+Environment "0..*" --> "0..*" MenuItem : environmentIds[]

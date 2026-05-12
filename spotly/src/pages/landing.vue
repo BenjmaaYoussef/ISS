@@ -44,12 +44,13 @@
               class="hero-btn-primary"
               color="primary"
               size="large"
-              to="/auth"
+              :to="isLoggedIn ? '/home' : '/auth'"
             >
               <v-icon icon="mdi-star-four-points" size="16" start />
-              Get Started For Free
+              {{ isLoggedIn ? 'Explore Now' : 'Get Started For Free' }}
             </v-btn>
             <v-btn
+              v-if="!isLoggedIn"
               class="hero-btn-outline"
               color="primary"
               size="large"
@@ -283,9 +284,9 @@
                 class="cta-btn-primary"
                 color="primary"
                 size="x-large"
-                to="/auth"
+                :to="isLoggedIn ? '/home' : '/auth'"
               >
-                Start Free Trial
+                {{ isLoggedIn ? 'Go to Dashboard' : 'Start Free Trial' }}
                 <v-icon end icon="mdi-arrow-right" size="18" />
               </v-btn>
               <v-btn
@@ -320,7 +321,9 @@
             <span aria-hidden="true" class="footer-dot">·</span>
             <router-link class="footer-link" to="/home">Explore</router-link>
             <span aria-hidden="true" class="footer-dot">·</span>
-            <router-link class="footer-link" to="/auth">Get Started</router-link>
+            <router-link class="footer-link" :to="isLoggedIn ? '/home' : '/auth'">
+              {{ isLoggedIn ? 'My Dashboard' : 'Get Started' }}
+            </router-link>
           </nav>
 
           <span class="footer-copy">© 2025 Spotly. All rights reserved.</span>
@@ -331,10 +334,18 @@
 </template>
 
 <script setup>
-  import { onMounted, onUnmounted, reactive, ref } from 'vue'
+  import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
   import AppNavbarPublic from '@/components/layout/AppNavbarPublic.vue'
   import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
   import { VENUE_LIST } from '@/datamodel/Venue.js'
+
+  const isLoggedIn = computed(() => {
+    try {
+      return !!JSON.parse(localStorage.getItem('spotly_session') || 'null')
+    } catch {
+      return false
+    }
+  })
 
   // ─── Data arrays (unchanged) ───────────────────────────────────────────────
   const trustedBrands = ['Le Meridian', 'Sunset Beach Club', 'Rosewood']

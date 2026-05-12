@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :model-value="modelValue" fullscreen persistent @update:model-value="emit('update:modelValue', $event)">
+  <v-dialog fullscreen :model-value="modelValue" persistent @update:model-value="emit('update:modelValue', $event)">
     <div class="call-screen">
 
       <!-- ── Header ── -->
@@ -52,14 +52,14 @@
             <div class="phone-card__label">{{ pendingTextInput.label }}</div>
             <input
               ref="phoneInputRef"
-              :value="textInputValue"
               class="phone-card__input"
+              inputmode="numeric"
               placeholder="XX XXX XXX"
               type="text"
-              inputmode="numeric"
+              :value="textInputValue"
               @input="onPhoneInput"
               @keyup.enter="submitTextInput"
-            />
+            >
             <button
               class="phone-card__confirm"
               :disabled="textInputValue.replace(/\D/g, '').length < 8"
@@ -89,136 +89,138 @@
 </template>
 
 <script setup>
-import { nextTick, onUnmounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAI } from '@/composables/useAI.js'
-import { addReservation, Reservation, RESERVATION_LIST } from '@/datamodel/Reservation.js'
-import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
-import { getEnvironmentsByVenue } from '@/datamodel/Environment.js'
+  import { nextTick, onUnmounted, ref, watch } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { useAI } from '@/composables/useAI.js'
+  import { getEnvironmentsByVenue } from '@/datamodel/Environment.js'
+  import { addReservation, Reservation, RESERVATION_LIST } from '@/datamodel/Reservation.js'
+  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
 
-// ── Props / emits ─────────────────────────────────────────────────────────────
-const props = defineProps({
-  modelValue: { type: Boolean, required: true },
-  venue:      { type: Object, default: null },
-})
-const emit = defineEmits(['update:modelValue'])
+  // ── Props / emits ─────────────────────────────────────────────────────────────
+  const props = defineProps({
+    modelValue: { type: Boolean, required: true },
+    venue: { type: Object, default: null },
+  })
+  const emit = defineEmits(['update:modelValue'])
 
-// ── Session ───────────────────────────────────────────────────────────────────
-let session = null
-try { session = JSON.parse(localStorage.getItem('spotly_session') || 'null') } catch {}
+  // ── Session ───────────────────────────────────────────────────────────────────
+  let session = null
+  try {
+    session = JSON.parse(localStorage.getItem('spotly_session') || 'null')
+  } catch {}
 
-// ── AI composable ─────────────────────────────────────────────────────────────
-const { callAIWithHistory } = useAI()
-const router = useRouter()
+  // ── AI composable ─────────────────────────────────────────────────────────────
+  const { callAIWithHistory } = useAI()
+  const router = useRouter()
 
-// ── State ─────────────────────────────────────────────────────────────────────
-const callState         = ref('idle')   // idle | opening | listening | thinking | speaking | done | cancelled | error
-const messages          = ref([])       // full conversation history sent to AI
-const liveFeed          = ref([])       // display-only transcript
-const pendingTextInput  = ref(null)     // { label, placeholder, resolve } — set by request_text_input tool
-const textInputValue    = ref('')
-const completedResId    = ref(null)     // set after confirm_reservation
-const callEnded         = ref(null)     // 'user_cancelled' | 'reservation_complete'
-const errorMessage      = ref('')
+  // ── State ─────────────────────────────────────────────────────────────────────
+  const callState = ref('idle') // idle | opening | listening | thinking | speaking | done | cancelled | error
+  const messages = ref([]) // full conversation history sent to AI
+  const liveFeed = ref([]) // display-only transcript
+  const pendingTextInput = ref(null) // { label, placeholder, resolve } — set by request_text_input tool
+  const textInputValue = ref('')
+  const completedResId = ref(null) // set after confirm_reservation
+  const callEnded = ref(null) // 'user_cancelled' | 'reservation_complete'
+  const errorMessage = ref('')
 
-const feedRef       = ref(null)
-const phoneInputRef = ref(null)
+  const feedRef = ref(null)
+  const phoneInputRef = ref(null)
 
-// Plain bool — not reactive. Flipped to false in hangUp() so the async loop
-// can bail out at every await point instead of continuing after the call ends.
-let isActive = false
+  // Plain bool — not reactive. Flipped to false in hangUp() so the async loop
+  // can bail out at every await point instead of continuing after the call ends.
+  let isActive = false
 
-// ── Status labels ─────────────────────────────────────────────────────────────
-const STATUS_LABELS = {
-  idle:      'Connecting…',
-  opening:   'Speaking…',
-  listening: 'Listening…',
-  thinking:  'Processing…',
-  speaking:  'Speaking…',
-  done:      'Reservation confirmed!',
-  cancelled: 'Call ended',
-  error:     'Something went wrong',
-}
+  // ── Status labels ─────────────────────────────────────────────────────────────
+  const STATUS_LABELS = {
+    idle: 'Connecting…',
+    opening: 'Speaking…',
+    listening: 'Listening…',
+    thinking: 'Processing…',
+    speaking: 'Speaking…',
+    done: 'Reservation confirmed!',
+    cancelled: 'Call ended',
+    error: 'Something went wrong',
+  }
 
-// ── Tools ─────────────────────────────────────────────────────────────────────
-const TOOLS = [
-  {
-    type: 'function',
-    function: {
-      name: 'check_availability',
-      description: 'Check available time slots per environment for a given date and party size. Call immediately when the guest mentions any date. Only returns slots where a table with sufficient capacity exists. Returns each environment with available slots, or an error if the date is in the past.',
-      parameters: {
-        type: 'object',
-        properties: {
-          date:   { type: 'string', description: 'ISO date YYYY-MM-DD — resolve relative dates using today\'s date from the system prompt' },
-          guests: { type: 'string', description: 'Number of guests — used to filter tables by capacity' },
+  // ── Tools ─────────────────────────────────────────────────────────────────────
+  const TOOLS = [
+    {
+      type: 'function',
+      function: {
+        name: 'check_availability',
+        description: 'Check available time slots per environment for a given date and party size. Call immediately when the guest mentions any date. Only returns slots where a table with sufficient capacity exists. Returns each environment with available slots, or an error if the date is in the past.',
+        parameters: {
+          type: 'object',
+          properties: {
+            date: { type: 'string', description: 'ISO date YYYY-MM-DD — resolve relative dates using today\'s date from the system prompt' },
+            guests: { type: 'string', description: 'Number of guests — used to filter tables by capacity' },
+          },
+          required: ['date', 'guests'],
         },
-        required: ['date', 'guests'],
       },
     },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'request_text_input',
-      description: 'Show a text input field in the UI. Use ONLY for the phone number, ONLY after you have collected: guests, date, time, and occasion/notes.',
-      parameters: {
-        type: 'object',
-        properties: {
-          label:       { type: 'string', description: 'Label shown above the input, e.g. "Your phone number"' },
-          placeholder: { type: 'string', description: 'Placeholder text, e.g. "XX XXX XXX"' },
+    {
+      type: 'function',
+      function: {
+        name: 'request_text_input',
+        description: 'Show a text input field in the UI. Use ONLY for the phone number, ONLY after you have collected: guests, date, time, and occasion/notes.',
+        parameters: {
+          type: 'object',
+          properties: {
+            label: { type: 'string', description: 'Label shown above the input, e.g. "Your phone number"' },
+            placeholder: { type: 'string', description: 'Placeholder text, e.g. "XX XXX XXX"' },
+          },
+          required: ['label'],
         },
-        required: ['label'],
       },
     },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'confirm_reservation',
-      description: 'Create the reservation. Only call after the guest has confirmed all details AND the phone number has been collected via request_text_input.',
-      parameters: {
-        type: 'object',
-        properties: {
-          date:          { type: 'string', description: 'YYYY-MM-DD' },
-          time:          { type: 'string', description: 'HH:MM 24-hour format (convert from AM/PM if needed, e.g. "8:00 PM" → "20:00")' },
-          guests:        { type: 'string', description: 'Number of guests, e.g. "4"' },
-          notes:         { type: 'string', description: 'Occasion or special request, empty string if none' },
-          phone:         { type: 'string', description: 'The phone number the guest typed in the text field' },
-          environmentId: { type: 'string', description: 'The id of the environment the guest chose, from check_availability results' },
+    {
+      type: 'function',
+      function: {
+        name: 'confirm_reservation',
+        description: 'Create the reservation. Only call after the guest has confirmed all details AND the phone number has been collected via request_text_input.',
+        parameters: {
+          type: 'object',
+          properties: {
+            date: { type: 'string', description: 'YYYY-MM-DD' },
+            time: { type: 'string', description: 'HH:MM 24-hour format (convert from AM/PM if needed, e.g. "8:00 PM" → "20:00")' },
+            guests: { type: 'string', description: 'Number of guests, e.g. "4"' },
+            notes: { type: 'string', description: 'Occasion or special request, empty string if none' },
+            phone: { type: 'string', description: 'The phone number the guest typed in the text field' },
+            environmentId: { type: 'string', description: 'The id of the environment the guest chose, from check_availability results' },
+          },
+          required: ['date', 'time', 'guests', 'notes', 'phone', 'environmentId'],
         },
-        required: ['date', 'time', 'guests', 'notes', 'phone', 'environmentId'],
       },
     },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'end_call',
-      description: 'End the call. Call this AFTER saying a brief farewell when the guest cancels, or AFTER confirm_reservation succeeds.',
-      parameters: {
-        type: 'object',
-        properties: {
-          reason: { type: 'string', enum: ['user_cancelled', 'reservation_complete'] },
+    {
+      type: 'function',
+      function: {
+        name: 'end_call',
+        description: 'End the call. Call this AFTER saying a brief farewell when the guest cancels, or AFTER confirm_reservation succeeds.',
+        parameters: {
+          type: 'object',
+          properties: {
+            reason: { type: 'string', enum: ['user_cancelled', 'reservation_complete'] },
+          },
+          required: ['reason'],
         },
-        required: ['reason'],
       },
     },
-  },
-]
+  ]
 
-// ── System prompt ─────────────────────────────────────────────────────────────
-function buildSystemPrompt () {
-  const now       = new Date()
-  const today     = now.toISOString().split('T')[0]
-  const todayLong = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-  const tomorrow  = new Date(now.getTime() + 86_400_000).toISOString().split('T')[0]
-  const guestName = session?.name || 'the guest'
+  // ── System prompt ─────────────────────────────────────────────────────────────
+  function buildSystemPrompt () {
+    const now = new Date()
+    const today = now.toISOString().split('T')[0]
+    const todayLong = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    const tomorrow = new Date(now.getTime() + 86_400_000).toISOString().split('T')[0]
+    const guestName = session?.name || 'the guest'
 
-  const envs = getEnvironmentsByVenue(props.venue?.id)
-  const envList = envs.map(e => `  - ${e.name} (id: ${e.id})`).join('\n')
+    const envs = getEnvironmentsByVenue(props.venue?.id)
+    const envList = envs.map(e => `  - ${e.name} (id: ${e.id})`).join('\n')
 
-  return `You are a warm, professional reservation assistant for ${props.venue?.name ?? 'this venue'}.
+    return `You are a warm, professional reservation assistant for ${props.venue?.name ?? 'this venue'}.
 Today is ${todayLong} (${today}). Tomorrow is ${tomorrow}. The guest's name is ${guestName}.
 
 VENUE ENVIRONMENTS (seating areas available at this venue):
@@ -250,530 +252,552 @@ STYLE:
 - If check_availability returns error "past_date", apologise and ask for a future date
 - If an environment has unavailableReason "no_table_large_enough", tell the guest there's no table big enough for their party in that area
 - If an environment has unavailableReason "fully_booked", tell the guest it's fully booked and suggest another date or environment`
-}
-
-// ── TTS — ElevenLabs (primary) + browser SpeechSynthesis (fallback) ──────────
-
-let currentAudio = null  // active ElevenLabs <audio> element, for mid-speech stop
-
-async function speakElevenLabs (text) {
-  const key = import.meta.env.VITE_ELEVENLABS_API_KEY
-  if (!key) return false
-
-  const voiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM'
-
-  try {
-    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-      method: 'POST',
-      headers: {
-        'xi-api-key':   key,
-        'Content-Type': 'application/json',
-        'Accept':       'audio/mpeg',
-      },
-      body: JSON.stringify({
-        text,
-        model_id:      'eleven_turbo_v2_5',
-        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-      }),
-    })
-
-    if (!res.ok) return false
-
-    const blob = await res.blob()
-    const url  = URL.createObjectURL(blob)
-
-    await new Promise((resolve) => {
-      const audio = new Audio(url)
-      currentAudio = audio
-      const finish = () => { URL.revokeObjectURL(url); currentAudio = null; resolve() }
-      audio.onended = finish
-      audio.onerror = finish
-      audio.play().catch(finish)
-    })
-    return true
-  } catch {
-    return false
-  }
-}
-
-// Voices load async in Chrome — wait for them before first speak
-function loadVoices () {
-  return new Promise(resolve => {
-    const voices = window.speechSynthesis.getVoices()
-    if (voices.length > 0) { resolve(voices); return }
-    const handler = () => resolve(window.speechSynthesis.getVoices())
-    window.speechSynthesis.addEventListener('voiceschanged', handler, { once: true })
-    setTimeout(() => resolve(window.speechSynthesis.getVoices()), 2000)
-  })
-}
-
-async function speakBrowser (text) {
-  return new Promise(async (resolve) => {
-    if (window.speechSynthesis.paused) window.speechSynthesis.resume()
-    window.speechSynthesis.cancel()
-    await new Promise(r => setTimeout(r, 80))
-
-    const voices = await loadVoices()
-    const utter  = new SpeechSynthesisUtterance(text)
-
-    const voice =
-      voices.find(v => v.lang === 'en-US' && v.name.includes('Samantha')) ||
-      voices.find(v => v.lang === 'en-US' && !v.localService)             ||
-      voices.find(v => v.lang.startsWith('en-') && !v.localService)       ||
-      voices.find(v => v.lang.startsWith('en-'))
-
-    if (voice) utter.voice = voice
-    utter.rate   = 0.95
-    utter.pitch  = 1.0
-    utter.volume = 1
-
-    let done = false
-    const finish = () => { if (!done) { done = true; resolve() } }
-    utter.onend   = finish
-    utter.onerror = (e) => { console.warn('[TTS error]', e.error); finish() }
-    setTimeout(finish, Math.max(5000, text.length * 85))
-
-    window.speechSynthesis.speak(utter)
-  })
-}
-
-async function speak (text) {
-  const ok = await speakElevenLabs(text)
-  if (!ok) await speakBrowser(text)
-}
-
-function stopSpeaking () {
-  if (currentAudio) { currentAudio.pause(); currentAudio = null }
-  window.speechSynthesis.cancel()
-}
-
-// ── Speech Recognition ────────────────────────────────────────────────────────
-let recognition = null
-const speechSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition)
-
-function setupRecognition () {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition
-  recognition = new SR()
-  recognition.lang             = 'en-US'
-  recognition.continuous       = false
-  recognition.interimResults   = false
-  recognition.maxAlternatives  = 1
-
-  recognition.onresult = (e) => {
-    const transcript = e.results[0][0].transcript.trim()
-    if (transcript) sendTurn(transcript)
   }
 
-  recognition.onerror = (e) => {
-    if (!isActive) return
-    if (e.error === 'aborted') return
-    if (e.error === 'no-speech') {
-      if (isActive) try { recognition.start() } catch {}
-      return
-    }
-    callState.value    = 'error'
-    errorMessage.value = `Microphone error: ${e.error}`
-  }
+  // ── TTS — ElevenLabs (primary) + browser SpeechSynthesis (fallback) ──────────
 
-  recognition.onend = () => {
-    if (isActive && callState.value === 'listening') {
-      try { recognition.start() } catch {}
-    }
-  }
-}
+  let currentAudio = null // active ElevenLabs <audio> element, for mid-speech stop
 
-function startListening () {
-  if (!recognition) return
-  callState.value = 'listening'
-  try { recognition.start() } catch {}
-}
+  async function speakElevenLabs (text) {
+    const key = import.meta.env.VITE_ELEVENLABS_API_KEY
+    if (!key) return false
 
-function stopListening () {
-  try { recognition?.abort() } catch {}
-}
+    const voiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM'
 
-// ── Tool activity feed ────────────────────────────────────────────────────────
-function formatDate (iso) {
-  try {
-    return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {
-      weekday: 'long', month: 'long', day: 'numeric',
-    })
-  } catch { return iso }
-}
-
-function pushToolActivity (name, args) {
-  const text = {
-    check_availability:  `Checking availability for ${formatDate(args.date)}…`,
-    confirm_reservation: 'Creating your reservation…',
-    request_text_input:  'Requesting phone number…',
-    end_call:            args.reason === 'reservation_complete' ? 'Finalizing booking…' : 'Ending call…',
-  }[name] ?? `Running ${name}…`
-  liveFeed.value.push({ role: 'tool-activity', text })
-  scrollFeed()
-}
-
-// ── Tool executor ─────────────────────────────────────────────────────────────
-const WORKING_HOURS = ['18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00']
-
-async function executeTool (name, args) {
-  if (name === 'check_availability') {
-    // Guard: past dates
-    const today = new Date().toISOString().split('T')[0]
-    if (args.date < today) {
-      return { error: 'past_date', message: 'That date is in the past. Please choose a future date.' }
-    }
-
-    const guestCount = parseInt(args.guests, 10) || 1
-    const venueEnvs  = getEnvironmentsByVenue(props.venue?.id)
-
-    const environments = venueEnvs.map(env => {
-      // Only tables that can seat the party
-      const eligibleTables = env.elements.filter(
-        el => el.type?.startsWith('table_') && (el.capacity ?? 0) >= guestCount,
-      )
-
-      const availableSlots = WORKING_HOURS.filter(slot =>
-        eligibleTables.some(table => !RESERVATION_LIST.some(r =>
-          r.venueId       === props.venue?.id &&
-          r.environmentId === env.id &&
-          r.elementId     === table.id &&
-          r.date          === args.date &&
-          r.time          === slot &&
-          ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
-        )),
-      )
-
-      // Distinguish "fully booked" from "no table big enough"
-      const allTables = env.elements.filter(el => el.type?.startsWith('table_'))
-      const hasCapacity = allTables.some(el => (el.capacity ?? 0) >= guestCount)
-
-      return {
-        id:             env.id,
-        name:           env.name,
-        availableSlots,
-        unavailableReason: availableSlots.length === 0
-          ? (hasCapacity ? 'fully_booked' : 'no_table_large_enough')
-          : null,
-      }
-    })
-
-    return { date: args.date, guests: guestCount, environments }
-  }
-
-  if (name === 'request_text_input') {
-    return new Promise(resolve => {
-      pendingTextInput.value = {
-        label:       args.label       ?? 'Your phone number',
-        placeholder: args.placeholder ?? 'XX XXX XXX',
-        resolve,
-      }
-      nextTick(() => phoneInputRef.value?.focus())
-    })
-  }
-
-  if (name === 'confirm_reservation') {
-    const guestCount = parseInt(args.guests, 10) || 1
-
-    // Guard: past date
-    const today = new Date().toISOString().split('T')[0]
-    if (args.date < today) {
-      return { error: 'past_date', message: 'Cannot book a reservation in the past.' }
-    }
-
-    // Guard: working hours
-    if (!WORKING_HOURS.includes(args.time)) {
-      return { error: 'invalid_time', message: `${args.time} is outside working hours (18:00–22:00).` }
-    }
-
-    // Find a free table with sufficient capacity
-    let elementId     = null
-    let environmentId = args.environmentId ?? null
-
-    if (environmentId) {
-      const venueEnvs = getEnvironmentsByVenue(props.venue?.id)
-      const env = venueEnvs.find(e => String(e.id) === String(environmentId))
-      if (env) {
-        const eligible = env.elements.filter(
-          el => el.type?.startsWith('table_') && (el.capacity ?? 0) >= guestCount,
-        )
-        const freeTable = eligible.find(table => !RESERVATION_LIST.some(r =>
-          r.venueId       === props.venue?.id &&
-          r.environmentId === env.id &&
-          r.elementId     === table.id &&
-          r.date          === args.date &&
-          r.time          === args.time &&
-          ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
-        ))
-        if (!freeTable) {
-          return { error: 'no_availability', message: 'No suitable table available for that slot. Please choose another time.' }
-        }
-        elementId = freeTable.id
-      }
-    }
-
-    const resId = RESERVATION_LIST.length > 0
-      ? Math.max(...RESERVATION_LIST.map(r => r.id)) + 1
-      : 1
-
-    const res = new Reservation({
-      id:            resId,
-      venueId:       props.venue.id,
-      environmentId,
-      elementId,
-      userId:        session?.userId || '',
-      name:          session?.name  || '',
-      email:         session?.userId || '',
-      phone:         args.phone,
-      date:          args.date,
-      time:          args.time,
-      guests:        guestCount,
-      notes:         args.notes ?? '',
-      status:        'REQUESTED',
-    })
-    addReservation(res)
-    addReservationLog(new ReservationLog({
-      id:             Date.now(),
-      reservationId:  res.id,
-      previousStatus: null,
-      newStatus:      'REQUESTED',
-      timestamp:      new Date().toISOString(),
-      actorRole:      'client',
-    }))
-    sessionStorage.setItem('spotly_pending_reservation_id', String(res.id))
-    completedResId.value = res.id
-    return { success: true, reservationId: res.id }
-  }
-
-  if (name === 'end_call') {
-    callEnded.value = args.reason
-    return { success: true }
-  }
-
-  return { error: `Unknown tool: ${name}` }
-}
-
-// ── Agentic loop ──────────────────────────────────────────────────────────────
-async function sendTurn (userText) {
-  if (!isActive) return
-
-  if (userText) {
-    messages.value.push({ role: 'user', content: userText })
-    liveFeed.value.push({ role: 'user', text: userText })
-    scrollFeed()
-  }
-  callState.value = 'thinking'
-
-  // Loop until we get a speech response (tool calls may chain multiple times)
-  while (true) {
-    if (!isActive) return
-
-    let response
     try {
-      response = await callAIWithHistory(messages.value, { tools: TOOLS })
-    } catch (e) {
-      if (!isActive) return
-      if (e.message?.includes('tool_use_failed')) {
-        // Model generated malformed tool args — retry once with the same tools
-        liveFeed.value.push({ role: 'tool-activity', text: 'Retrying…' })
-        scrollFeed()
-        try {
-          response = await callAIWithHistory(messages.value, { tools: TOOLS })
-        } catch {
-          if (!isActive) return
-          // Still failing — speak a recovery line and let the user try again
-          const recovery = "Sorry, I had a technical issue. Could you repeat that?"
-          liveFeed.value.push({ role: 'ai', text: recovery })
-          scrollFeed()
-          callState.value = 'speaking'
-          await speak(recovery)
-          if (!isActive) return
-          startListening()
-          return
+      const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: {
+          'xi-api-key': key,
+          'Content-Type': 'application/json',
+          'Accept': 'audio/mpeg',
+        },
+        body: JSON.stringify({
+          text,
+          model_id: 'eleven_turbo_v2_5',
+          voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+        }),
+      })
+
+      if (!res.ok) return false
+
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+
+      await new Promise(resolve => {
+        const audio = new Audio(url)
+        currentAudio = audio
+        const finish = () => {
+          URL.revokeObjectURL(url); currentAudio = null; resolve()
         }
-      } else {
-        callState.value    = 'error'
-        errorMessage.value = 'Could not reach Groq — check your API key and network.'
+        audio.addEventListener('ended', finish)
+        audio.onerror = finish
+        audio.play().catch(finish)
+      })
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  // Voices load async in Chrome — wait for them before first speak
+  function loadVoices () {
+    return new Promise(resolve => {
+      const voices = window.speechSynthesis.getVoices()
+      if (voices.length > 0) {
+        resolve(voices); return
+      }
+      const handler = () => resolve(window.speechSynthesis.getVoices())
+      window.speechSynthesis.addEventListener('voiceschanged', handler, { once: true })
+      setTimeout(() => resolve(window.speechSynthesis.getVoices()), 2000)
+    })
+  }
+
+  async function speakBrowser (text) {
+    return new Promise(async resolve => {
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume()
+      window.speechSynthesis.cancel()
+      await new Promise(r => setTimeout(r, 80))
+
+      const voices = await loadVoices()
+      const utter = new SpeechSynthesisUtterance(text)
+
+      const voice
+        = voices.find(v => v.lang === 'en-US' && v.name.includes('Samantha'))
+          || voices.find(v => v.lang === 'en-US' && !v.localService)
+          || voices.find(v => v.lang.startsWith('en-') && !v.localService)
+          || voices.find(v => v.lang.startsWith('en-'))
+
+      if (voice) utter.voice = voice
+      utter.rate = 0.95
+      utter.pitch = 1
+      utter.volume = 1
+
+      let done = false
+      const finish = () => {
+        if (!done) {
+          done = true; resolve()
+        }
+      }
+      utter.onend = finish
+      utter.onerror = e => {
+        console.warn('[TTS error]', e.error); finish()
+      }
+      setTimeout(finish, Math.max(5000, text.length * 85))
+
+      window.speechSynthesis.speak(utter)
+    })
+  }
+
+  async function speak (text) {
+    const ok = await speakElevenLabs(text)
+    if (!ok) await speakBrowser(text)
+  }
+
+  function stopSpeaking () {
+    if (currentAudio) {
+      currentAudio.pause(); currentAudio = null
+    }
+    window.speechSynthesis.cancel()
+  }
+
+  // ── Speech Recognition ────────────────────────────────────────────────────────
+  let recognition = null
+  const speechSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition)
+
+  function setupRecognition () {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    recognition = new SR()
+    recognition.lang = 'en-US'
+    recognition.continuous = false
+    recognition.interimResults = false
+    recognition.maxAlternatives = 1
+
+    recognition.onresult = e => {
+      const transcript = e.results[0][0].transcript.trim()
+      if (transcript) sendTurn(transcript)
+    }
+
+    recognition.onerror = e => {
+      if (!isActive) return
+      if (e.error === 'aborted') return
+      if (e.error === 'no-speech') {
+        if (isActive) try {
+          recognition.start()
+        } catch {}
         return
       }
+      callState.value = 'error'
+      errorMessage.value = `Microphone error: ${e.error}`
     }
 
+    recognition.onend = () => {
+      if (isActive && callState.value === 'listening') {
+        try {
+          recognition.start()
+        } catch {}
+      }
+    }
+  }
+
+  function startListening () {
+    if (!recognition) return
+    callState.value = 'listening'
+    try {
+      recognition.start()
+    } catch {}
+  }
+
+  function stopListening () {
+    try {
+      recognition?.abort()
+    } catch {}
+  }
+
+  // ── Tool activity feed ────────────────────────────────────────────────────────
+  function formatDate (iso) {
+    try {
+      return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {
+        weekday: 'long', month: 'long', day: 'numeric',
+      })
+    } catch {
+      return iso
+    }
+  }
+
+  function pushToolActivity (name, args) {
+    const text = {
+      check_availability: `Checking availability for ${formatDate(args.date)}…`,
+      confirm_reservation: 'Creating your reservation…',
+      request_text_input: 'Requesting phone number…',
+      end_call: args.reason === 'reservation_complete' ? 'Finalizing booking…' : 'Ending call…',
+    }[name] ?? `Running ${name}…`
+    liveFeed.value.push({ role: 'tool-activity', text })
+    scrollFeed()
+  }
+
+  // ── Tool executor ─────────────────────────────────────────────────────────────
+  const WORKING_HOURS = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00']
+
+  async function executeTool (name, args) {
+    if (name === 'check_availability') {
+      // Guard: past dates
+      const today = new Date().toISOString().split('T')[0]
+      if (args.date < today) {
+        return { error: 'past_date', message: 'That date is in the past. Please choose a future date.' }
+      }
+
+      const guestCount = Number.parseInt(args.guests, 10) || 1
+      const venueEnvs = getEnvironmentsByVenue(props.venue?.id)
+
+      const environments = venueEnvs.map(env => {
+        // Only tables that can seat the party
+        const eligibleTables = env.elements.filter(
+          el => el.type?.startsWith('table_') && (el.capacity ?? 0) >= guestCount,
+        )
+
+        const availableSlots = WORKING_HOURS.filter(slot =>
+          eligibleTables.some(table => !RESERVATION_LIST.some(r =>
+            r.venueId === props.venue?.id
+            && r.environmentId === env.id
+            && r.elementId === table.id
+            && r.date === args.date
+            && r.time === slot
+            && ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
+          )),
+        )
+
+        // Distinguish "fully booked" from "no table big enough"
+        const allTables = env.elements.filter(el => el.type?.startsWith('table_'))
+        const hasCapacity = allTables.some(el => (el.capacity ?? 0) >= guestCount)
+
+        return {
+          id: env.id,
+          name: env.name,
+          availableSlots,
+          unavailableReason: availableSlots.length === 0
+            ? (hasCapacity ? 'fully_booked' : 'no_table_large_enough')
+            : null,
+        }
+      })
+
+      return { date: args.date, guests: guestCount, environments }
+    }
+
+    if (name === 'request_text_input') {
+      return new Promise(resolve => {
+        pendingTextInput.value = {
+          label: args.label ?? 'Your phone number',
+          placeholder: args.placeholder ?? 'XX XXX XXX',
+          resolve,
+        }
+        nextTick(() => phoneInputRef.value?.focus())
+      })
+    }
+
+    if (name === 'confirm_reservation') {
+      const guestCount = Number.parseInt(args.guests, 10) || 1
+
+      // Guard: past date
+      const today = new Date().toISOString().split('T')[0]
+      if (args.date < today) {
+        return { error: 'past_date', message: 'Cannot book a reservation in the past.' }
+      }
+
+      // Guard: working hours
+      if (!WORKING_HOURS.includes(args.time)) {
+        return { error: 'invalid_time', message: `${args.time} is outside working hours (18:00–22:00).` }
+      }
+
+      // Find a free table with sufficient capacity
+      let elementId = null
+      const environmentId = args.environmentId ?? null
+
+      if (environmentId) {
+        const venueEnvs = getEnvironmentsByVenue(props.venue?.id)
+        const env = venueEnvs.find(e => String(e.id) === String(environmentId))
+        if (env) {
+          const eligible = env.elements.filter(
+            el => el.type?.startsWith('table_') && (el.capacity ?? 0) >= guestCount,
+          )
+          const freeTable = eligible.find(table => !RESERVATION_LIST.some(r =>
+            r.venueId === props.venue?.id
+            && r.environmentId === env.id
+            && r.elementId === table.id
+            && r.date === args.date
+            && r.time === args.time
+            && ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
+          ))
+          if (!freeTable) {
+            return { error: 'no_availability', message: 'No suitable table available for that slot. Please choose another time.' }
+          }
+          elementId = freeTable.id
+        }
+      }
+
+      const resId = RESERVATION_LIST.length > 0
+        ? Math.max(...RESERVATION_LIST.map(r => r.id)) + 1
+        : 1
+
+      const res = new Reservation({
+        id: resId,
+        venueId: props.venue.id,
+        environmentId,
+        elementId,
+        userId: session?.userId || '',
+        name: session?.name || '',
+        email: session?.userId || '',
+        phone: args.phone,
+        date: args.date,
+        time: args.time,
+        guests: guestCount,
+        notes: args.notes ?? '',
+        status: 'REQUESTED',
+      })
+      addReservation(res)
+      addReservationLog(new ReservationLog({
+        id: Date.now(),
+        reservationId: res.id,
+        previousStatus: null,
+        newStatus: 'REQUESTED',
+        timestamp: new Date().toISOString(),
+        actorRole: 'client',
+      }))
+      sessionStorage.setItem('spotly_pending_reservation_id', String(res.id))
+      completedResId.value = res.id
+      return { success: true, reservationId: res.id }
+    }
+
+    if (name === 'end_call') {
+      callEnded.value = args.reason
+      return { success: true }
+    }
+
+    return { error: `Unknown tool: ${name}` }
+  }
+
+  // ── Agentic loop ──────────────────────────────────────────────────────────────
+  async function sendTurn (userText) {
     if (!isActive) return
 
-    const { content, tool_calls } = response
+    if (userText) {
+      messages.value.push({ role: 'user', content: userText })
+      liveFeed.value.push({ role: 'user', text: userText })
+      scrollFeed()
+    }
+    callState.value = 'thinking'
 
-    // ── Tool call branch ───────────────────────────────────────────────────
-    if (tool_calls?.length) {
-      if (content) {
-        messages.value.push({ role: 'assistant', content, tool_calls })
-        liveFeed.value.push({ role: 'ai', text: content })
-        scrollFeed()
-        callState.value = 'speaking'
-        await speak(content)
+    // Loop until we get a speech response (tool calls may chain multiple times)
+    while (true) {
+      if (!isActive) return
+
+      let response
+      try {
+        response = await callAIWithHistory(messages.value, { tools: TOOLS })
+      } catch (error) {
         if (!isActive) return
-        callState.value = 'thinking'
-      } else {
-        messages.value.push({ role: 'assistant', content: null, tool_calls })
+        if (error.message?.includes('tool_use_failed')) {
+          // Model generated malformed tool args — retry once with the same tools
+          liveFeed.value.push({ role: 'tool-activity', text: 'Retrying…' })
+          scrollFeed()
+          try {
+            response = await callAIWithHistory(messages.value, { tools: TOOLS })
+          } catch {
+            if (!isActive) return
+            // Still failing — speak a recovery line and let the user try again
+            const recovery = 'Sorry, I had a technical issue. Could you repeat that?'
+            liveFeed.value.push({ role: 'ai', text: recovery })
+            scrollFeed()
+            callState.value = 'speaking'
+            await speak(recovery)
+            if (!isActive) return
+            startListening()
+            return
+          }
+        } else {
+          callState.value = 'error'
+          errorMessage.value = 'Could not reach Groq — check your API key and network.'
+          return
+        }
       }
 
-      for (const tc of tool_calls) {
-        if (!isActive) return
-        const args = typeof tc.function.arguments === 'string'
-          ? JSON.parse(tc.function.arguments)
-          : tc.function.arguments
+      if (!isActive) return
 
-        // Show tool activity in transcript
-        pushToolActivity(tc.function.name, args)
+      const { content, tool_calls } = response
 
-        // If model didn't say anything before requesting the phone, speak a fallback
-        if (tc.function.name === 'request_text_input' && !content) {
-          const phrase = "I've opened a field for your phone number — please type it below."
-          liveFeed.value.push({ role: 'ai', text: phrase })
+      // ── Tool call branch ───────────────────────────────────────────────────
+      if (tool_calls?.length) {
+        if (content) {
+          messages.value.push({ role: 'assistant', content, tool_calls })
+          liveFeed.value.push({ role: 'ai', text: content })
           scrollFeed()
           callState.value = 'speaking'
-          await speak(phrase)
+          await speak(content)
           if (!isActive) return
           callState.value = 'thinking'
+        } else {
+          messages.value.push({ role: 'assistant', content: null, tool_calls })
         }
 
-        const result = await executeTool(tc.function.name, args)
-        if (!isActive) return
-        messages.value.push({ role: 'tool', tool_call_id: tc.id, content: JSON.stringify(result) })
+        for (const tc of tool_calls) {
+          if (!isActive) return
+          const args = typeof tc.function.arguments === 'string'
+            ? JSON.parse(tc.function.arguments)
+            : tc.function.arguments
+
+          // Show tool activity in transcript
+          pushToolActivity(tc.function.name, args)
+
+          // If model didn't say anything before requesting the phone, speak a fallback
+          if (tc.function.name === 'request_text_input' && !content) {
+            const phrase = 'I\'ve opened a field for your phone number — please type it below.'
+            liveFeed.value.push({ role: 'ai', text: phrase })
+            scrollFeed()
+            callState.value = 'speaking'
+            await speak(phrase)
+            if (!isActive) return
+            callState.value = 'thinking'
+          }
+
+          const result = await executeTool(tc.function.name, args)
+          if (!isActive) return
+          messages.value.push({ role: 'tool', tool_call_id: tc.id, content: JSON.stringify(result) })
+        }
+        continue // Let AI respond to tool results
       }
-      continue // Let AI respond to tool results
-    }
 
-    // ── Speech response branch ─────────────────────────────────────────────
-    const speech = content ?? ''
-    if (speech) {
-      messages.value.push({ role: 'assistant', content: speech })
-      liveFeed.value.push({ role: 'ai', text: speech })
-      scrollFeed()
-      callState.value = 'speaking'
-      await speak(speech)
-      if (!isActive) return
-    }
+      // ── Speech response branch ─────────────────────────────────────────────
+      const speech = content ?? ''
+      if (speech) {
+        messages.value.push({ role: 'assistant', content: speech })
+        liveFeed.value.push({ role: 'ai', text: speech })
+        scrollFeed()
+        callState.value = 'speaking'
+        await speak(speech)
+        if (!isActive) return
+      }
 
-    // ── Post-speech routing ────────────────────────────────────────────────
-    if (callEnded.value === 'reservation_complete' || completedResId.value) {
-      callState.value = 'done'
-      setTimeout(() => {
-        emit('update:modelValue', false)
-        router.push('/booking/awaiting')
-      }, 2000)
+      // ── Post-speech routing ────────────────────────────────────────────────
+      if (callEnded.value === 'reservation_complete' || completedResId.value) {
+        callState.value = 'done'
+        setTimeout(() => {
+          emit('update:modelValue', false)
+          router.push('/booking/awaiting')
+        }, 2000)
+        return
+      }
+
+      if (callEnded.value === 'user_cancelled') {
+        callState.value = 'cancelled'
+        setTimeout(() => emit('update:modelValue', false), 1800)
+        return
+      }
+
+      // Fallback: detect farewell if model said goodbye without calling end_call
+      const FAREWELLS = ['goodbye', 'bye!', 'safe travels', 'take care', 'have a great']
+      if (FAREWELLS.some(f => speech.toLowerCase().includes(f)) && !completedResId.value) {
+        callState.value = 'cancelled'
+        setTimeout(() => emit('update:modelValue', false), 1800)
+        return
+      }
+
+      startListening()
+      break
+    }
+  }
+
+  // ── Call lifecycle ────────────────────────────────────────────────────────────
+  async function startCall () {
+    if (!speechSupported) {
+      callState.value = 'error'
+      errorMessage.value = 'Voice calls require Chrome or Edge.'
       return
     }
 
-    if (callEnded.value === 'user_cancelled') {
-      callState.value = 'cancelled'
-      setTimeout(() => emit('update:modelValue', false), 1800)
-      return
-    }
+    isActive = true
 
-    // Fallback: detect farewell if model said goodbye without calling end_call
-    const FAREWELLS = ['goodbye', 'bye!', 'safe travels', 'take care', 'have a great']
-    if (FAREWELLS.some(f => speech.toLowerCase().includes(f)) && !completedResId.value) {
-      callState.value = 'cancelled'
-      setTimeout(() => emit('update:modelValue', false), 1800)
-      return
-    }
+    // Reset everything
+    messages.value = []
+    liveFeed.value = []
+    pendingTextInput.value = null
+    textInputValue.value = ''
+    completedResId.value = null
+    callEnded.value = null
+    errorMessage.value = ''
+    callState.value = 'opening'
 
+    setupRecognition()
+
+    // Seed system prompt
+    messages.value.push({ role: 'system', content: buildSystemPrompt() })
+
+    // Hardcoded greeting for instant start — no extra API call
+    const guestFirstName = session?.name?.split(' ')[0] || 'there'
+    const greeting = `Hi ${guestFirstName}, welcome to ${props.venue?.name ?? 'our venue'}. I'm your AI reservation assistant. How many guests will be joining you?`
+    messages.value.push({ role: 'assistant', content: greeting })
+    liveFeed.value.push({ role: 'ai', text: greeting })
+    scrollFeed()
+
+    callState.value = 'speaking'
+    await speak(greeting)
     startListening()
-    break
-  }
-}
-
-// ── Call lifecycle ────────────────────────────────────────────────────────────
-async function startCall () {
-  if (!speechSupported) {
-    callState.value    = 'error'
-    errorMessage.value = 'Voice calls require Chrome or Edge.'
-    return
   }
 
-  isActive = true
-
-  // Reset everything
-  messages.value         = []
-  liveFeed.value         = []
-  pendingTextInput.value = null
-  textInputValue.value   = ''
-  completedResId.value   = null
-  callEnded.value        = null
-  errorMessage.value     = ''
-  callState.value        = 'opening'
-
-  setupRecognition()
-
-  // Seed system prompt
-  messages.value.push({ role: 'system', content: buildSystemPrompt() })
-
-  // Hardcoded greeting for instant start — no extra API call
-  const guestFirstName = session?.name?.split(' ')[0] || 'there'
-  const greeting = `Hi ${guestFirstName}, welcome to ${props.venue?.name ?? 'our venue'}. I'm your AI reservation assistant. How many guests will be joining you?`
-  messages.value.push({ role: 'assistant', content: greeting })
-  liveFeed.value.push({ role: 'ai', text: greeting })
-  scrollFeed()
-
-  callState.value = 'speaking'
-  await speak(greeting)
-  startListening()
-}
-
-function hangUp () {
-  isActive = false          // kills the loop at every await checkpoint
-  stopSpeaking()
-  stopListening()
-  if (pendingTextInput.value?.resolve) {
-    pendingTextInput.value.resolve({ cancelled: true })
-  }
-  pendingTextInput.value = null
-  callState.value        = 'cancelled'
-  emit('update:modelValue', false)
-}
-
-// ── Phone formatting (Tunisian: XX XXX XXX, 8 digits) ────────────────────────
-function formatTunisianPhone (raw) {
-  const d = raw.replace(/\D/g, '').slice(0, 8)
-  if (d.length <= 2) return d
-  if (d.length <= 5) return `${d.slice(0, 2)} ${d.slice(2)}`
-  return `${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5)}`
-}
-
-function onPhoneInput (e) {
-  textInputValue.value = formatTunisianPhone(e.target.value)
-}
-
-// ── Text input submission ─────────────────────────────────────────────────────
-async function submitTextInput () {
-  if (textInputValue.value.replace(/\D/g, '').length < 8 || !pendingTextInput.value) return
-  const phone    = textInputValue.value.trim()
-  const resolver = pendingTextInput.value.resolve
-  pendingTextInput.value = null
-  textInputValue.value   = ''
-  resolver({ field: 'phone', value: phone })
-  // The agentic loop receives the phone value as the tool result and continues
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function scrollFeed () {
-  nextTick(() => {
-    if (feedRef.value) feedRef.value.scrollTop = feedRef.value.scrollHeight
-  })
-}
-
-// ── Watchers ──────────────────────────────────────────────────────────────────
-watch(() => props.modelValue, (val) => {
-  if (val) startCall()
-  else {
+  function hangUp () {
+    isActive = false // kills the loop at every await checkpoint
     stopSpeaking()
     stopListening()
+    if (pendingTextInput.value?.resolve) {
+      pendingTextInput.value.resolve({ cancelled: true })
+    }
+    pendingTextInput.value = null
+    callState.value = 'cancelled'
+    emit('update:modelValue', false)
   }
-})
 
-onUnmounted(() => {
-  stopSpeaking()
-  stopListening()
-})
+  // ── Phone formatting (Tunisian: XX XXX XXX, 8 digits) ────────────────────────
+  function formatTunisianPhone (raw) {
+    const d = raw.replace(/\D/g, '').slice(0, 8)
+    if (d.length <= 2) return d
+    if (d.length <= 5) return `${d.slice(0, 2)} ${d.slice(2)}`
+    return `${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5)}`
+  }
+
+  function onPhoneInput (e) {
+    textInputValue.value = formatTunisianPhone(e.target.value)
+  }
+
+  // ── Text input submission ─────────────────────────────────────────────────────
+  async function submitTextInput () {
+    if (textInputValue.value.replace(/\D/g, '').length < 8 || !pendingTextInput.value) return
+    const phone = textInputValue.value.trim()
+    const resolver = pendingTextInput.value.resolve
+    pendingTextInput.value = null
+    textInputValue.value = ''
+    resolver({ field: 'phone', value: phone })
+  // The agentic loop receives the phone value as the tool result and continues
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────────
+  function scrollFeed () {
+    nextTick(() => {
+      if (feedRef.value) feedRef.value.scrollTop = feedRef.value.scrollHeight
+    })
+  }
+
+  // ── Watchers ──────────────────────────────────────────────────────────────────
+  watch(() => props.modelValue, val => {
+    if (val) startCall()
+    else {
+      stopSpeaking()
+      stopListening()
+    }
+  })
+
+  onUnmounted(() => {
+    stopSpeaking()
+    stopListening()
+  })
 </script>
 
 <style scoped>

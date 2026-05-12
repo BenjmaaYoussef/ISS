@@ -192,6 +192,122 @@
         <button class="empty-state-link" @click="handleNav('builder')">Go to Floor Plan Builder →</button>
       </div>
 
+      <!-- ── AI Insights ── -->
+      <div class="ai-insights-card mb-8">
+
+        <!-- Header -->
+        <div class="ai-insights-header">
+          <div class="ai-insights-title">
+            <v-icon class="mr-2" color="#D4AF37" size="16">mdi-creation</v-icon>
+            AI Insights
+          </div>
+          <div class="ai-header-right">
+            <span v-if="activeTimestamp" class="ai-insights-ts">{{ activeTimestamp }}</span>
+            <v-btn
+              :disabled="activeLoading"
+              :loading="activeLoading"
+              class="ai-generate-btn"
+              size="small"
+              variant="outlined"
+              @click="activeGenerate"
+            >
+              <v-icon class="mr-1" size="14">{{ activeHasData ? 'mdi-refresh' : 'mdi-creation' }}</v-icon>
+              {{ activeHasData ? 'Regenerate' : activeTab === 'insights' ? 'Generate Insights' : 'Generate Brief' }}
+            </v-btn>
+          </div>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="ai-tab-bar">
+          <button :class="['ai-tab', activeTab === 'insights' && 'ai-tab--active']" @click="activeTab = 'insights'">
+            <v-icon size="12" class="mr-1">mdi-chart-bar</v-icon>
+            Insights
+          </button>
+          <button :class="['ai-tab', activeTab === 'week-ahead' && 'ai-tab--active']" @click="activeTab = 'week-ahead'">
+            <v-icon size="12" class="mr-1">mdi-calendar-week</v-icon>
+            Week Ahead
+          </button>
+        </div>
+
+        <!-- ── Insights tab ── -->
+        <template v-if="activeTab === 'insights'">
+          <div v-if="insightsLoading" class="ai-insights-body">
+            <v-skeleton-loader type="list-item-two-line" />
+            <v-skeleton-loader type="list-item-two-line" />
+            <v-skeleton-loader type="list-item-two-line" />
+          </div>
+          <div v-else-if="insightsError" class="ai-insights-body">
+            <v-alert :text="insightsError" type="error" variant="tonal" density="compact" />
+          </div>
+          <div v-else-if="insights" class="ai-insights-body">
+            <div v-for="(insight, i) in insights" :key="i">
+              <div class="ai-insight-row">
+                <v-icon :color="severityColor(insight.severity)" size="18" class="ai-insight-icon">{{ insight.icon }}</v-icon>
+                <span class="ai-insight-text">{{ insight.text }}</span>
+                <button
+                  :class="['ai-ask-btn', activeFollowUpIndex === i && 'ai-ask-btn--active']"
+                  :title="activeFollowUpIndex === i ? 'Close' : 'Ask a follow-up'"
+                  @click="toggleFollowUp(i)"
+                >
+                  <v-icon size="13">{{ activeFollowUpIndex === i ? 'mdi-close' : 'mdi-chat-outline' }}</v-icon>
+                </button>
+              </div>
+              <!-- Follow-up panel -->
+              <div v-if="activeFollowUpIndex === i" class="ai-followup-panel">
+                <div v-if="followUpAnswers[i]?.answer" class="ai-followup-answer">
+                  <v-icon size="13" color="#6B9FD4" class="mr-1" style="flex-shrink:0">mdi-robot-outline</v-icon>
+                  {{ followUpAnswers[i].answer }}
+                </div>
+                <div v-if="followUpAnswers[i]?.error" class="ai-followup-error">{{ followUpAnswers[i].error }}</div>
+                <div v-if="!followUpAnswers[i]?.answer && !followUpAnswers[i]?.error" class="ai-followup-input-row">
+                  <input
+                    v-model="followUpQuestion"
+                    class="ai-followup-input"
+                    placeholder="Ask about this insight…"
+                    @keydown.enter.prevent="submitFollowUp(i)"
+                  />
+                  <button
+                    class="ai-followup-send"
+                    :disabled="followUpAnswers[i]?.loading || !followUpQuestion.trim()"
+                    @click="submitFollowUp(i)"
+                  >
+                    <v-progress-circular v-if="followUpAnswers[i]?.loading" size="13" width="2" indeterminate color="#D4AF37" />
+                    <v-icon v-else size="14" color="#D4AF37">mdi-send</v-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="ai-insights-empty">
+            <v-icon color="#3A4151" size="40">mdi-creation</v-icon>
+            <p class="ai-insights-empty-text">Click Generate to get AI-powered insights about your reservations.</p>
+          </div>
+        </template>
+
+        <!-- ── Week Ahead tab ── -->
+        <template v-else>
+          <div v-if="predictiveLoading" class="ai-insights-body">
+            <v-skeleton-loader type="list-item-two-line" />
+            <v-skeleton-loader type="list-item-two-line" />
+            <v-skeleton-loader type="list-item-two-line" />
+          </div>
+          <div v-else-if="predictiveError" class="ai-insights-body">
+            <v-alert :text="predictiveError" type="error" variant="tonal" density="compact" />
+          </div>
+          <div v-else-if="predictiveBrief" class="ai-insights-body">
+            <div v-for="(item, i) in predictiveBrief" :key="i" class="ai-insight-row">
+              <v-icon :color="severityColor(item.severity)" size="18" class="ai-insight-icon">{{ item.icon }}</v-icon>
+              <span class="ai-insight-text">{{ item.text }}</span>
+            </div>
+          </div>
+          <div v-else class="ai-insights-empty">
+            <v-icon color="#3A4151" size="40">mdi-calendar-week-outline</v-icon>
+            <p class="ai-insights-empty-text">Click Generate Brief for a 7-day operational outlook based on upcoming reservations.</p>
+          </div>
+        </template>
+
+      </div>
+
       <!-- ── Recent Reservations ── -->
       <div class="section-label mb-4">
         <v-icon class="mr-2" color="#D4AF37" size="15">mdi-calendar-clock</v-icon>
@@ -269,11 +385,12 @@
 </template>
 
 <script setup>
-  import { computed } from 'vue'
+  import { computed, onMounted, reactive, ref } from 'vue'
   import ReservationStatusChip from '@/components/feedback/ReservationStatusChip.vue'
   import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
   import StatCard from '@/components/ui/StatCard.vue'
   import { useAdminNav } from '@/composables/useAdminNav'
+  import { useAI } from '@/composables/useAI'
   import { useAuth } from '@/composables/useAuth'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { RESERVATION_LIST } from '@/datamodel/Reservation.js'
@@ -508,6 +625,295 @@
     if (pct >= 70) return '#C71585'
     if (pct >= 40) return '#D4AF37'
     return '#2EBB57'
+  }
+
+  // ─── AI Insights ──────────────────────────────────────────────────────────────
+  const { callAI } = useAI()
+
+  // Tab
+  const activeTab = ref('insights')
+
+  // Historical insights
+  const insights = ref(null)
+  const insightsLoading = ref(false)
+  const insightsError = ref(null)
+  const insightsGeneratedAt = ref(null)
+
+  // Predictive brief
+  const predictiveBrief = ref(null)
+  const predictiveLoading = ref(false)
+  const predictiveError = ref(null)
+  const predictiveGeneratedAt = ref(null)
+
+  // Follow-up chat
+  const activeFollowUpIndex = ref(null)
+  const followUpQuestion = ref('')
+  const followUpAnswers = reactive({})
+
+  // Computed helpers for active tab
+  const activeLoading = computed(() => activeTab.value === 'insights' ? insightsLoading.value : predictiveLoading.value)
+  const activeHasData = computed(() => activeTab.value === 'insights' ? !!insights.value : !!predictiveBrief.value)
+  const activeTimestamp = computed(() => {
+    const ts = activeTab.value === 'insights' ? insightsGeneratedAt.value : predictiveGeneratedAt.value
+    if (!ts) return null
+    const diff = Date.now() - ts.getTime()
+    const mins = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    if (mins < 1) return 'Just now'
+    if (mins < 60) return `${mins} min ago`
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`
+  })
+  function activeGenerate () {
+    if (activeTab.value === 'insights') generateInsights()
+    else generatePredictiveBrief()
+  }
+
+  function severityColor (severity) {
+    if (severity === 'success') return '#2EBB57'
+    if (severity === 'warning') return '#FFB300'
+    return '#6B9FD4'
+  }
+
+  // ── Payload builders ────────────────────────────────────────────────────────
+
+  function computeInsightPayload () {
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    const cutoff = thirtyDaysAgo.toISOString().split('T')[0]
+
+    const recent = venueReservations.value.filter(r => r.date >= cutoff)
+    const total = recent.length
+
+    const byStatus = {}
+    for (const r of recent) {
+      byStatus[r.status] = (byStatus[r.status] || 0) + 1
+    }
+
+    const noShowCount = byStatus['NO_SHOW'] || 0
+    const cancelledCount = byStatus['CANCELLED'] || 0
+    const noShowRate = total > 0 ? ((noShowCount / total) * 100).toFixed(1) + '%' : '0%'
+    const cancellationRate = total > 0 ? ((cancelledCount / total) * 100).toFixed(1) + '%' : '0%'
+
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const byDayOfWeek = {}
+    const byHour = {}
+    let totalGuests = 0
+    let walkInCount = 0
+
+    for (const r of recent) {
+      const day = days[new Date(r.date).getDay()]
+      byDayOfWeek[day] = (byDayOfWeek[day] || 0) + 1
+      const hour = r.time ? r.time.split(':')[0] + ':00' : null
+      if (hour) byHour[hour] = (byHour[hour] || 0) + 1
+      const g = parseInt(r.guests, 10)
+      if (Number.isFinite(g) && g > 0 && g <= 100) totalGuests += g
+      if (!r.elementId) walkInCount++
+    }
+
+    const avgGuests = total > 0 ? (totalGuests / total).toFixed(1) : 0
+    const peakHour = Object.entries(byHour).sort((a, b) => b[1] - a[1])[0]?.[0] || null
+    const quietestDay = Object.entries(byDayOfWeek).sort((a, b) => a[1] - b[1])[0]?.[0] || null
+    const walkInRatio = total > 0 ? ((walkInCount / total) * 100).toFixed(1) + '%' : '0%'
+
+    const occasionKeywords = ['birthday', 'anniversary', 'business', 'proposal', 'date night']
+    const occasionCounts = {}
+    for (const r of recent) {
+      const notes = (r.notes || '').toLowerCase()
+      for (const kw of occasionKeywords) {
+        if (notes.includes(kw)) occasionCounts[kw] = (occasionCounts[kw] || 0) + 1
+      }
+    }
+    const topOccasions = Object.entries(occasionCounts)
+      .filter(([, count]) => count >= 2)
+      .sort((a, b) => b[1] - a[1])
+      .map(([kw]) => kw)
+
+    return {
+      period: 'last 30 days',
+      total,
+      byStatus,
+      noShowRate,
+      cancellationRate,
+      byDayOfWeek,
+      peakHour,
+      quietestDay,
+      avgGuests: Number(avgGuests),
+      topOccasions,
+      walkInCount,
+      walkInRatio,
+    }
+  }
+
+  function computePredictivePayload () {
+    const todayDate = new Date()
+    const next7 = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(todayDate)
+      d.setDate(todayDate.getDate() + i)
+      return d.toISOString().split('T')[0]
+    })
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const upcomingByDate = {}
+    for (const date of next7) {
+      const dayRes = venueReservations.value.filter(r => r.date === date)
+      const byHourLocal = {}
+      let guestTotal = 0
+      for (const r of dayRes) {
+        const h = r.time ? r.time.split(':')[0] + ':00' : null
+        if (h) byHourLocal[h] = (byHourLocal[h] || 0) + 1
+        const g = parseInt(r.guests, 10)
+        if (Number.isFinite(g) && g > 0 && g <= 100) guestTotal += g
+      }
+      const peakSlot = Object.entries(byHourLocal).sort((a, b) => b[1] - a[1])[0]?.[0] || null
+      upcomingByDate[date] = {
+        dayName: dayNames[new Date(date + 'T12:00:00').getDay()],
+        bookings: dayRes.length,
+        expectedGuests: guestTotal,
+        peakSlot,
+      }
+    }
+    const hist = computeInsightPayload()
+    return {
+      today: todayDate.toISOString().split('T')[0],
+      upcomingWeek: upcomingByDate,
+      totalUpcoming: Object.values(upcomingByDate).reduce((s, d) => s + d.bookings, 0),
+      historicalNoShowRate: hist.noShowRate,
+      historicalCancellationRate: hist.cancellationRate,
+      historicalAvgGuests: hist.avgGuests,
+      historicalPeakHour: hist.peakHour,
+      historicalQuietestDay: hist.quietestDay,
+    }
+  }
+
+  // ── Prompts ─────────────────────────────────────────────────────────────────
+
+  const INSIGHTS_SYSTEM_PROMPT = `You are a restaurant analytics assistant. Analyze this venue's reservation data and return ONLY valid JSON — an array of 3 to 5 insights:
+[{ "icon": "<mdi icon name>", "severity": "info|warning|success", "text": "<one actionable sentence, max 20 words, cite a number from the data>" }]
+
+Severity guide: "success" = positive trend to reinforce, "warning" = problem to address, "info" = neutral observation with an opportunity.
+Use specific mdi icon names (e.g. mdi-trending-up, mdi-alert, mdi-calendar-check).
+Every insight must reference at least one number from the data.`
+
+  const PREDICTIVE_SYSTEM_PROMPT = `You are a venue operations assistant. Based on upcoming reservations and historical patterns, give a brief 7-day operational outlook.
+Return ONLY valid JSON — an array of 2 to 4 forward-looking observations:
+[{ "icon": "<mdi icon name>", "severity": "info|warning|success", "text": "<one actionable sentence, max 20 words, cite a number>" }]
+
+Focus on: expected covers after applying historical no-show rate, peak slots to staff up for, quiet days worth promoting, busy days needing preparation.
+Severity: "success" = well-covered/positive, "warning" = needs attention, "info" = opportunity.
+Never mention revenue, staff wages, financial projections, or anything not present in the provided data.`
+
+  // ── Persistence ─────────────────────────────────────────────────────────────
+
+  const INSIGHTS_STORAGE_KEY = `spotly_ai_insights_${session?.venueId}`
+
+  function saveToStorage () {
+    const answersToSave = {}
+    for (const [k, v] of Object.entries(followUpAnswers)) {
+      if (v?.answer) answersToSave[k] = { answer: v.answer }
+    }
+    localStorage.setItem(INSIGHTS_STORAGE_KEY, JSON.stringify({
+      insights: insights.value,
+      predictiveBrief: predictiveBrief.value,
+      insightsGeneratedAt: insightsGeneratedAt.value?.toISOString() ?? null,
+      predictiveGeneratedAt: predictiveGeneratedAt.value?.toISOString() ?? null,
+      followUpAnswers: answersToSave,
+    }))
+  }
+
+  onMounted(() => {
+    try {
+      const raw = localStorage.getItem(INSIGHTS_STORAGE_KEY)
+      if (!raw) return
+      const saved = JSON.parse(raw)
+      if (Array.isArray(saved.insights)) {
+        insights.value = saved.insights
+        insightsGeneratedAt.value = saved.insightsGeneratedAt ? new Date(saved.insightsGeneratedAt) : null
+      }
+      if (Array.isArray(saved.predictiveBrief)) {
+        predictiveBrief.value = saved.predictiveBrief
+        predictiveGeneratedAt.value = saved.predictiveGeneratedAt ? new Date(saved.predictiveGeneratedAt) : null
+      }
+      if (saved.followUpAnswers && typeof saved.followUpAnswers === 'object') {
+        Object.assign(followUpAnswers, saved.followUpAnswers)
+      }
+    } catch {}
+  })
+
+  // ── Generators ──────────────────────────────────────────────────────────────
+
+  async function generateInsights () {
+    insightsLoading.value = true
+    insightsError.value = null
+    const payloadStr = JSON.stringify(computeInsightPayload())
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const result = await callAI(INSIGHTS_SYSTEM_PROMPT, payloadStr, { json: true, maxTokens: 512 })
+        if (!Array.isArray(result)) throw new Error('Unexpected response format')
+        insights.value = result
+        insightsGeneratedAt.value = new Date()
+        for (const k of Object.keys(followUpAnswers)) delete followUpAnswers[k]
+        saveToStorage()
+        insightsLoading.value = false
+        return
+      } catch (e) {
+        if (attempt === 1) insightsError.value = e.message
+      }
+    }
+    insightsLoading.value = false
+  }
+
+  async function generatePredictiveBrief () {
+    predictiveLoading.value = true
+    predictiveError.value = null
+    const payloadStr = JSON.stringify(computePredictivePayload())
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const result = await callAI(PREDICTIVE_SYSTEM_PROMPT, payloadStr, { json: true, maxTokens: 512 })
+        if (!Array.isArray(result)) throw new Error('Unexpected response format')
+        predictiveBrief.value = result
+        predictiveGeneratedAt.value = new Date()
+        saveToStorage()
+        predictiveLoading.value = false
+        return
+      } catch (e) {
+        if (attempt === 1) predictiveError.value = e.message
+      }
+    }
+    predictiveLoading.value = false
+  }
+
+  // ── Follow-up chat ───────────────────────────────────────────────────────────
+
+  function toggleFollowUp (i) {
+    if (activeFollowUpIndex.value === i) {
+      activeFollowUpIndex.value = null
+    } else {
+      activeFollowUpIndex.value = i
+      followUpQuestion.value = ''
+    }
+  }
+
+  async function submitFollowUp (i) {
+    const question = followUpQuestion.value.trim()
+    if (!question) return
+    followUpAnswers[i] = { answer: null, loading: true, error: null }
+    followUpQuestion.value = ''
+    const payloadStr = JSON.stringify(computeInsightPayload())
+    const systemPrompt = `You are a restaurant analytics assistant. Answer questions about reservation data ONLY.
+Available data: ${payloadStr}
+
+Rules:
+- Answer in 1–2 sentences. Cite numbers from the data when possible.
+- ONLY answer questions about: reservation counts, timing patterns, guest numbers, booking trends, no-show/cancellation rates, occasions mentioned in notes.
+- If asked about revenue, staff wages, financial performance, prices, or anything not present in the data, respond with exactly: "I can only answer questions based on the reservation data shown in your dashboard."
+- Never invent data not present in the summary.`
+    const userMsg = `Insight: "${insights.value[i].text}"\n\nQuestion: ${question}`
+    try {
+      const answer = await callAI(systemPrompt, userMsg, { maxTokens: 200 })
+      followUpAnswers[i] = { answer, loading: false, error: null }
+      saveToStorage()
+    } catch (e) {
+      followUpAnswers[i] = { answer: null, loading: false, error: e.message }
+    }
   }
 
   // ─── Recent (last 6) ─────────────────────────────────────────────────────────
@@ -1200,6 +1606,212 @@
   padding: 4px 0;
 }
 .see-all-btn:hover { opacity: 1; }
+
+/* ─── AI Insights Card ─── */
+.ai-insights-card {
+  background: #13181f;
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.ai-insights-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px 12px;
+}
+.ai-insights-title {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7a8d;
+  display: flex;
+  align-items: center;
+}
+.ai-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ai-insights-ts {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  color: #4a5568;
+}
+.ai-generate-btn {
+  color: #D4AF37 !important;
+  border-color: rgba(212, 175, 55, 0.4) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.75rem !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.ai-generate-btn:hover {
+  background: rgba(212, 175, 55, 0.06) !important;
+}
+
+/* Tab bar */
+.ai-tab-bar {
+  display: flex;
+  gap: 2px;
+  padding: 0 22px 12px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+}
+.ai-tab {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7a8d;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.ai-tab:hover {
+  color: #9aa3b0;
+  background: rgba(255, 255, 255, 0.03);
+}
+.ai-tab--active {
+  color: #D4AF37 !important;
+  background: rgba(212, 175, 55, 0.08) !important;
+  border-color: rgba(212, 175, 55, 0.2) !important;
+}
+
+/* Body */
+.ai-insights-body {
+  padding: 16px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ai-insight-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+.ai-insight-row:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.ai-insight-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.ai-insight-text {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: #c0c8d4;
+  line-height: 1.5;
+  flex: 1;
+}
+.ai-ask-btn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  padding: 3px 6px;
+  cursor: pointer;
+  color: #6b7a8d;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  margin-top: 1px;
+}
+.ai-ask-btn:hover {
+  color: #D4AF37;
+  border-color: rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.05);
+}
+.ai-ask-btn--active {
+  color: #D4AF37 !important;
+  border-color: rgba(212, 175, 55, 0.3) !important;
+  background: rgba(212, 175, 55, 0.06) !important;
+}
+
+/* Follow-up panel */
+.ai-followup-panel {
+  margin: 0 0 4px 30px;
+  padding: 12px 14px;
+  background: rgba(107, 159, 212, 0.04);
+  border: 1px solid rgba(107, 159, 212, 0.12);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ai-followup-answer {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: #9aa3b0;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+}
+.ai-followup-error {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: #e57373;
+}
+.ai-followup-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ai-followup-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  padding: 7px 11px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: #c0c8d4;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.ai-followup-input::placeholder { color: #4a5568; }
+.ai-followup-input:focus { border-color: rgba(212, 175, 55, 0.3); }
+.ai-followup-send {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.ai-followup-send:hover:not(:disabled) { background: rgba(212, 175, 55, 0.15); }
+.ai-followup-send:disabled { opacity: 0.35; cursor: default; }
+
+/* Empty state */
+.ai-insights-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 24px;
+  text-align: center;
+}
+.ai-insights-empty-text {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: #6b7a8d;
+  max-width: 360px;
+  line-height: 1.5;
+  margin: 0;
+}
 
 /* ─── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 1200px) {

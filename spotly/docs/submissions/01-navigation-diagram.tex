@@ -1,0 +1,119 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[landscape, top=1.2cm, bottom=1.2cm, left=1.2cm, right=1.2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{booktabs}
+
+\pagestyle{empty}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+% PAGE 1 - Navigation Diagram
+
+{\large\bfseries Spotly \textemdash{} UI Navigation Diagram}\\[2pt]
+{\small ISS296 \textbullet{} Spring 2026 \textbullet{}
+Instructor: Mr. Amine Ben Hassouna \textbullet{}
+Cyrine Krichen \textbullet{}
+Eya Sassi \textbullet{}
+Lina Khemiri \textbullet{}
+Youssef Ben Jemaa}
+
+\vspace{4pt}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{4pt}
+
+\noindent\includegraphics[width=\linewidth, keepaspectratio]{nav.png}
+
+\clearpage
+
+% PAGE 2 - Explanation and Interface Index
+
+{\large\bfseries Spotly \textemdash{} UI Navigation Diagram: Interface Index \& Description}\\[2pt]
+{\small ISS296 \textbullet{} Spring 2026 \textbullet{}
+Instructor: Mr. Amine Ben Hassouna \textbullet{}
+Cyrine Krichen \textbullet{}
+Eya Sassi \textbullet{}
+Lina Khemiri \textbullet{}
+Youssef Ben Jemaa}
+
+\vspace{4pt}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{8pt}
+
+\textbf{Reading the diagram.}
+Each rectangle represents a user interface identified by its page ID and title.
+Arrows represent navigation paths between interfaces, triggered by user actions
+such as button clicks, form submissions, or automatic redirects from the router
+guard layer.
+Interfaces are grouped into five access areas: \textbf{Public} (open to all
+visitors without authentication), \textbf{Booking Flow} (multi-step reservation
+journey for authenticated clients), \textbf{Client Area} (personal dashboard and
+reservation management), \textbf{Admin Area} (full venue management for venue
+owners), and \textbf{Staff Area} (live floor operations for assigned staff
+members). Dialogs (D1--D10) are modal overlays launched from within their host
+page and do not constitute standalone routes.
+
+\vspace{8pt}
+\noindent\rule{\linewidth}{0.2pt}
+\vspace{6pt}
+
+\textbf{Interface Index}
+
+\vspace{6pt}
+\noindent
+\begin{minipage}[t]{0.60\linewidth}
+{\footnotesize
+\begin{tabular}{@{}l l l l@{}}
+    \toprule
+    \textbf{ID} & \textbf{Route} & \textbf{Page Name} & \textbf{Area} \\
+    \midrule
+    P01 & \texttt{/landing}               & Landing                           & Public \\
+    P02 & \texttt{/auth}                  & Authentication (Login / Register) & Public \\
+    P03 & \texttt{/home}                  & Home --- Venue Discovery          & Public \\
+    P04 & \texttt{/venue/:id}             & Venue Public Profile              & Public \\
+    P05 & \texttt{/menu/:tableId}         & Digital Menu (QR)                 & Public \\
+    P06 & \texttt{/client/dashboard}      & Client Dashboard                  & Client \\
+    P07 & \texttt{/booking/environment}   & Booking: Environment Selection    & Client \\
+    P08 & \texttt{/booking/seats}         & Booking: Seat Selection           & Client \\
+    P09 & \texttt{/booking/confirm}       & Booking: Confirmation             & Client \\
+    P10 & \texttt{/booking/awaiting}      & Booking: Awaiting Decision        & Client \\
+    P11 & \texttt{/admin/onboarding}      & Admin Onboarding                  & Admin \\
+    P12 & \texttt{/admin/dashboard}       & Admin Dashboard                   & Admin \\
+    P13 & \texttt{/admin/floor-plan}      & Floor Plan Builder                & Admin \\
+    P14 & \texttt{/admin/menu}            & Menu Management                   & Admin \\
+    P15 & \texttt{/admin/reservations}    & Reservation Queue                 & Admin \\
+    P16 & \texttt{/admin/reviews}         & Guest Reviews                     & Admin \\
+    P17 & \texttt{/admin/qr-codes}        & QR Code Generator                 & Admin \\
+    P18 & \texttt{/admin/venue-settings}  & Venue Settings                    & Admin \\
+    P19 & \texttt{/staff/dashboard}       & Staff Dashboard                   & Staff \\
+    P20 & \texttt{/:all(.*)}              & Not Found (404)                   & All \\
+    \bottomrule
+\end{tabular}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.37\linewidth}
+{\footnotesize
+\begin{tabular}{@{}l l l@{}}
+    \toprule
+    \textbf{ID} & \textbf{Dialog Name} & \textbf{Area} \\
+    \midrule
+    D1  & Submit Review (within P06)             & Client \\
+    D2  & Cancel Reservation (within P06)        & Client \\
+    D3  & Add Environment (within P13)           & Admin \\
+    D4  & Delete Constraint Warning (within P13) & Admin \\
+    D5  & Delete Environment (within P13)        & Admin \\
+    D6  & Add Menu Item (within P14)             & Admin \\
+    D7  & Reject Reservation (within P15)        & Admin \\
+    D8  & Guest Check-In (within P19)            & Staff \\
+    D9  & Walk-In Guest (within P19)             & Staff \\
+    D10 & Table Detail (within P19)              & Staff \\
+    \bottomrule
+\end{tabular}
+}
+\end{minipage}
+
+\end{document}

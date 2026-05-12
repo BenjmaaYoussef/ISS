@@ -99,11 +99,11 @@
             <!-- Table chip -->
             <div class="rq-cell">
               <v-chip
-                :class="res.elementId.startsWith('VIP') ? 'rq-chip--vip' : 'rq-chip--table'"
+                :class="res.elementId?.startsWith('VIP') ? 'rq-chip--vip' : 'rq-chip--table'"
                 size="small"
                 variant="tonal"
               >
-                {{ res.elementId }}
+                {{ res.elementId ?? '—' }}
               </v-chip>
             </div>
 
@@ -197,11 +197,11 @@
                 <span>{{ res.guests }} guest{{ res.guests !== 1 ? 's' : '' }}</span>
               </div>
               <v-chip
-                :class="res.elementId.startsWith('VIP') ? 'rq-chip--vip' : 'rq-chip--table'"
+                :class="res.elementId?.startsWith('VIP') ? 'rq-chip--vip' : 'rq-chip--table'"
                 size="small"
                 variant="tonal"
               >
-                {{ res.elementId }}
+                {{ res.elementId ?? '—' }}
               </v-chip>
             </div>
 

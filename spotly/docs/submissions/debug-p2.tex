@@ -1,0 +1,47 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[landscape, top=1.2cm, bottom=1.2cm, left=1.2cm, right=1.2cm]{geometry}
+\usepackage[T1]{fontenc}\usepackage[utf8]{inputenc}
+\usepackage{booktabs}\usepackage{lmodern}
+\pagestyle{empty}\setlength{\parskip}{0pt}\setlength{\parindent}{0pt}
+\begin{document}
+{\large\bfseries Header line one}\\[2pt]{\small Header line two}
+\vspace{4pt}\noindent\rule{\linewidth}{0.4pt}\vspace{8pt}
+
+Description paragraph here four lines long description paragraph here four lines long description paragraph here. Description paragraph here four lines long description paragraph here four lines long description paragraph here.
+
+\vspace{10pt}\noindent\rule{\linewidth}{0.2pt}\vspace{6pt}
+\textbf{Page Index}\vspace{4pt}
+{\footnotesize\begin{tabular}{@{}l l p{6cm} l@{}}
+\toprule\textbf{ID}&\textbf{Route}&\textbf{Page Name}&\textbf{Access}\\\midrule
+P01&\texttt{/landing}&Landing&Public\\
+P02&\texttt{/auth}&Authentication (Login / Register)&Public\\
+P03&\texttt{/home}&Home --- Venue Discovery&Public\\
+P04&\texttt{/venue/:id}&Venue Public Profile&Public\\
+P05&\texttt{/menu/:tableId}&Digital Menu (QR)&Public\\
+P06&\texttt{/client/dashboard}&Client Dashboard&Client\\
+P07&\texttt{/booking/environment}&Booking: Environment Selection&Client\\
+P08&\texttt{/booking/seats}&Booking: Seat Selection&Client\\
+P09&\texttt{/booking/confirm}&Booking: Confirmation&Client\\
+P10&\texttt{/booking/awaiting}&Booking: Awaiting Decision&Client\\
+P11&\texttt{/admin/onboarding}&Admin Onboarding&Admin\\
+P12&\texttt{/admin/dashboard}&Admin Dashboard&Admin\\
+P13&\texttt{/admin/floor-plan}&Floor Plan Builder&Admin\\
+P14&\texttt{/admin/menu}&Menu Management&Admin\\
+P15&\texttt{/admin/reservations}&Reservation Queue&Admin\\
+P16&\texttt{/admin/reviews}&Guest Reviews&Admin\\
+P17&\texttt{/admin/qr-codes}&QR Code Generator&Admin\\
+P18&\texttt{/admin/venue-settings}&Venue Settings&Admin\\
+P19&\texttt{/staff/dashboard}&Staff Dashboard&Staff\\
+P20&\texttt{/:all(.*)}&Not Found (404)&All\\\midrule
+D1&---&Submit Review (dialog within P06)&Client\\
+D2&---&Cancel Reservation (dialog within P06)&Client\\
+D3&---&Add Environment (dialog within P13)&Admin\\
+D4&---&Delete Constraint Warning (dialog within P13)&Admin\\
+D5&---&Delete Environment (dialog within P13)&Admin\\
+D6&---&Add Menu Item (dialog within P14)&Admin\\
+D7&---&Reject Reservation (dialog within P15)&Admin\\
+D8&---&Guest Check-In (dialog within P19)&Staff\\
+D9&---&Walk-In Guest (dialog within P19)&Staff\\
+D10&---&Table Detail (dialog within P19)&Staff\\
+\bottomrule\end{tabular}}
+\end{document}

@@ -635,11 +635,11 @@ Venues:
 
 ### Implementation tasks
 
-- [ ] **`home.vue` — mode toggle** — Add `discoveryMode = ref('search')`. Add two `v-btn` pill/toggle buttons above the search bar: "Search" and "Describe with AI". Active pill is gold-filled, inactive is outlined. `v-show` existing search input and activity filter row only when `discoveryMode === 'search'`.
+- [x] **`home.vue` — mode toggle** — Add `discoveryMode = ref('search')`. Add two `v-btn` pill/toggle buttons above the search bar: "Search" and "Describe with AI". Active pill is gold-filled, inactive is outlined. `v-show` existing search input and activity filter row only when `discoveryMode === 'search'`.
 
-- [ ] **`home.vue` — describe input** — Add `describeQuery = ref('')` and `aiSearchLoading = ref(false)`. When `discoveryMode === 'describe'`: show a `v-textarea` (rows=2, auto-grow, no resize) with the placeholder text and a "Find Venues" `v-btn` (gold, `append-icon="mdi-creation"`). Button calls `runSemanticSearch()`, disabled when `aiSearchLoading`.
+- [x] **`home.vue` — describe input** — Add `describeQuery = ref('')` and `aiSearchLoading = ref(false)`. When `discoveryMode === 'describe'`: show a `v-textarea` (rows=2, auto-grow, no resize) with the placeholder text and a "Find Venues" `v-btn` (gold, `append-icon="mdi-creation"`). Button calls `runSemanticSearch()`, disabled when `aiSearchLoading`.
 
-- [ ] **`home.vue` — `runSemanticSearch()`** — Async function:
+- [x] **`home.vue` — `runSemanticSearch()`** — Async function:
   1. If `describeQuery.value.trim().length < 10` → snackbar *"Please describe your evening in a bit more detail."* return.
   2. `aiSearchLoading = true`, `aiRankedVenues = null`.
   3. Build venue payload from `VENUE_LIST`.
@@ -649,13 +649,13 @@ Venues:
   7. On error: snackbar *"AI matching unavailable — try the search bar instead."*
   8. `aiSearchLoading = false`.
 
-- [ ] **`home.vue` — `displayedVenues` computed** — Add `aiRankedVenues = ref(null)`. Computed `displayedVenues`: if `discoveryMode === 'describe'` and `aiRankedVenues !== null`, return `aiRankedVenues.map(r => r.venue)`. Otherwise return the existing filtered/searched venue list. The `v-for` on venue cards uses `displayedVenues`. Pass a `reason` prop (or use a separate lookup) into each card when in describe mode.
+- [x] **`home.vue` — `displayedVenues` computed** — Add `aiRankedVenues = ref(null)`. Computed `displayedVenues`: if `discoveryMode === 'describe'` and `aiRankedVenues !== null`, return `aiRankedVenues.map(r => r.venue)`. Otherwise return the existing filtered/searched venue list. The `v-for` on venue cards uses `displayedVenues`. Pass a `reason` prop (or use a separate lookup) into each card when in describe mode.
 
-- [ ] **`home.vue` — reason badge on venue cards** — When `discoveryMode === 'describe'` and `aiRankedVenues` is set, overlay a `v-chip` on each venue card: `color="amber-darken-2"`, `prepend-icon="mdi-creation"`, `size="small"`, showing `aiRankedVenues.find(r => r.venue.id === venue.id)?.reason`.
+- [x] **`home.vue` — reason badge on venue cards** — When `discoveryMode === 'describe'` and `aiRankedVenues` is set, overlay a `v-chip` on each venue card: gold badge with `mdi-creation` icon showing the AI's one-line reason.
 
-- [ ] **`home.vue` — skeleton + empty state** — When `aiSearchLoading`: replace venue grid with 3 `v-skeleton-loader type="card"`. After search completes with empty array: show centered text *"No venues matched your description — try different words or switch to Search."*
+- [x] **`home.vue` — skeleton + empty state** — When `aiSearchLoading`: replace venue grid with 3 `v-skeleton-loader type="card"`. After search completes with empty array: show centered text *"No venues matched your description — try different words or switch to Search."*
 
-- [ ] **`home.vue` — reset on mode switch** — `watch(discoveryMode, () => { aiRankedVenues = null; describeQuery = '' })` — clears AI state when switching modes.
+- [x] **`home.vue` — reset on mode switch** — `watch(discoveryMode, () => { aiRankedVenues = null; describeQuery = '' })` — clears AI state when switching modes.
 
 ### Testing
 
@@ -690,9 +690,9 @@ Venues:
 ```
 
 ### Session Notes
-- [ ] Phase AI-3 complete
-- **Completed on:** —
-- **Issues found:** —
+- [x] Phase AI-3 complete
+- **Completed on:** 2026-05-12
+- **Issues found:** AI response format changed from bare array to `{ summary, venues }` to support the "Curated for" headline. Starter chips went through two layout iterations before landing on a horizontal scrollable row with a fade + chevron hint.
 
 ---
 
@@ -788,11 +788,11 @@ Every insight must reference at least one number from the data.
 
 ### Implementation tasks
 
-- [ ] **`admin/dashboard.vue` — `computeInsightPayload()`** — Function that reads `RESERVATION_LIST` filtered to `session.venueId`, last 30 days. Computes and returns the stats object (see structure above). `byDayOfWeek` uses `['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(r.date).getDay()]`. `peakHour` = the hour key with the highest count from `byHour`. `quietestDay` = lowest count day. `topOccasions` = scan `r.notes` (lowercased) for `['birthday','anniversary','business','proposal','date night']`, return those that appear in at least 2 reservations. `walkInRatio` = `(walkInCount / total * 100).toFixed(1) + '%'`.
+- [x] **`admin/dashboard.vue` — `computeInsightPayload()`** — Function that reads `RESERVATION_LIST` filtered to `session.venueId`, last 30 days. Computes and returns the stats object (see structure above). `byDayOfWeek` uses `['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(r.date).getDay()]`. `peakHour` = the hour key with the highest count from `byHour`. `quietestDay` = lowest count day. `topOccasions` = scan `r.notes` (lowercased) for `['birthday','anniversary','business','proposal','date night']`, return those that appear in at least 2 reservations. `walkInRatio` = `(walkInCount / total * 100).toFixed(1) + '%'`.
 
-- [ ] **`admin/dashboard.vue` — AI Insights card UI** — Import `useAI`. Add refs: `insights = ref(null)`, `insightsLoading = ref(false)`, `insightsError = ref(null)`, `insightsGeneratedAt = ref(null)`. Add computed `insightsTimestamp`: `null` when `insightsGeneratedAt` is null, `"Just now"` when < 60s ago, `"X min ago"` when < 60m, `"X hours ago"` otherwise (based on `Date.now() - insightsGeneratedAt.getTime()`). Note: timestamp label does not auto-update — it only recomputes when `generateInsights` runs again (static snapshot is fine).
+- [x] **`admin/dashboard.vue` — AI Insights card UI** — Import `useAI`. Add refs: `insights = ref(null)`, `insightsLoading = ref(false)`, `insightsError = ref(null)`, `insightsGeneratedAt = ref(null)`. Add computed `insightsTimestamp`: `null` when `insightsGeneratedAt` is null, `"Just now"` when < 60s ago, `"X min ago"` when < 60m, `"X hours ago"` otherwise (based on `Date.now() - insightsGeneratedAt.getTime()`). Note: timestamp label does not auto-update — it only recomputes when `generateInsights` runs again (static snapshot is fine).
 
-- [ ] **`admin/dashboard.vue` — `generateInsights()`** — Async function:
+- [x] **`admin/dashboard.vue` — `generateInsights()`** — Async function:
   1. `insightsLoading = true`, `insightsError = null`
   2. `const payload = computeInsightPayload()`
   3. `const result = await callAI(systemPrompt, JSON.stringify(payload), { json: true, maxTokens: 512 })`
@@ -801,7 +801,7 @@ Every insight must reference at least one number from the data.
   6. On catch: `insightsError.value = e.message`
   7. `insightsLoading.value = false`
 
-- [ ] **`admin/dashboard.vue` — card template** — Place a `v-card` below stat cards. Card header row: left side has `mdi-creation` icon + "AI Insights" title + `insightsTimestamp` (muted, small); right side has "Generate" / "Regenerate" `v-btn` (gold outlined, `mdi-refresh` icon, disabled when `insightsLoading`). Card body:
+- [x] **`admin/dashboard.vue` — card template** — Place a `v-card` below stat cards. Card header row: left side has `mdi-creation` icon + "AI Insights" title + `insightsTimestamp` (muted, small); right side has "Generate" / "Regenerate" `v-btn` (gold outlined, `mdi-refresh` icon, disabled when `insightsLoading`). Card body:
   - `v-if="insightsLoading"`: three `v-skeleton-loader type="list-item-two-line"`
   - `v-else-if="insightsError"`: `v-alert type="error"` showing `insightsError`
   - `v-else-if="insights"`: `v-list` with one `v-list-item` per insight. `prepend-icon` = `insight.icon`, icon color from severity map (`success`→green, `warning`→amber, `info`→blue). Item title = `insight.text`. No subtitles, no avatars.
@@ -840,9 +840,9 @@ Every insight must reference at least one number from the data.
 ```
 
 ### Session Notes
-- [ ] Phase AI-4 complete
-- **Completed on:** —
-- **Issues found:** —
+- [x] Phase AI-4 complete
+- **Completed on:** 2026-05-12
+- **Issues found:** avgGuests corrupted by non-numeric localStorage values — fixed with parseInt + range guard. Added predictive brief (Week Ahead tab), per-insight follow-up chat with guarded system prompt, and localStorage persistence for all generated content including follow-up answers.
 
 ---
 

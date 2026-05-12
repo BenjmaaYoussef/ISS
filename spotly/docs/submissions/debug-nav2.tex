@@ -1,0 +1,20 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[landscape, top=1.2cm, bottom=1.2cm, left=1.2cm, right=1.2cm]{geometry}
+\usepackage{graphicx}
+\pagestyle{empty}
+\setlength{\parskip}{0pt}\setlength{\parindent}{0pt}
+\begin{document}
+HEADER\par
+\rule{\linewidth}{0.4pt}\par
+\includegraphics[width=\linewidth,keepaspectratio]{nav.png}\par
+\rule{\linewidth}{0.4pt}\par
+{\footnotesize Rectangles = interfaces. Arrows = navigation paths. Areas: Public / Booking / Client / Admin / Staff.}\par
+\vspace{2pt}
+{\footnotesize
+\begin{tabular}{@{}lllll@{}}
+P01 Landing & P05 Digital Menu & P09 Confirm & P13 Floor Plan & P17 QR Codes \\
+P02 Auth & P06 Client Dashboard & P10 Awaiting & P14 Menu & P18 Venue Settings \\
+P03 Home & P07 Env. Selection & P11 Onboarding & P15 Reservations & P19 Staff Dashboard \\
+P04 Venue Profile & P08 Seat Selection & P12 Admin Dash & P16 Guest Reviews & P20 Not Found \\
+\end{tabular}}
+\end{document}

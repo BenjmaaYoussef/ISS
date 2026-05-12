@@ -80,43 +80,111 @@
           </div>
         </div>
 
-        <!-- Search field -->
-        <div class="search-wrap">
-          <v-icon aria-hidden="true" class="search-icon" size="18">mdi-magnify</v-icon>
-          <input
-            v-model="searchQuery"
-            aria-label="Search venues"
-            class="search-input"
-            placeholder="Search venues, moods, or activities…"
-            type="search"
+        <!-- Mode toggle -->
+        <div aria-label="Discovery mode" class="mode-toggle" role="group">
+          <button
+            class="mode-pill"
+            :class="{ 'mode-pill--active': discoveryMode === 'search' }"
+            @click="discoveryMode = 'search'"
           >
-          <transition name="fade-scale">
-            <button
-              v-if="searchQuery"
-              aria-label="Clear search"
-              class="search-clear"
-              @click="searchQuery = ''"
-            >
-              <v-icon size="16">mdi-close</v-icon>
-            </button>
-          </transition>
+            <v-icon size="14">mdi-magnify</v-icon>
+            Search
+          </button>
+          <button
+            class="mode-pill"
+            :class="{ 'mode-pill--active': discoveryMode === 'describe' }"
+            @click="discoveryMode = 'describe'"
+          >
+            <v-icon size="14">mdi-creation</v-icon>
+            Describe with AI
+          </button>
         </div>
 
-        <!-- Activity filter chips -->
-        <div v-if="activities.length > 0">
-          <p class="filter-label">What are you looking for?</p>
-          <div aria-label="Filter by activity" class="filter-chips" role="group">
-            <button
-              v-for="activity in activities"
-              :key="activity"
-              :aria-pressed="selectedActivities.includes(activity)"
-              class="pill-chip"
-              :class="{ 'pill-chip--active': selectedActivities.includes(activity) }"
-              @click="toggleActivity(activity)"
+        <!-- Search field (search mode only) -->
+        <div v-show="discoveryMode === 'search'">
+          <div class="search-wrap">
+            <v-icon aria-hidden="true" class="search-icon" size="18">mdi-magnify</v-icon>
+            <input
+              v-model="searchQuery"
+              aria-label="Search venues"
+              class="search-input"
+              placeholder="Search venues, moods, or activities…"
+              type="search"
             >
-              {{ activity }}
-            </button>
+            <transition name="fade-scale">
+              <button
+                v-if="searchQuery"
+                aria-label="Clear search"
+                class="search-clear"
+                @click="searchQuery = ''"
+              >
+                <v-icon size="16">mdi-close</v-icon>
+              </button>
+            </transition>
           </div>
+
+          <!-- Activity filter chips -->
+          <div v-if="activities.length > 0">
+            <p class="filter-label">What are you looking for?</p>
+            <div aria-label="Filter by activity" class="filter-chips" role="group">
+              <button
+                v-for="activity in activities"
+                :key="activity"
+                :aria-pressed="selectedActivities.includes(activity)"
+                class="pill-chip"
+                :class="{ 'pill-chip--active': selectedActivities.includes(activity) }"
+                @click="toggleActivity(activity)"
+              >
+                {{ activity }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Describe mode input -->
+        <div v-show="discoveryMode === 'describe'" class="describe-section">
+          <!-- Starter prompt chips -->
+          <div class="starter-chips">
+            <span class="starter-label">Need inspiration?</span>
+            <div class="starter-scroll-wrap">
+              <div class="starter-scroll-row">
+                <button
+                  v-for="prompt in STARTER_PROMPTS"
+                  :key="prompt"
+                  class="starter-chip"
+                  :disabled="aiSearchLoading"
+                  @click="describeQuery = prompt"
+                >
+                  {{ prompt }}
+                </button>
+              </div>
+              <div class="starter-scroll-hint" aria-hidden="true">
+                <v-icon size="16" color="rgba(212,175,55,0.7)">mdi-chevron-right</v-icon>
+              </div>
+            </div>
+          </div>
+
+          <v-textarea
+            v-model="describeQuery"
+            auto-grow
+            class="describe-textarea"
+            :disabled="aiSearchLoading"
+            hide-details
+            no-resize
+            placeholder="Describe your ideal evening — occasion, vibe, music, dress code…"
+            :rows="2"
+            variant="outlined"
+          />
+
+          <v-btn
+            append-icon="mdi-creation"
+            class="mt-3 find-venues-btn"
+            :disabled="aiSearchLoading"
+            :loading="aiSearchLoading"
+            @click="runSemanticSearch"
+          >
+            Find Venues
+          </v-btn>
         </div>
       </section>
 
@@ -133,15 +201,38 @@
             <h2 class="section-title">Curated for You</h2>
           </div>
           <div aria-label="Number of results" class="section-count">
-            {{ filteredVenues.length }}
-            <span class="section-count-label">{{ filteredVenues.length === 1 ? 'venue' : 'venues' }}</span>
+            {{ displayedVenues.length }}
+            <span class="section-count-label">{{ displayedVenues.length === 1 ? 'venue' : 'venues' }}</span>
           </div>
         </div>
 
+        <!-- "Curated for" banner — shown after an AI search returns results -->
+        <transition name="fade">
+          <div
+            v-if="discoveryMode === 'describe' && aiSummary && !aiSearchLoading"
+            class="curated-for-banner"
+          >
+            <v-icon size="14" class="curated-icon">mdi-creation</v-icon>
+            Curated for
+            <span class="curated-summary">{{ aiSummary }}</span>
+            <span class="curated-count">— {{ displayedVenues.length }} {{ displayedVenues.length === 1 ? 'venue' : 'venues' }}</span>
+          </div>
+        </transition>
+
+        <!-- Skeleton loaders while AI is searching -->
+        <div v-if="aiSearchLoading" class="venue-grid">
+          <v-skeleton-loader
+            v-for="n in 3"
+            :key="n"
+            class="venue-skeleton"
+            type="card"
+          />
+        </div>
+
         <!-- Cards grid -->
-        <div v-if="filteredVenues.length > 0" class="venue-grid">
+        <div v-else-if="displayedVenues.length > 0" class="venue-grid">
           <article
-            v-for="(venue, i) in filteredVenues"
+            v-for="(venue, i) in displayedVenues"
             :key="venue.id"
             :aria-label="`${venue.name} — click to view details`"
             class="venue-card"
@@ -180,6 +271,15 @@
               <div v-if="venue.id === ownerVenueId" aria-label="Your venue" class="badge-owner">
                 <v-icon size="11">mdi-crown</v-icon>
                 YOUR VENUE
+              </div>
+
+              <!-- AI reason badge -->
+              <div
+                v-if="discoveryMode === 'describe' && getAIReason(venue.id)"
+                class="badge-ai-reason"
+              >
+                <v-icon size="11">mdi-creation</v-icon>
+                {{ getAIReason(venue.id) }}
               </div>
 
               <!-- Ambience tags on image -->
@@ -239,15 +339,37 @@
         </div>
 
         <!-- ── Empty state ── -->
-        <div v-else class="empty-state" role="status">
+        <div v-else-if="!aiSearchLoading" class="empty-state" role="status">
           <div aria-hidden="true" class="empty-orb" />
-          <v-icon class="empty-icon mb-4" size="52">mdi-store-search-outline</v-icon>
-          <p class="empty-title">No venues match your criteria</p>
-          <p class="empty-sub">Try adjusting your search or removing filters.</p>
+          <v-icon class="empty-icon mb-4" size="52">
+            {{ discoveryMode === 'describe' && aiRankedVenues !== null ? 'mdi-creation' : 'mdi-store-search-outline' }}
+          </v-icon>
+          <p class="empty-title">
+            {{ discoveryMode === 'describe' && aiRankedVenues !== null
+              ? 'No venues matched your description'
+              : 'No venues match your criteria' }}
+          </p>
+          <p class="empty-sub">
+            {{ discoveryMode === 'describe' && aiRankedVenues !== null
+              ? 'Try different words or switch to Search.'
+              : 'Try adjusting your search or removing filters.' }}
+          </p>
           <div aria-hidden="true" class="empty-line" />
-          <button class="empty-clear" @click="clearFilters">
+          <button
+            v-if="discoveryMode === 'search'"
+            class="empty-clear"
+            @click="clearFilters"
+          >
             <v-icon size="14">mdi-refresh</v-icon>
             Clear all filters
+          </button>
+          <button
+            v-else
+            class="empty-clear"
+            @click="discoveryMode = 'search'"
+          >
+            <v-icon size="14">mdi-magnify</v-icon>
+            Switch to Search
           </button>
         </div>
       </section>
@@ -292,16 +414,31 @@
       <div style="height: 64px" />
     </div>
   </v-main>
+
+  <!-- Snackbar -->
+  <v-snackbar
+    v-model="snackbar.show"
+    :color="snackbar.color"
+    location="bottom center"
+    :timeout="3500"
+  >
+    <v-icon v-if="snackbar.icon" class="mr-2" size="16">{{ snackbar.icon }}</v-icon>
+    {{ snackbar.text }}
+  </v-snackbar>
 </template>
 
 <script setup>
-  import { computed, ref } from 'vue'
+  import { computed, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
   import AppNavbarSpotly from '@/components/layout/AppNavbarSpotly.vue'
   import SectionHeader from '@/components/ui/SectionHeader.vue'
-  import { addVenue, getVenueByAdminEmail, Venue, VENUE_LIST } from '@/datamodel/Venue.js'
+  import { useAI } from '@/composables/useAI.js'
+  import { useSnackbar } from '@/composables/useSnackbar.js'
+  import { addVenue, getVenueByAdminEmail, getVenueById, Venue, VENUE_LIST } from '@/datamodel/Venue.js'
 
   const router = useRouter()
+  const { callAI } = useAI()
+  const { snackbar, notify } = useSnackbar()
 
   let _session = null
   try {
@@ -368,6 +505,88 @@
     searchQuery.value = ''
     selectedActivities.value = []
   }
+
+  // ── AI Describe mode ──
+  const STARTER_PROMPTS = [
+    'Romantic anniversary dinner, intimate and candlelit',
+    'Lively birthday celebration with friends',
+    'Formal business dinner, quiet atmosphere',
+    'Casual date night with a relaxed vibe',
+  ]
+
+  const discoveryMode   = ref('search')
+  const describeQuery   = ref('')
+  const aiSearchLoading = ref(false)
+  const aiRankedVenues  = ref(null)
+  const aiSummary       = ref(null)
+
+  const displayedVenues = computed(() => {
+    if (discoveryMode.value === 'describe' && aiRankedVenues.value !== null) {
+      return aiRankedVenues.value.map(r => r.venue)
+    }
+    return filteredVenues.value
+  })
+
+  function getAIReason (venueId) {
+    return aiRankedVenues.value?.find(r => r.venue.id === venueId)?.reason ?? null
+  }
+
+  async function runSemanticSearch () {
+    if (describeQuery.value.trim().length < 10) {
+      notify('Please describe your evening in a bit more detail.')
+      return
+    }
+    aiSearchLoading.value = true
+    aiRankedVenues.value = null
+
+    const venuePayload = VENUE_LIST.map(v => ({
+      id: v.id,
+      name: v.name,
+      description: v.description,
+      ambienceTags: v.ambienceTags,
+      activities: v.activities,
+      dressCode: v.dressCode,
+    }))
+
+    const systemPrompt = `You are a venue recommendation engine for Spotly.
+Match the user's description to the venues listed below.
+Return ONLY valid JSON — an object with exactly two keys:
+{
+  "summary": "<4-6 word phrase capturing the user's intent, lowercase, e.g. 'a romantic proposal dinner'>",
+  "venues": [{ "venueId": <number>, "reason": "<one sentence, max 12 words, specific to this venue>" }]
+}
+
+Rules:
+- venues: only include venues that genuinely match. Omit any that do not match.
+- The reason must cite something specific from the venue data (ambience, activities, dressCode).
+- Never invent features the venue does not have.
+- If no venue matches, return venues as an empty array [].
+- summary: always present, even when venues is empty.
+
+Venues:
+${JSON.stringify(venuePayload)}`
+
+    try {
+      const result = await callAI(systemPrompt, describeQuery.value, { json: true, maxTokens: 512 })
+      if (!result?.venues || !Array.isArray(result.venues)) throw new Error('Unexpected response format')
+      const ranked = result.venues
+        .filter(r => getVenueById(r.venueId))
+        .map(r => ({ venue: getVenueById(r.venueId), reason: r.reason }))
+      aiRankedVenues.value = ranked
+      aiSummary.value = result.summary ?? null
+    } catch {
+      notify('AI matching unavailable — try the search bar instead.', '#C71585', 'mdi-close-circle')
+      aiRankedVenues.value = null
+    } finally {
+      aiSearchLoading.value = false
+    }
+  }
+
+  watch(discoveryMode, () => {
+    aiRankedVenues.value = null
+    aiSummary.value      = null
+    describeQuery.value  = ''
+  })
 
   function selectVenue (venue) {
     router.push(`/venue/${venue.id}`)
@@ -1410,6 +1629,204 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
+}
+
+/* ══════════════════════════════════════════════
+   MODE TOGGLE
+══════════════════════════════════════════════ */
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.mode-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-weight: 500;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition:
+    background 0.18s var(--ease-out),
+    border-color 0.18s var(--ease-out),
+    color 0.18s var(--ease-out);
+}
+.mode-pill:hover {
+  border-color: rgba(212,175,55,0.38);
+  color: var(--gold);
+}
+.mode-pill--active {
+  background: rgba(212,175,55,0.16) !important;
+  border-color: rgba(212,175,55,0.55) !important;
+  color: var(--gold) !important;
+  font-weight: 600;
+}
+
+/* ══════════════════════════════════════════════
+   DESCRIBE MODE
+══════════════════════════════════════════════ */
+.describe-section {
+  display: flex;
+  flex-direction: column;
+}
+.describe-textarea :deep(.v-field) {
+  background: rgba(255,255,255,0.04) !important;
+  border-radius: 12px !important;
+  color: #fff;
+  caret-color: var(--gold);
+}
+.describe-textarea :deep(.v-field__outline) {
+  color: rgba(212,175,55,0.25) !important;
+}
+.describe-textarea :deep(.v-field--focused .v-field__outline) {
+  color: rgba(212,175,55,0.55) !important;
+}
+.describe-textarea :deep(textarea::placeholder) {
+  color: var(--muted);
+}
+.find-venues-btn {
+  align-self: flex-start;
+  background: var(--gold) !important;
+  color: #0a0e14 !important;
+  font-weight: 700 !important;
+  font-size: 0.88rem !important;
+  letter-spacing: 0.04em !important;
+  border-radius: 10px !important;
+  padding: 0 24px !important;
+  height: 44px !important;
+  text-transform: none !important;
+}
+.find-venues-btn:hover {
+  background: #e8c84a !important;
+  box-shadow: 0 6px 20px rgba(212,175,55,0.35) !important;
+}
+
+/* Starter prompt chips */
+.starter-chips {
+  margin-bottom: 14px;
+}
+.starter-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+.starter-scroll-wrap {
+  position: relative;
+}
+.starter-scroll-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 7px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 4px;
+  padding-right: 32px;
+  scrollbar-width: none;
+}
+.starter-scroll-row::-webkit-scrollbar {
+  display: none;
+}
+.starter-chip {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.78rem;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-weight: 400;
+  padding: 6px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.15s var(--ease-out),
+    border-color 0.15s var(--ease-out),
+    color 0.15s var(--ease-out);
+}
+.starter-chip:hover:not(:disabled) {
+  background: rgba(212,175,55,0.08);
+  border-color: rgba(212,175,55,0.4);
+  color: rgba(255,255,255,0.85);
+}
+.starter-chip:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.starter-scroll-hint {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 4px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background: linear-gradient(to right, transparent, var(--surface) 70%);
+  pointer-events: none;
+}
+
+/* "Curated for" banner */
+.curated-for-banner {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 22px;
+  font-size: 0.85rem;
+  color: var(--muted-light);
+  font-family: var(--font-body, 'Inter', sans-serif);
+}
+.curated-icon {
+  color: var(--gold) !important;
+  flex-shrink: 0;
+}
+.curated-summary {
+  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-style: italic;
+  color: var(--gold);
+  font-size: 0.92rem;
+}
+.curated-count {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* Skeleton cards */
+.venue-skeleton {
+  border-radius: 18px !important;
+  overflow: hidden;
+  background: var(--surface) !important;
+  border: 1px solid var(--border-subtle);
+}
+
+/* AI reason badge */
+.badge-ai-reason {
+  position: absolute;
+  bottom: 50px;
+  left: 12px;
+  right: 12px;
+  z-index: 4;
+  background: rgba(212, 150, 0, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #0a0e14;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  line-height: 1.35;
 }
 
 /* ══════════════════════════════════════════════

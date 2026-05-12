@@ -1,0 +1,291 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{lmodern}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+
+\hypersetup{colorlinks=true, linkcolor=black, urlcolor=black}
+
+% Column type for wrapped, left-aligned content
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\begin{document}
+
+% ─── Title block ─────────────────────────────────────────────────────────────
+\begin{center}
+    {\LARGE\bfseries Spotly --- Features Grouping}\\[0.5em]
+    {\large Luxury Venue Discovery and Booking Platform}\\[1em]
+    \begin{tabular}{ll}
+        \textbf{Course:}      & ISS296 --- Spring 2026 \\
+        \textbf{Instructor:}  & Mr. Amine Ben Hassouna \\
+        \textbf{Team:}        & Cyrine Krichen, Eya Sassi, \\
+                              & Lina Khemiri, Youssef Ben Jemaa \\
+    \end{tabular}
+\end{center}
+
+\vspace{1.5em}
+\hrule
+\vspace{1.5em}
+
+% ─── Introduction ────────────────────────────────────────────────────────────
+This document maps each application feature to the data model entities it
+involves. Feature IDs are as defined in the \emph{Project Features \& User
+Roles} document. Entities correspond to the classes in the UML class diagram.
+
+\vspace{1em}
+Each row lists the feature identifier, its name, and all data model entities
+that are created, read, updated, or deleted during the execution of that
+feature.
+
+% ─── Phase 1 --- Core Features ───────────────────────────────────────────────
+\section{Phase 1 --- Core Features}
+
+\begin{longtable}{>{\bfseries}l L{4.5cm} L{7.5cm}}
+    \toprule
+    ID & Feature Name & Entities Involved \\
+    \midrule
+    \endfirsthead
+    \toprule
+    ID & Feature Name & Entities Involved \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{3}{r}{\footnotesize Continued on next page\ldots} \\
+    \endfoot
+    \bottomrule
+    \endlastfoot
+
+    F1 &
+    User Authentication &
+    \textbf{User} ---
+    A \texttt{User} record is created on registration. On login, the
+    matching \texttt{User} is read and a session object is written to
+    local storage. \\
+    \addlinespace
+
+    F2 &
+    Venue Discovery and Search &
+    \textbf{Venue} ---
+    The full \texttt{VENUE\_LIST} is read and filtered client-side.
+    No write operations occur. \\
+    \addlinespace
+
+    F3 &
+    Venue Public Profile &
+    \textbf{Venue}, \textbf{Environment}, \textbf{Review} ---
+    The \texttt{Venue} record is read for identity details and the
+    slideshow. \texttt{Environment} records are read to list available
+    spaces. \texttt{Review} records are read to display the rating
+    summary and guest feedback. \\
+    \addlinespace
+
+    F4 &
+    Digital Menu &
+    \textbf{Venue}, \textbf{MenuItem}, \textbf{Environment} ---
+    The \texttt{Venue} and \texttt{Environment} records are read for
+    context (venue name, environment name). \texttt{MenuItem} records
+    are read and filtered by \texttt{environmentIds} to show the
+    correct items for the scanned table. \\
+    \addlinespace
+
+    F5 &
+    Booking: Environment Selection &
+    \textbf{Venue}, \textbf{Environment} ---
+    \texttt{Venue} is read to display the venue header.
+    All \texttt{Environment} records for the venue are read to render
+    the selection cards. \\
+    \addlinespace
+
+    F6 &
+    Booking: Seat and Table Selection &
+    \textbf{Environment}, \textbf{Reservation} ---
+    The selected \texttt{Environment} (including its
+    \texttt{FloorElement} list) is read to render the floor plan.
+    Existing \texttt{Reservation} records are read to derive live
+    table availability (available vs.\ reserved). \\
+    \addlinespace
+
+    F7 &
+    Reservation Submission &
+    \textbf{Reservation}, \textbf{ReservationLog} ---
+    A new \texttt{Reservation} record is created with status
+    \texttt{REQUESTED}. A corresponding \texttt{ReservationLog} entry
+    is created to record the initial status transition. \\
+    \addlinespace
+
+    F8 &
+    Real-Time Reservation Status Tracking &
+    \textbf{Reservation} ---
+    The target \texttt{Reservation} record is read and watched via
+    the local storage \texttt{storage} event. The UI reacts to status
+    changes (\texttt{REQUESTED} $\to$ \texttt{APPROVED} /
+    \texttt{REJECTED}) without additional writes. \\
+    \addlinespace
+
+    F9 &
+    Client Dashboard and Reservation Management &
+    \textbf{Reservation}, \textbf{Review} ---
+    All \texttt{Reservation} records for the current user are read and
+    segmented into upcoming and past lists. On cancellation, the
+    matching \texttt{Reservation} status is updated to
+    \texttt{CANCELLED}. \texttt{Review} records are read to show which
+    past visits have already been reviewed. \\
+    \addlinespace
+
+    F10 &
+    Guest Review Submission &
+    \textbf{Review}, \textbf{Reservation} ---
+    A new \texttt{Review} record is created linked to the completed
+    \texttt{Reservation}. The \texttt{Reservation} is read to verify
+    eligibility (status must be \texttt{COMPLETED}). \\
+    \addlinespace
+
+    F11 &
+    Admin Venue Onboarding &
+    \textbf{Venue}, \textbf{Environment} ---
+    A new \texttt{Venue} record is created (or an existing one is
+    updated) with the admin's identity details. At least one
+    \texttt{Environment} record is created to complete onboarding. \\
+    \addlinespace
+
+    F12 &
+    Admin Dashboard and Overview &
+    \textbf{Venue}, \textbf{Reservation}, \textbf{ReservationLog} ---
+    The admin's \texttt{Venue} record is read for the greeting.
+    \texttt{Reservation} records are aggregated to compute statistics.
+    \texttt{ReservationLog} records are read for trend data. \\
+    \addlinespace
+
+    F13 &
+    Floor Plan Builder &
+    \textbf{Environment}, \textbf{FloorElement} ---
+    \texttt{Environment} records are created, updated, and deleted.
+    The embedded \texttt{FloorElement} array within each
+    \texttt{Environment} is modified as elements are added, moved,
+    resized, or removed. \\
+    \addlinespace
+
+    F14 &
+    Menu Management &
+    \textbf{MenuItem}, \textbf{Environment} ---
+    \texttt{MenuItem} records are created, updated (name, price,
+    description, tags, allergens, availability), and deleted.
+    \texttt{Environment} records are read to populate the environment
+    scope selector. \\
+    \addlinespace
+
+    F15 &
+    Reservation Queue Management &
+    \textbf{Reservation}, \textbf{ReservationLog} ---
+    All \texttt{Reservation} records for the venue are read and
+    filtered. On approval or rejection, the target
+    \texttt{Reservation} status is updated and a new
+    \texttt{ReservationLog} entry is created to record the admin
+    action. \\
+    \addlinespace
+
+    F16 &
+    Guest Review Management &
+    \textbf{Review} ---
+    All \texttt{Review} records for the venue are read. On moderation,
+    the \texttt{status} field of the target \texttt{Review} is toggled
+    between \texttt{VISIBLE} and \texttt{HIDDEN}. \\
+    \addlinespace
+
+    F17 &
+    QR Code Generation &
+    \textbf{Venue}, \textbf{Environment}, \textbf{FloorElement} ---
+    The \texttt{Venue} and all its \texttt{Environment} records are
+    read. The \texttt{FloorElement} list is traversed to generate one
+    QR code per table element. No records are written. \\
+    \addlinespace
+
+    F18 &
+    Venue Identity and Settings &
+    \textbf{Venue} ---
+    The admin's \texttt{Venue} record is read into the editor form.
+    On save, the \texttt{Venue} record is updated with new identity
+    fields, image URLs, and hour configurations. \\
+    \addlinespace
+
+    F19 &
+    Staff Operations Dashboard &
+    \textbf{Reservation}, \textbf{ReservationLog},
+    \textbf{VenueStaff}, \textbf{WaiterCall} ---
+    \texttt{VenueStaff} is read to verify access and determine the
+    associated venue. \texttt{Reservation} records are read and
+    filtered by date and environment for the floor map. Status
+    transitions (check-in, check-out, no-show, walk-in) update the
+    \texttt{Reservation} and create \texttt{ReservationLog} entries.
+    \texttt{WaiterCall} records are read for live alerts and updated
+    on acknowledgement. \\
+    \addlinespace
+
+    F20 &
+    Waiter Call System &
+    \textbf{WaiterCall}, \textbf{Environment} ---
+    A new \texttt{WaiterCall} record is created when a guest taps
+    the call button on the digital menu. The \texttt{Environment}
+    record is read to populate the call with the environment name
+    and element label. On staff acknowledgement, the
+    \texttt{WaiterCall} status is updated to \texttt{acknowledged}. \\
+
+\end{longtable}
+
+% ─── Phase 2 --- AI Features ─────────────────────────────────────────────────
+\section{Phase 2 --- AI-Powered Features}
+
+\begin{longtable}{>{\bfseries}l L{4.5cm} L{7.5cm}}
+    \toprule
+    ID & Feature Name & Entities Involved \\
+    \midrule
+    \endfirsthead
+    \toprule
+    ID & Feature Name & Entities Involved \\
+    \midrule
+    \endhead
+    \bottomrule
+    \endlastfoot
+
+    F21 &
+    AI Voice Booking &
+    \textbf{Reservation}, \textbf{Venue} ---
+    \texttt{Venue} records are read and sent to the AI as context for
+    venue matching. The AI-parsed result is used to pre-populate a new
+    \texttt{Reservation} in the confirmation form, which is then
+    submitted using the standard F7 flow. \\
+    \addlinespace
+
+    F22 &
+    AI Semantic Venue Discovery &
+    \textbf{Venue} ---
+    The full \texttt{VENUE\_LIST} (id, name, description,
+    ambienceTags, activities, dressCode) is read and forwarded to
+    the AI. The AI returns a ranked list of venue IDs. No records are
+    written. \\
+    \addlinespace
+
+    F23 &
+    AI Reservation Insights &
+    \textbf{Reservation}, \textbf{ReservationLog} ---
+    \texttt{Reservation} records for the past 30~days are aggregated
+    (totals, status breakdown, day-of-week distribution, hour
+    distribution, average guest count). \texttt{ReservationLog}
+    entries may be consulted for trend context. The aggregated
+    statistics are forwarded to the AI; no records are written. \\
+
+\end{longtable}
+
+\end{document}

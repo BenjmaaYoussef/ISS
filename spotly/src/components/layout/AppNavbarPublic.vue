@@ -127,41 +127,61 @@
         </v-btn>
       </div>
 
-      <!-- Sign Up + Login buttons -->
+      <!-- Auth buttons -->
       <div class="d-flex" style="gap: 8px">
-        <v-btn
-          color="primary"
-          style="
-            border-radius: 0;
-            font-size: 0.8rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: #0a0e14;
-          "
-          to="/auth?mode=register"
-          variant="flat"
-        >
-          Sign Up
-        </v-btn>
-        <v-btn
-          color="primary"
-          style="
-            border-radius: 0;
-            font-size: 0.8rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-          "
-          :to="loginRoute"
-          variant="outlined"
-        >
-          Login
-        </v-btn>
+        <template v-if="isLoggedIn">
+          <v-btn
+            color="primary"
+            style="
+              border-radius: 0;
+              font-size: 0.8rem;
+              letter-spacing: 1.5px;
+              text-transform: uppercase;
+              color: #0a0e14;
+            "
+            to="/home"
+            variant="flat"
+          >
+            My Dashboard
+          </v-btn>
+        </template>
+        <template v-else>
+          <v-btn
+            color="primary"
+            style="
+              border-radius: 0;
+              font-size: 0.8rem;
+              letter-spacing: 1.5px;
+              text-transform: uppercase;
+              color: #0a0e14;
+            "
+            to="/auth?mode=register"
+            variant="flat"
+          >
+            Sign Up
+          </v-btn>
+          <v-btn
+            color="primary"
+            style="
+              border-radius: 0;
+              font-size: 0.8rem;
+              letter-spacing: 1.5px;
+              text-transform: uppercase;
+            "
+            :to="loginRoute"
+            variant="outlined"
+          >
+            Login
+          </v-btn>
+        </template>
       </div>
     </v-container>
   </v-app-bar>
 </template>
 
 <script setup>
+  import { onMounted, ref } from 'vue'
+
   defineProps({
     navLinks: {
       type: Array,
@@ -171,6 +191,16 @@
       type: String,
       default: '/auth',
     },
+  })
+
+  const isLoggedIn = ref(false)
+
+  onMounted(() => {
+    try {
+      isLoggedIn.value = !!JSON.parse(localStorage.getItem('spotly_session') || 'null')
+    } catch {
+      isLoggedIn.value = false
+    }
   })
 
   function scrollTo (label) {

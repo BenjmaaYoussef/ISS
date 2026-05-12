@@ -1,0 +1,146 @@
+classDiagram
+    class User {
+        +String first_name
+        +String last_name
+        +String email
+        +String password
+    }
+
+    class Venue {
+        +Integer id
+        +String name
+        +String description
+        +String tagline
+        +String location
+        +String venueType
+        +String dressCode
+        +String adminEmail
+        +String[] ambienceTags
+        +String[] activities
+        +String[] supportedLanguages
+        +String[] images
+        +Object[] hours
+        +Slide[] slides
+    }
+
+    class Slide {
+        +String title
+        +String subtitle
+        +String bgColor
+        +String imageUrl
+    }
+
+    class Environment {
+        +Integer id
+        +Integer venueId
+        +String name
+        +String desc
+        +String icon
+        +String gradient
+        +String shape
+        +Object canvas
+        +FloorElement[] elements
+    }
+
+    class FloorElement {
+        +String id
+        +String type
+        +String shape
+        +String label
+        +Integer capacity
+        +Number x
+        +Number y
+        +Number rotation
+    }
+
+    class MenuItem {
+        +Integer id
+        +Integer venueId
+        +String category
+        +String name
+        +Number price
+        +String desc
+        +String[] tags
+        +String[] allergens
+        +Boolean available
+        +Integer[] environmentIds
+    }
+
+    class Reservation {
+        +String id
+        +Integer venueId
+        +Integer environmentId
+        +String elementId
+        +String userId
+        +String name
+        +String email
+        +String phone
+        +String date
+        +String time
+        +Integer guests
+        +String notes
+        +String status
+    }
+
+    class ReservationLog {
+        +String id
+        +String reservationId
+        +String previousStatus
+        +String newStatus
+        +String timestamp
+        +String actorRole
+    }
+
+    class Review {
+        +String id
+        +String reservationId
+        +Integer venueId
+        +String userId
+        +String reviewerName
+        +Integer rating
+        +String body
+        +String createdAt
+        +String status
+    }
+
+    class VenueStaff {
+        +String id
+        +Integer venueId
+        +String userEmail
+    }
+
+    class WaiterCall {
+        +String id
+        +Integer venueId
+        +Integer environmentId
+        +String elementId
+        +String tableLabel
+        +String envName
+        +String timestamp
+        +String status
+    }
+
+    %% User associations
+    User "1" --> "0..*" Venue : adminEmail
+    User "1" --> "0..*" VenueStaff : userEmail
+    User "1" --> "0..*" Reservation : userId
+    User "1" --> "0..*" Review : userId
+
+    %% Venue associations
+    Venue "1" *-- "0..*" Slide : slides
+    Venue "1" --> "0..*" Environment : venueId
+    Venue "1" --> "0..*" MenuItem : venueId
+    Venue "1" --> "0..*" Reservation : venueId
+    Venue "1" --> "0..*" Review : venueId
+    Venue "1" --> "0..*" VenueStaff : venueId
+    Venue "1" --> "0..*" WaiterCall : venueId
+
+    %% Environment associations
+    Environment "1" *-- "0..*" FloorElement : elements
+    Environment "1" --> "0..*" Reservation : environmentId
+    Environment "1" --> "0..*" WaiterCall : environmentId
+    Environment "0..*" --> "0..*" MenuItem : environmentIds
+
+    %% Reservation associations
+    Reservation "1" --> "0..*" ReservationLog : reservationId
+    Reservation "1" --> "0..1" Review : reservationId

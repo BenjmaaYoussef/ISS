@@ -1,0 +1,366 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{lmodern}
+\usepackage{enumitem}
+\usepackage{mdframed}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries\itshape}{}{0em}{}
+
+\hypersetup{colorlinks=true, linkcolor=black, urlcolor=black}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% Scenario box style
+\mdfdefinestyle{scenariobox}{
+    linecolor=black!25,
+    linewidth=0.6pt,
+    topline=true, bottomline=true, leftline=true, rightline=true,
+    innertopmargin=6pt,
+    innerbottommargin=6pt,
+    innerleftmargin=8pt,
+    innerrightmargin=8pt,
+    skipabove=8pt,
+    skipbelow=4pt
+}
+
+\begin{document}
+
+% ─── Title block ─────────────────────────────────────────────────────────────
+\begin{center}
+    {\LARGE\bfseries Spotly --- Project Scenarios}\\[0.5em]
+    {\large Luxury Venue Discovery and Booking Platform}\\[1em]
+    \begin{tabular}{ll}
+        \textbf{Course:}      & ISS296 --- Spring 2026 \\
+        \textbf{Instructor:}  & Mr. Amine Ben Hassouna \\
+        \textbf{Team:}        & Cyrine Krichen, Eya Sassi, \\
+                              & Lina Khemiri, Youssef Ben Jemaa \\
+    \end{tabular}
+\end{center}
+
+\vspace{1.5em}
+\hrule
+\vspace{1.5em}
+
+% ─── Introduction ────────────────────────────────────────────────────────────
+This document presents the main use case scenarios of the Spotly platform.
+Each scenario is assigned an identifier (S1, S2, \ldots) and is broken down
+into numbered steps (S\textit{n}.1, S\textit{n}.2, \ldots). For each step
+the involved \textbf{user role} and the relevant \textbf{feature ID(s)} from
+the Features \& Roles document are indicated.
+
+Scenarios S1--S8 cover the core Phase~1 features. Scenarios S9--S11 cover
+the AI-powered Phase~2 features.
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Phase 1 Scenarios}
+% ═══════════════════════════════════════════════════════════════════════════
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S1 --- Guest Explores the Platform Without an Account}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Guest \quad
+\textbf{Goal:} Discover available venues and browse the digital menu
+without registering.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S1.1 & Guest opens the application and lands on the landing page. & Guest & F2 \\
+    S1.2 & Guest clicks \emph{Explore Venues} and navigates to the home page
+           without logging in. & Guest & F2 \\
+    S1.3 & Guest browses the venue list and applies an activity filter. & Guest & F2 \\
+    S1.4 & Guest clicks a venue card to open its public profile. & Guest & F3 \\
+    S1.5 & Guest reads venue details, browses the photo slideshow, and views
+           guest reviews. & Guest & F3 \\
+    S1.6 & Guest scans a QR code at the venue and views the digital menu for
+           their table. & Guest & F4 \\
+    \bottomrule
+\end{longtable}
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S2 --- New Client Registers and Completes a Booking}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Client \quad
+\textbf{Goal:} Create an account and submit a table reservation at a
+chosen venue.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S2.1 & Guest clicks \emph{Get Started} on the landing page and is
+           redirected to the authentication page. & Guest & F1 \\
+    S2.2 & Guest fills in first name, last name, email, and password,
+           then clicks \emph{Register}. A session is created and the
+           user is redirected to the home page as a Client. & Guest $\to$ Client & F1 \\
+    S2.3 & Client searches for a venue by name using the search bar. & Client & F2 \\
+    S2.4 & Client opens the venue profile page. & Client & F3 \\
+    S2.5 & Client clicks \emph{Book a Table} to start the booking flow. & Client & F5 \\
+    S2.6 & Client views available environments and selects one. & Client & F5 \\
+    S2.7 & Client views the floor plan, picks an available table,
+           and selects a date and time. & Client & F6 \\
+    S2.8 & Client fills in guest details (name, email, phone, number of
+           guests, optional notes) and clicks \emph{Submit Reservation}. & Client & F7 \\
+    S2.9 & Client is redirected to the awaiting screen showing the
+           animated status timeline. & Client & F8 \\
+    \bottomrule
+\end{longtable}
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S3 --- Admin Processes a Reservation Request}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Admin and Client \quad
+\textbf{Goal:} Admin approves a pending reservation; client is notified
+in real time.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S3.1 & Admin logs in with their credentials and is redirected to
+           the admin dashboard. & Admin & F1, F12 \\
+    S3.2 & Admin notices a pending reservation count on the dashboard
+           and navigates to the reservation queue. & Admin & F12, F15 \\
+    S3.3 & Admin reads the reservation details: guest name, date, time,
+           environment, table, and number of guests. & Admin & F15 \\
+    S3.4 & Admin clicks \emph{Approve}; the reservation status changes
+           to \texttt{APPROVED} and a log entry is created. & Admin & F15 \\
+    S3.5 & The client's awaiting screen detects the status change via
+           the cross-tab storage event and the timeline advances to
+           \emph{Approved} without a page refresh. & Client & F8 \\
+    S3.6 & Client is automatically redirected to the client dashboard. & Client & F8, F9 \\
+    \bottomrule
+\end{longtable}
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S4 --- Client Manages Their Reservations and Leaves a Review}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Client \quad
+\textbf{Goal:} Cancel an upcoming reservation and submit a review for a
+past visit.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S4.1 & Client logs in and opens the client dashboard. & Client & F1, F9 \\
+    S4.2 & Client views their upcoming reservations list. & Client & F9 \\
+    S4.3 & Client clicks \emph{Cancel} on a pending reservation; a
+           confirmation dialog appears. & Client & F9 \\
+    S4.4 & Client confirms cancellation; the reservation status updates
+           to \texttt{CANCELLED}. & Client & F9 \\
+    S4.5 & Client scrolls to the past visits section and finds a
+           completed reservation without a review. & Client & F9, F10 \\
+    S4.6 & Client clicks \emph{Write a Review}, selects a star rating,
+           types a comment, and submits. & Client & F10 \\
+    S4.7 & The review is published on the venue public profile. & Client & F10 \\
+    \bottomrule
+\end{longtable}
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S5 --- Admin Onboards a New Venue}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Admin \quad
+\textbf{Goal:} Register as an admin and configure a new venue from scratch
+to unlock the full admin panel.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S5.1 & New user registers via the authentication page and is
+           redirected to the onboarding wizard (no venue exists yet). & Admin & F1, F11 \\
+    S5.2 & Admin enters the venue name and basic identity details
+           (location, type, description). & Admin & F11 \\
+    S5.3 & Admin creates the first environment by providing a name and
+           icon, completing the minimum onboarding requirement. & Admin & F11, F13 \\
+    S5.4 & Admin is redirected to the floor plan builder to begin
+           laying out tables. & Admin & F13 \\
+    S5.5 & Admin adds table elements to the canvas, sets their labels
+           and capacities, and saves the floor plan. & Admin & F13 \\
+    S5.6 & Admin navigates to the admin dashboard, which is now fully
+           accessible. & Admin & F12 \\
+    \bottomrule
+\end{longtable}
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S6 --- Admin Configures the Venue for Operations}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Admin \quad
+\textbf{Goal:} Populate the menu, configure venue identity, and generate
+QR codes before opening.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S6.1 & Admin opens the menu management page from the admin sidebar. & Admin & F14 \\
+    S6.2 & Admin adds multiple menu items across categories (starters,
+           mains, desserts, drinks), filling in name, price,
+           description, allergens, and tags. & Admin & F14 \\
+    S6.3 & Admin assigns some items to specific environments only. & Admin & F14 \\
+    S6.4 & Admin opens the venue settings page and updates the tagline,
+           ambience tags, dress code, gallery photos, and opening hours. & Admin & F18 \\
+    S6.5 & Admin opens the QR code generator, selects an environment,
+           and downloads the QR codes for all tables. & Admin & F17 \\
+    S6.6 & Admin navigates to guest reviews management and hides an
+           inappropriate review. & Admin & F16 \\
+    \bottomrule
+\end{longtable}
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S7 --- Staff Handles an Evening Shift}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Staff \quad
+\textbf{Goal:} Run floor operations: check in booked guests, handle a
+walk-in, and acknowledge a waiter call.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S7.1 & Staff logs in and opens the staff operations dashboard. & Staff & F1, F19 \\
+    S7.2 & Staff selects the current date and the active environment
+           to load the live floor map. & Staff & F19 \\
+    S7.3 & A guest with a confirmed reservation arrives; staff clicks
+           their table on the floor map and selects \emph{Check In}.
+           Status changes to \texttt{CHECKED\_IN}. & Staff & F19 \\
+    S7.4 & A second table's reservation guest does not arrive; staff
+           marks the table as \emph{No-Show}. Status changes to
+           \texttt{NO\_SHOW}. & Staff & F19 \\
+    S7.5 & A walk-in party of two arrives; staff clicks \emph{Walk-In
+           Guest}, fills in basic details, and a reservation is created
+           instantly with status \texttt{CHECKED\_IN}. & Staff & F19 \\
+    S7.6 & A table indicator pulses gold on the floor map indicating a
+           waiter call; staff clicks \emph{Acknowledge} to dismiss it. & Staff & F20 \\
+    S7.7 & At end of service, staff marks all remaining occupied tables
+           as \emph{Checked Out}. Statuses change to \texttt{COMPLETED}. & Staff & F19 \\
+    \bottomrule
+\end{longtable}
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S8 --- Admin Rejects a Reservation}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Admin and Client \quad
+\textbf{Goal:} Admin rejects an unsuitable request; client is notified
+and prompted to rebook.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S8.1 & Admin opens the reservation queue and locates a pending
+           request that cannot be accommodated. & Admin & F15 \\
+    S8.2 & Admin clicks \emph{Reject}; a confirmation dialog appears. & Admin & F15 \\
+    S8.3 & Admin confirms; the reservation status changes to
+           \texttt{REJECTED} and a log entry is created. & Admin & F15 \\
+    S8.4 & The client's awaiting screen detects the rejection via the
+           storage event and displays a graceful decline card. & Client & F8 \\
+    S8.5 & Client clicks \emph{Try Again}; the booking flow restarts
+           from environment selection with the same venue pre-selected. & Client & F8, F5 \\
+    \bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Phase 2 Scenarios --- AI Features}
+% ═══════════════════════════════════════════════════════════════════════════
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S9 --- Client Books via Voice Command}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Client \quad
+\textbf{Goal:} Use the AI voice booking feature to pre-fill a reservation
+form by speaking naturally.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S9.1 & Logged-in client sees the \emph{Voice Booking} section on
+           the home page and taps the microphone button. & Client & F21 \\
+    S9.2 & The button animates to indicate listening; client speaks:
+           \emph{``Book a table for two at Noir for Friday evening.''} & Client & F21 \\
+    S9.3 & The system sends the transcript to the AI along with venue
+           data. A spinner indicates processing. & Client & F21 \\
+    S9.4 & AI returns extracted intent: venue, date, time, and guest
+           count. The confirmation form is pre-filled. & Client & F21 \\
+    S9.5 & Client reviews the pre-filled form and clicks \emph{Submit
+           Reservation}. & Client & F7 \\
+    S9.6 & Client is redirected to the awaiting screen. & Client & F8 \\
+    \bottomrule
+\end{longtable}
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S10 --- Client Discovers Venues via Natural Language Description}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Client \quad
+\textbf{Goal:} Use the AI semantic discovery mode to find a venue that
+matches a described atmosphere.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S10.1 & Client opens the home page and switches the discovery toggle
+            from \emph{Search} to \emph{Describe}. & Client & F22 \\
+    S10.2 & Client types: \emph{``Somewhere dark and intimate for a first
+            date, ideally with live jazz.''} & Client & F22 \\
+    S10.3 & Client clicks \emph{Find Matches}; venue cards are replaced
+            with loading skeletons while the AI processes. & Client & F22 \\
+    S10.4 & AI returns a ranked list of venues. Cards reappear in ranked
+            order, each with a gold badge showing the AI's match reason. & Client & F22, F2 \\
+    S10.5 & Client selects the top match and opens its public profile. & Client & F3 \\
+    S10.6 & Client starts the booking flow from the venue profile. & Client & F5 \\
+    \bottomrule
+\end{longtable}
+
+% ───────────────────────────────────────────────────────────────────────────
+\subsection*{S11 --- Admin Generates AI Insights About Reservation Patterns}
+\begin{mdframed}[style=scenariobox]
+\textbf{Actor:} Admin \quad
+\textbf{Goal:} Use the AI insights card to understand booking trends and
+act on them.
+\end{mdframed}
+
+\begin{longtable}{>{\bfseries}l L{6.5cm} l L{3cm}}
+    \toprule
+    Step & Description & Role & Features \\
+    \midrule
+    S11.1 & Admin opens the admin dashboard. & Admin & F12 \\
+    S11.2 & Admin scrolls to the \emph{AI Insights} card and clicks
+            \emph{Generate}. Skeleton rows appear while the AI processes. & Admin & F23 \\
+    S11.3 & The system aggregates the last 30~days of reservation data
+            (totals, no-show rate, peak hours, day-of-week distribution)
+            and sends it to the AI. & Admin & F23 \\
+    S11.4 & AI returns 3--5 actionable observations, each with an icon
+            and severity level. The card displays them as a list. & Admin & F23 \\
+    S11.5 & Admin reads an insight flagging a high Friday no-show rate
+            and decides to send reminder messages before future Friday
+            reservations. & Admin & F23 \\
+    \bottomrule
+\end{longtable}
+
+\end{document}

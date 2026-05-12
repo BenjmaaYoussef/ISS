@@ -69,6 +69,11 @@ router.beforeEach(to => {
     return true
   }
 
+  // Already logged in — block /auth
+  if (to.path === '/auth') {
+    return '/home'
+  }
+
   const isOwner = !!getVenueByAdminEmail(session.email)
   const isStaff = isVenueStaff(session.email)
 

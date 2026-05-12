@@ -282,14 +282,14 @@
 <script setup>
   import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
-  import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
   import VoiceCallModal from '@/components/ai/VoiceCallModal.vue'
+  import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
   import ReviewCard from '@/components/reviews/ReviewCard.vue'
   import ReviewSummaryBar from '@/components/reviews/ReviewSummaryBar.vue'
+  import { useSnackbar } from '@/composables/useSnackbar.js'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { REVIEW_LIST } from '@/datamodel/Review.js'
   import { getVenueById } from '@/datamodel/Venue.js'
-  import { useSnackbar } from '@/composables/useSnackbar.js'
 
   let _session = null
   try {

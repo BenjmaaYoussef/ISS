@@ -1,0 +1,30 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[landscape, top=1.2cm, bottom=1.2cm, left=1.2cm, right=1.2cm]{geometry}
+\usepackage{graphicx}
+\pagestyle{empty}
+\setlength{\parskip}{0pt}\setlength{\parindent}{0pt}
+\begin{document}
+{\large\bfseries Spotly \textemdash{} UI Navigation Diagram}\hfill
+{\small ISS296 \textbullet{} Spring 2026 \textbullet{}
+Supervisor: Amine Ben Hassouna \textbullet{}
+Cyrine [Last Name] \textbullet{}
+Lina [Last Name] \textbullet{}
+Eya [Last Name] \textbullet{}
+Youssef [Last Name]}
+\vspace{3pt}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{3pt}
+\noindent\includegraphics[width=\linewidth,keepaspectratio]{nav.png}
+\vspace{3pt}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{2pt}
+{\footnotesize
+Rectangles = interfaces. Arrows = navigation paths. D1--D10 are modal dialogs.\par
+\vspace{2pt}
+\begin{tabular}{@{}lllll@{}}
+P01 Landing & P05 Digital Menu & P09 Confirm & P13 Floor Plan & P17 QR Codes \\
+P02 Auth & P06 Client Dash & P10 Awaiting & P14 Menu & P18 Settings \\
+P03 Home & P07 Env. Selection & P11 Onboarding & P15 Reservations & P19 Staff Dash \\
+P04 Venue Profile & P08 Seat Selection & P12 Admin Dash & P16 Guest Reviews & P20 Not Found \\
+\end{tabular}}
+\end{document}

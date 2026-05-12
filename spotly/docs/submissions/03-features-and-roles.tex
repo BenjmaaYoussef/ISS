@@ -1,0 +1,351 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{lmodern}
+
+\definecolor{gold}{HTML}{D4AF37}
+\definecolor{darkbg}{HTML}{0A0E14}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\begin{document}
+
+% ─── Title block ─────────────────────────────────────────────────────────────
+\begin{center}
+    {\LARGE\bfseries Spotly --- Project Features \& User Roles}\\[0.5em]
+    {\large Luxury Venue Discovery and Booking Platform}\\[1em]
+    \begin{tabular}{ll}
+        \textbf{Course:}      & ISS296 --- Spring 2026 \\
+        \textbf{Instructor:}  & Mr. Amine Ben Hassouna \\
+        \textbf{Team:}        & Cyrine Krichen, Eya Sassi, \\
+                              & Lina Khemiri, Youssef Ben Jemaa \\
+    \end{tabular}
+\end{center}
+
+\vspace{1.5em}
+\hrule
+\vspace{1.5em}
+
+% ─── 1. System Roles ──────────────────────────────────────────────────────────
+\section{System Roles}
+
+Spotly distinguishes four user roles. A user's role is derived at runtime from
+their account relationship to venues and is never stored as a fixed field.
+
+\vspace{0.5em}
+\begin{tabularx}{\linewidth}{>{\bfseries}lX}
+    \toprule
+    Role & Description \\
+    \midrule
+    Guest &
+        An unauthenticated visitor. Guests can browse the landing page,
+        explore the venue discovery page, view individual venue profiles,
+        and scan QR codes to read the digital menu. They cannot make
+        reservations or access any role-specific dashboard. \\
+    \addlinespace
+    Client &
+        An authenticated user who holds no venue ownership and is not
+        assigned as staff. Clients can search and filter venues, complete
+        the full booking flow, monitor their reservation status in real
+        time, manage their bookings from their personal dashboard, and
+        submit reviews after a completed visit. \\
+    \addlinespace
+    Admin &
+        A user whose email address matches the \texttt{adminEmail} field
+        of a \texttt{Venue} record. The admin has full control over their
+        venue: they configure the floor plan, manage the menu, process
+        reservation requests, moderate guest reviews, generate QR codes,
+        and update venue identity settings. A user becomes an admin by
+        completing the venue onboarding flow after registration. \\
+    \addlinespace
+    Staff &
+        A user linked to a venue through a \texttt{VenueStaff} record
+        (assigned by the admin). Staff operate the live floor: they check
+        in arriving guests, record no-shows, create walk-in reservations,
+        and acknowledge waiter calls triggered from tables. Staff can also
+        access the admin area in a read-only operational capacity. \\
+    \bottomrule
+\end{tabularx}
+
+% ─── 2. Features ──────────────────────────────────────────────────────────────
+\section{Features}
+
+Features \textbf{F1--F20} form the core application delivered in Phase~1.
+Features \textbf{F21--F23} are AI-powered additions delivered in Phase~2.
+
+% ── Phase 1 ──────────────────────────────────────────────────────────────────
+\subsection{Phase 1 --- Core Features}
+
+\textbf{F1 --- User Authentication.}
+Covers the full identity lifecycle of a user in the system.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Register a new account with first name, last name, email and password.
+    \item Log in with existing credentials; session is persisted in local storage.
+    \item Log out and invalidate the current session.
+\end{itemize}
+
+\textbf{F2 --- Venue Discovery and Search.}
+Enables users to find venues that match their interests.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Browse the full list of available venues.
+    \item Search venues by name using a live search bar.
+    \item Filter venues by activity type using tag pills.
+\end{itemize}
+
+\textbf{F3 --- Venue Public Profile.}
+Presents a venue's complete identity to any visitor.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item View venue name, description, tagline, location, ambience tags,
+          activities, dress code, and supported languages.
+    \item Browse the venue photo slideshow.
+    \item Read published guest reviews and overall rating.
+\end{itemize}
+
+\textbf{F4 --- Digital Menu.}
+Provides a QR-accessible menu scoped to the guest's table environment.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Browse menu items organised by category (starters, mains, desserts,
+          drinks).
+    \item View item name, description, price, allergens, and tags.
+    \item Display only items available in the scanned table's environment
+          when environment-specific scoping is configured.
+\end{itemize}
+
+\textbf{F5 --- Booking: Environment Selection.}
+First step of the booking flow.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item View all environments configured for the selected venue.
+    \item Select an environment to continue to seat selection.
+\end{itemize}
+
+\textbf{F6 --- Booking: Seat and Table Selection.}
+Second step of the booking flow.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item View the visual floor plan of the selected environment with
+          live table availability derived from existing reservations.
+    \item Select an available table or seat.
+    \item Choose reservation date and time.
+\end{itemize}
+
+\textbf{F7 --- Reservation Submission.}
+Third and final step of the booking flow.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Fill in reservation details: name, email, phone number, number
+          of guests, and optional notes.
+    \item Submit the reservation request for admin approval.
+    \item A double-submit guard prevents accidental duplicate requests.
+\end{itemize}
+
+\textbf{F8 --- Real-Time Reservation Status Tracking.}
+Keeps the client informed without requiring page refreshes.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Display an animated timeline: Submitted $\to$ Under Review
+          $\to$ Decision.
+    \item Receive live status updates via cross-tab storage events the
+          moment the admin acts.
+    \item Automatically navigate to the client dashboard on approval or
+          rejection.
+\end{itemize}
+
+\textbf{F9 --- Client Dashboard and Reservation Management.}
+Gives the client a personal space to manage their activity.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item View upcoming confirmed reservations.
+    \item View past reservation history.
+    \item Cancel a reservation that is still in a pending or confirmed state.
+\end{itemize}
+
+\textbf{F10 --- Guest Review Submission.}
+Allows clients to share their experience after a visit.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Submit a star rating (1--5) and written review for a completed reservation.
+    \item Review is immediately visible on the venue public profile.
+\end{itemize}
+
+\textbf{F11 --- Admin Venue Onboarding.}
+Guides a new admin through the minimum setup required before accessing
+the full admin panel.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Enter the venue name and core identity details.
+    \item Create at least one environment to unlock the admin dashboard.
+\end{itemize}
+
+\textbf{F12 --- Admin Dashboard and Overview.}
+Central hub for the admin after onboarding.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item View key statistics: total reservations, pending requests, revenue
+          indicators.
+    \item Navigate to all venue management sections via the admin sidebar.
+    \item Dynamic time-of-day greeting personalised to the admin.
+\end{itemize}
+
+\textbf{F13 --- Floor Plan Builder.}
+Visual editor for configuring environments and table layouts.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Create, rename, and delete environments.
+    \item Define canvas dimensions (width and height) and environment shape.
+    \item Add table and seat elements to the canvas; drag to reposition and
+          resize.
+    \item Set element label, capacity, shape, and rotation.
+    \item Add non-seating decor elements.
+    \item Delete elements with a constraint warning when active reservations
+          exist.
+\end{itemize}
+
+\textbf{F14 --- Menu Management.}
+Full CRUD control over the venue's menu.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Add, edit, and delete menu items.
+    \item Toggle item availability (visible or hidden on the digital menu).
+    \item Assign items to specific environments or make them venue-wide.
+    \item Organise items by category: starters, mains, desserts, or drinks.
+\end{itemize}
+
+\textbf{F15 --- Reservation Queue Management.}
+Admin workflow for processing incoming reservation requests.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item View all reservation requests with their current status.
+    \item Filter by status (pending, confirmed, rejected, cancelled), date,
+          and environment.
+    \item Approve a reservation, changing its status to Confirmed.
+    \item Reject a reservation with a confirmation dialog.
+\end{itemize}
+
+\textbf{F16 --- Guest Review Management.}
+Admin-side moderation of guest reviews.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item View all guest reviews submitted for the venue.
+    \item Hide a review so it no longer appears on the public profile.
+    \item Restore a previously hidden review.
+\end{itemize}
+
+\textbf{F17 --- QR Code Generation.}
+Produces scannable codes that link guests directly to the digital menu.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Generate a QR code for each table element in each environment.
+    \item Display a preview and provide a download option.
+\end{itemize}
+
+\textbf{F18 --- Venue Identity and Settings.}
+Comprehensive editor for the venue's public-facing identity.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Edit name, tagline, description, location, and venue type.
+    \item Manage ambience tags, activities, dress code, and supported languages.
+    \item Upload, reorder, and remove gallery photos for the hero slideshow.
+    \item Configure opening hours per environment.
+\end{itemize}
+
+\textbf{F19 --- Staff Operations Dashboard.}
+Real-time floor management interface for on-shift staff.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item View the live floor map for a selected shift date and environment.
+    \item Check in an arriving guest and update reservation status to
+          Checked-In.
+    \item Mark a non-arriving guest as No-Show.
+    \item Check out a departing guest and mark reservation as Completed.
+    \item Create an instant walk-in reservation for unbooked guests.
+\end{itemize}
+
+\textbf{F20 --- Waiter Call System.}
+Real-time table-to-staff signalling mechanism.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Trigger a waiter call from the digital menu page at any table.
+    \item Staff dashboard receives live call alerts via cross-tab storage events.
+    \item Staff acknowledges and dismisses calls from the floor map.
+\end{itemize}
+
+% ── Phase 2 ──────────────────────────────────────────────────────────────────
+\subsection{Phase 2 --- AI-Powered Features}
+
+\textbf{F21 --- AI Voice Booking.}
+Removes form friction by letting clients speak their reservation intent.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Tap a microphone button on the home page and speak a natural language
+          reservation request.
+    \item AI extracts booking intent (venue, date, time, guest count, notes)
+          and pre-fills the confirmation form.
+    \item Navigate directly to the confirmation step with all fields ready.
+\end{itemize}
+
+\textbf{F22 --- AI Semantic Venue Discovery.}
+Alternative discovery mode driven by natural language description.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Switch to Describe mode on the home page.
+    \item Type a free-text description of the desired atmosphere or occasion.
+    \item AI ranks matching venues by semantic relevance and shows a one-line
+          reason per match.
+\end{itemize}
+
+\textbf{F23 --- AI Reservation Insights.}
+On-demand analytical observations for venue administrators.
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=1pt]
+    \item Click Generate on the admin dashboard to send aggregated reservation
+          statistics to the AI.
+    \item Receive 3--5 actionable insights about booking patterns, peak hours,
+          no-show rates, and cancellation trends.
+    \item Insights are displayed with severity indicators (info, warning,
+          success).
+\end{itemize}
+
+% ─── 3. Feature–Role Matrix ───────────────────────────────────────────────────
+\section{Feature--Role Involvement Matrix}
+
+\begin{longtable}{>{\bfseries}lp{5.5cm}cccc}
+    \toprule
+    ID & Feature & Guest & Client & Admin & Staff \\
+    \midrule
+    \endfirsthead
+    \toprule
+    ID & Feature & Guest & Client & Admin & Staff \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{6}{r}{\footnotesize Continued on next page\ldots} \\
+    \endfoot
+    \bottomrule
+    \endlastfoot
+    F1  & User Authentication              & \checkmark & \checkmark & \checkmark & \checkmark \\
+    F2  & Venue Discovery and Search        & \checkmark & \checkmark &            &            \\
+    F3  & Venue Public Profile              & \checkmark & \checkmark & \checkmark &            \\
+    F4  & Digital Menu                      & \checkmark & \checkmark &            & \checkmark \\
+    F5  & Booking: Environment Selection    &            & \checkmark &            &            \\
+    F6  & Booking: Seat and Table Selection &            & \checkmark &            &            \\
+    F7  & Reservation Submission            &            & \checkmark &            &            \\
+    F8  & Real-Time Status Tracking         &            & \checkmark &            &            \\
+    F9  & Client Dashboard                  &            & \checkmark &            &            \\
+    F10 & Guest Review Submission           &            & \checkmark &            &            \\
+    F11 & Admin Venue Onboarding            &            &            & \checkmark &            \\
+    F12 & Admin Dashboard and Overview      &            &            & \checkmark &            \\
+    F13 & Floor Plan Builder                &            &            & \checkmark &            \\
+    F14 & Menu Management                   &            &            & \checkmark &            \\
+    F15 & Reservation Queue Management      &            &            & \checkmark &            \\
+    F16 & Guest Review Management           &            &            & \checkmark &            \\
+    F17 & QR Code Generation                &            &            & \checkmark &            \\
+    F18 & Venue Identity and Settings       &            &            & \checkmark &            \\
+    F19 & Staff Operations Dashboard        &            &            & \checkmark & \checkmark \\
+    F20 & Waiter Call System                & \checkmark & \checkmark &            & \checkmark \\
+    \midrule
+    F21 & AI Voice Booking                  &            & \checkmark &            &            \\
+    F22 & AI Semantic Venue Discovery       &            & \checkmark &            &            \\
+    F23 & AI Reservation Insights           &            &            & \checkmark &            \\
+\end{longtable}
+
+\end{document}

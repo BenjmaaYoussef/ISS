@@ -1,23 +1,31 @@
 import { ref } from 'vue'
 
-const MODEL = 'qwen2.5:3b'
-const ENDPOINT = 'http://localhost:11434/v1/chat/completions'
+const MODEL    = 'meta-llama/llama-4-scout-17b-16e-instruct'
+const ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions'
 
 const loading = ref(false)
-const error = ref(null)
+const error   = ref(null)
 
 async function _post (body) {
+  const key = import.meta.env.VITE_GROQ_API_KEY
+  if (!key) throw new Error('VITE_GROQ_API_KEY is not set in .env.local')
   loading.value = true
   try {
-    const res = await fetch(ENDPOINT, {
+    const res  = await fetch(ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${key}`,
+      },
       body: JSON.stringify(body),
     })
+    const data = await res.json()
+
     if (!res.ok) {
-      throw new Error(`Ollama error ${res.status}: ${await res.text()} — is Ollama running? (ollama serve)`)
+      throw new Error(`Groq error ${res.status}: ${JSON.stringify(data.error ?? data)}`)
     }
-    return await res.json()
+
+    return data
   } finally {
     loading.value = false
   }
@@ -29,7 +37,7 @@ async function callAI (systemPrompt, userPrompt, { maxTokens = 1024, json = fals
       model: MODEL,
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
+        { role: 'user',   content: userPrompt },
       ],
       max_tokens: maxTokens,
     })
@@ -39,9 +47,9 @@ async function callAI (systemPrompt, userPrompt, { maxTokens = 1024, json = fals
       return JSON.parse(text)
     }
     return text
-  } catch (error_) {
-    error.value = error_.message
-    throw error_
+  } catch (e) {
+    error.value = e.message
+    throw e
   }
 }
 
@@ -53,18 +61,19 @@ async function callAIWithHistory (messages, { tools = [], maxTokens = 1024 } = {
       max_tokens: maxTokens,
     }
     if (tools.length > 0) {
-      body.tools = tools
+      body.tools                = tools
+      body.parallel_tool_calls  = false   // prevents Groq tool_use_failed on multi-tool turns
     }
-    const data = await _post(body)
+    const data   = await _post(body)
     const choice = data.choices[0]
     return {
-      content: choice.message.content,
-      tool_calls: choice.message.tool_calls ?? null,
+      content:       choice.message.content,
+      tool_calls:    choice.message.tool_calls ?? null,
       finish_reason: choice.finish_reason,
     }
-  } catch (error_) {
-    error.value = error_.message
-    throw error_
+  } catch (e) {
+    error.value = e.message
+    throw e
   }
 }
 

@@ -96,6 +96,16 @@
               </template>
             </v-tooltip>
 
+            <button
+              class="hero__cta-call"
+              :class="{ 'hero__cta--disabled': isOwnVenue }"
+              :disabled="isOwnVenue"
+              @click="openVoiceCall"
+            >
+              <v-icon size="17">mdi-phone</v-icon>
+              Reserve by Call
+            </button>
+
           </div>
         </div>
 
@@ -249,9 +259,20 @@
                 </span>
               </template>
             </v-tooltip>
+            <button
+              class="hero__cta-call"
+              :class="{ 'hero__cta--disabled': isOwnVenue }"
+              :disabled="isOwnVenue"
+              @click="openVoiceCall"
+            >
+              <v-icon size="17">mdi-phone</v-icon>
+              Reserve by Call
+            </button>
           </div>
         </div>
       </section>
+
+      <VoiceCallModal v-model="voiceCallOpen" :venue="venue" />
 
     </div>
 
@@ -262,11 +283,13 @@
   import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
+  import VoiceCallModal from '@/components/ai/VoiceCallModal.vue'
   import ReviewCard from '@/components/reviews/ReviewCard.vue'
   import ReviewSummaryBar from '@/components/reviews/ReviewSummaryBar.vue'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { REVIEW_LIST } from '@/datamodel/Review.js'
   import { getVenueById } from '@/datamodel/Venue.js'
+  import { useSnackbar } from '@/composables/useSnackbar.js'
 
   let _session = null
   try {
@@ -406,6 +429,23 @@
 
   function goToMenu () {
     router.push(`/menu/${venueId.value}`)
+  }
+
+  // ── Voice call ────────────────────────────────────────────────────────────────
+  const { showSnackbar } = useSnackbar()
+  const voiceCallOpen = ref(false)
+
+  function openVoiceCall () {
+    if (!_session) {
+      router.push(`/auth?redirect=${encodeURIComponent(route.fullPath)}`)
+      return
+    }
+    const supported = !!(window.SpeechRecognition || window.webkitSpeechRecognition)
+    if (!supported) {
+      showSnackbar('Voice calls require Chrome or Edge')
+      return
+    }
+    voiceCallOpen.value = true
   }
 </script>
 
@@ -743,6 +783,35 @@
 }
 
 .hero__cta-ghost:active { transform: translateY(0); }
+
+.hero__cta-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 28px;
+  height: 48px;
+  background: rgba(212, 175, 55, 0.08);
+  color: #d4af37;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 4px;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.hero__cta-call:hover {
+  background: rgba(212, 175, 55, 0.16);
+  border-color: #d4af37;
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.2);
+}
+
+.hero__cta-call:active { transform: translateY(0); }
 
 .hero__cta--disabled {
   opacity: 0.35;

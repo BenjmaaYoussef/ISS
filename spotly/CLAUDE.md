@@ -34,7 +34,16 @@ VITE_GROQ_API_KEY=gsk_...
 
 Without it, any call to `useAI()` composable methods will throw "VITE_GROQ_API_KEY is not set in .env.local".
 
-Provider: **Groq** (`api.groq.com`) — free tier, no rate-limit surprises. Model: `llama-3.1-8b-instant` (8B, tool-calling capable, ~500 tok/s).
+Provider: **Groq** (`api.groq.com`) — free tier, no rate-limit surprises. Model: `meta-llama/llama-4-scout-17b-16e-instruct` (tool-calling capable).
+
+**ElevenLabs TTS** (Phase AI-2 voice call) — optional but strongly recommended for natural-sounding voice. Without it, the call falls back to browser SpeechSynthesis. Add to `.env.local`:
+
+```
+VITE_ELEVENLABS_API_KEY=sk_...
+VITE_ELEVENLABS_VOICE_ID=21m00Tcm4TlvDq8ikWAM   # optional — defaults to Rachel
+```
+
+Voice IDs: `21m00Tcm4TlvDq8ikWAM` (Rachel), `EXAVITQu4vr4xnSDxMaL` (Bella), `ErXwobaYiN019PkySvjV` (Antoni).
 
 ## Phase Testing Protocol (REQUIRED)
 

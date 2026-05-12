@@ -510,14 +510,18 @@ async function executeTool (name, args) {
       }
     }
 
+    const resId = RESERVATION_LIST.length > 0
+      ? Math.max(...RESERVATION_LIST.map(r => r.id)) + 1
+      : 1
+
     const res = new Reservation({
-      id:            Date.now(),
+      id:            resId,
       venueId:       props.venue.id,
       environmentId,
       elementId,
-      userId:        session.email,
-      name:          `${session.first_name} ${session.last_name}`,
-      email:         session.email,
+      userId:        session?.userId || '',
+      name:          session?.name  || '',
+      email:         session?.userId || '',
       phone:         args.phone,
       date:          args.date,
       time:          args.time,
@@ -527,13 +531,14 @@ async function executeTool (name, args) {
     })
     addReservation(res)
     addReservationLog(new ReservationLog({
-      id:              Date.now() + 1,
-      reservationId:   res.id,
-      previousStatus:  null,
-      newStatus:       'REQUESTED',
-      timestamp:       new Date().toISOString(),
-      actorRole:       'client',
+      id:             Date.now(),
+      reservationId:  res.id,
+      previousStatus: null,
+      newStatus:      'REQUESTED',
+      timestamp:      new Date().toISOString(),
+      actorRole:      'client',
     }))
+    sessionStorage.setItem('spotly_pending_reservation_id', String(res.id))
     completedResId.value = res.id
     return { success: true, reservationId: res.id }
   }
@@ -652,7 +657,7 @@ async function sendTurn (userText) {
       callState.value = 'done'
       setTimeout(() => {
         emit('update:modelValue', false)
-        router.push(`/booking/awaiting?id=${completedResId.value}`)
+        router.push('/booking/awaiting')
       }, 2000)
       return
     }

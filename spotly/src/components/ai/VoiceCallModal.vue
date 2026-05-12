@@ -146,13 +146,14 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'check_availability',
-      description: 'Check available time slots per environment for a given date. Call immediately when the guest mentions any date. Returns each environment with its available slots so you can present options to the guest.',
+      description: 'Check available time slots per environment for a given date and party size. Call immediately when the guest mentions any date. Only returns slots where a table with sufficient capacity exists. Returns each environment with available slots, or an error if the date is in the past.',
       parameters: {
         type: 'object',
         properties: {
-          date: { type: 'string', description: 'ISO date YYYY-MM-DD — resolve relative dates using today\'s date from the system prompt' },
+          date:   { type: 'string', description: 'ISO date YYYY-MM-DD — resolve relative dates using today\'s date from the system prompt' },
+          guests: { type: 'string', description: 'Number of guests — used to filter tables by capacity' },
         },
-        required: ['date'],
+        required: ['date', 'guests'],
       },
     },
   },
@@ -226,26 +227,28 @@ ${envList || '  - Main area'}
 Collect reservation details through a natural voice conversation.
 
 TOOL RULES — follow these exactly, no exceptions:
-1. check_availability  → call immediately when the guest mentions any date. Resolve relative dates (e.g. "next Saturday", "tomorrow") to YYYY-MM-DD using today: ${today} and tomorrow: ${tomorrow}. It returns each environment with its available time slots.
+1. check_availability  → call immediately when the guest mentions any date. Pass the guest count you already collected. Resolve relative dates to YYYY-MM-DD using today: ${today} and tomorrow: ${tomorrow}. The result includes per-environment available slots filtered to tables that fit the party, plus an unavailableReason field ("fully_booked" or "no_table_large_enough") when an environment has no slots.
 2. request_text_input  → call ONLY after you have confirmed: guests count, date, environment, time slot, AND occasion/notes. Never before.
-3. confirm_reservation → call ONLY after guest says yes/confirm AND phone number was collected via request_text_input. Always pass the environmentId from the check_availability result.
+3. confirm_reservation → call ONLY after guest says yes/confirm AND phone number was collected via request_text_input. Always pass environmentId. The tool re-validates everything server-side and returns an error field if something is wrong — relay the error naturally and ask the guest to choose again.
 4. end_call            → call with reason "user_cancelled" after saying a brief goodbye when the guest wants to cancel/stop/hang up. Call with reason "reservation_complete" after confirm_reservation succeeds.
 
 COLLECTION ORDER:
 1. Number of guests (voice)
-2. Date (voice) → immediately call check_availability
-3. Environment — present the environments that have availability and ask for preference. If only one environment has slots, select it automatically without asking. Use the environment id from check_availability results.
-4. Time slot from that environment's available list (voice)
+2. Date (voice) → immediately call check_availability(date, guests)
+3. Environment — present environments that have availability; if only one has slots, select it automatically without asking. Use the environment id from results.
+4. Time slot from that environment's availableSlots list (voice) — never suggest a time not in the list
 5. Occasion or special notes — optional, accept "no special occasion" (voice)
 6. Phone number → CALL request_text_input immediately. Do NOT say you opened a field — just call the tool. The UI handles it.
-7. Read back a summary of all details (guests, date, environment name, time, notes), ask the guest to confirm
+7. Read back a summary (guests, date, environment name, time, notes), ask the guest to confirm
 8. On confirmation → call confirm_reservation (include environmentId), then end_call(reservation_complete)
 
 STYLE:
 - One short sentence per turn, never more
 - Warm and natural, not robotic
-- If the guest corrects something (e.g. "actually make it 6 people"), acknowledge and update
-- If an environment has no available slots on the chosen date, say so and suggest another date or environment`
+- If the guest corrects something (e.g. "actually make it 6 people"), re-call check_availability with the updated count
+- If check_availability returns error "past_date", apologise and ask for a future date
+- If an environment has unavailableReason "no_table_large_enough", tell the guest there's no table big enough for their party in that area
+- If an environment has unavailableReason "fully_booked", tell the guest it's fully booked and suggest another date or environment`
 }
 
 // ── TTS — ElevenLabs (primary) + browser SpeechSynthesis (fallback) ──────────
@@ -409,16 +412,27 @@ function pushToolActivity (name, args) {
 }
 
 // ── Tool executor ─────────────────────────────────────────────────────────────
+const WORKING_HOURS = ['18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00']
+
 async function executeTool (name, args) {
   if (name === 'check_availability') {
-    const ALL_SLOTS = ['18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00']
-    const venueEnvs = getEnvironmentsByVenue(props.venue?.id)
+    // Guard: past dates
+    const today = new Date().toISOString().split('T')[0]
+    if (args.date < today) {
+      return { error: 'past_date', message: 'That date is in the past. Please choose a future date.' }
+    }
+
+    const guestCount = parseInt(args.guests, 10) || 1
+    const venueEnvs  = getEnvironmentsByVenue(props.venue?.id)
 
     const environments = venueEnvs.map(env => {
-      const tables = env.elements.filter(el => el.type?.startsWith('table_'))
-      const availableSlots = ALL_SLOTS.filter(slot =>
-        // slot is available if at least one table in this env is free
-        tables.some(table => !RESERVATION_LIST.some(r =>
+      // Only tables that can seat the party
+      const eligibleTables = env.elements.filter(
+        el => el.type?.startsWith('table_') && (el.capacity ?? 0) >= guestCount,
+      )
+
+      const availableSlots = WORKING_HOURS.filter(slot =>
+        eligibleTables.some(table => !RESERVATION_LIST.some(r =>
           r.venueId       === props.venue?.id &&
           r.environmentId === env.id &&
           r.elementId     === table.id &&
@@ -427,14 +441,25 @@ async function executeTool (name, args) {
           ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
         )),
       )
-      return { id: env.id, name: env.name, availableSlots }
+
+      // Distinguish "fully booked" from "no table big enough"
+      const allTables = env.elements.filter(el => el.type?.startsWith('table_'))
+      const hasCapacity = allTables.some(el => (el.capacity ?? 0) >= guestCount)
+
+      return {
+        id:             env.id,
+        name:           env.name,
+        availableSlots,
+        unavailableReason: availableSlots.length === 0
+          ? (hasCapacity ? 'fully_booked' : 'no_table_large_enough')
+          : null,
+      }
     })
 
-    return { date: args.date, environments }
+    return { date: args.date, guests: guestCount, environments }
   }
 
   if (name === 'request_text_input') {
-    // Suspend the agentic loop until the user submits the text overlay
     return new Promise(resolve => {
       pendingTextInput.value = {
         label:       args.label       ?? 'Your phone number',
@@ -446,14 +471,31 @@ async function executeTool (name, args) {
   }
 
   if (name === 'confirm_reservation') {
-    // Auto-assign first free table in the chosen environment
-    let elementId = null
-    if (args.environmentId) {
+    const guestCount = parseInt(args.guests, 10) || 1
+
+    // Guard: past date
+    const today = new Date().toISOString().split('T')[0]
+    if (args.date < today) {
+      return { error: 'past_date', message: 'Cannot book a reservation in the past.' }
+    }
+
+    // Guard: working hours
+    if (!WORKING_HOURS.includes(args.time)) {
+      return { error: 'invalid_time', message: `${args.time} is outside working hours (18:00–22:00).` }
+    }
+
+    // Find a free table with sufficient capacity
+    let elementId     = null
+    let environmentId = args.environmentId ?? null
+
+    if (environmentId) {
       const venueEnvs = getEnvironmentsByVenue(props.venue?.id)
-      const env = venueEnvs.find(e => String(e.id) === String(args.environmentId))
+      const env = venueEnvs.find(e => String(e.id) === String(environmentId))
       if (env) {
-        const tables = env.elements.filter(el => el.type?.startsWith('table_'))
-        const freeTable = tables.find(table => !RESERVATION_LIST.some(r =>
+        const eligible = env.elements.filter(
+          el => el.type?.startsWith('table_') && (el.capacity ?? 0) >= guestCount,
+        )
+        const freeTable = eligible.find(table => !RESERVATION_LIST.some(r =>
           r.venueId       === props.venue?.id &&
           r.environmentId === env.id &&
           r.elementId     === table.id &&
@@ -461,14 +503,17 @@ async function executeTool (name, args) {
           r.time          === args.time &&
           ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
         ))
-        elementId = freeTable?.id ?? null
+        if (!freeTable) {
+          return { error: 'no_availability', message: 'No suitable table available for that slot. Please choose another time.' }
+        }
+        elementId = freeTable.id
       }
     }
 
     const res = new Reservation({
       id:            Date.now(),
       venueId:       props.venue.id,
-      environmentId: args.environmentId ?? null,
+      environmentId,
       elementId,
       userId:        session.email,
       name:          `${session.first_name} ${session.last_name}`,
@@ -476,7 +521,7 @@ async function executeTool (name, args) {
       phone:         args.phone,
       date:          args.date,
       time:          args.time,
-      guests:        parseInt(args.guests, 10),
+      guests:        guestCount,
       notes:         args.notes ?? '',
       status:        'REQUESTED',
     })

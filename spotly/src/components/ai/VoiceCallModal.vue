@@ -181,7 +181,7 @@ const TOOLS = [
         type: 'object',
         properties: {
           date:          { type: 'string', description: 'YYYY-MM-DD' },
-          time:          { type: 'string', description: 'HH:MM 24-hour format' },
+          time:          { type: 'string', description: 'HH:MM 24-hour format (convert from AM/PM if needed, e.g. "8:00 PM" → "20:00")' },
           guests:        { type: 'string', description: 'Number of guests, e.g. "4"' },
           notes:         { type: 'string', description: 'Occasion or special request, empty string if none' },
           phone:         { type: 'string', description: 'The phone number the guest typed in the text field' },
@@ -228,7 +228,7 @@ Collect reservation details through a natural voice conversation.
 
 TOOL RULES — follow these exactly, no exceptions:
 1. check_availability  → call immediately when the guest mentions any date. Pass the guest count you already collected. Resolve relative dates to YYYY-MM-DD using today: ${today} and tomorrow: ${tomorrow}. The result includes per-environment available slots filtered to tables that fit the party, plus an unavailableReason field ("fully_booked" or "no_table_large_enough") when an environment has no slots.
-2. request_text_input  → call ONLY after you have confirmed: guests count, date, environment, time slot, AND occasion/notes. Never before.
+2. request_text_input  → PHONE NUMBER ONLY. This tool opens a text field in the UI for the guest to type their number. Call it ONLY after you have all of: guests count, date, environment, time slot, AND occasion/notes. Say something like "Could I get your phone number?" then IMMEDIATELY call this tool — do not wait for a voice reply, do not describe what you are doing, just call it. The UI shows the field automatically.
 3. confirm_reservation → call ONLY after guest says yes/confirm AND phone number was collected via request_text_input. Always pass environmentId. The tool re-validates everything server-side and returns an error field if something is wrong — relay the error naturally and ask the guest to choose again.
 4. end_call            → call with reason "user_cancelled" after saying a brief goodbye when the guest wants to cancel/stop/hang up. Call with reason "reservation_complete" after confirm_reservation succeeds.
 
@@ -236,15 +236,16 @@ COLLECTION ORDER:
 1. Number of guests (voice)
 2. Date (voice) → immediately call check_availability(date, guests)
 3. Environment — present environments that have availability; if only one has slots, select it automatically without asking. Use the environment id from results.
-4. Time slot from that environment's availableSlots list (voice) — never suggest a time not in the list
+4. Time slot from that environment's availableSlots list (voice) — always present times in AM/PM format (e.g. "6:00 PM", "8:30 PM"), never 24-hour
 5. Occasion or special notes — optional, accept "no special occasion" (voice)
-6. Phone number → CALL request_text_input immediately. Do NOT say you opened a field — just call the tool. The UI handles it.
-7. Read back a summary (guests, date, environment name, time, notes), ask the guest to confirm
+6. Phone number — ask for it, then IMMEDIATELY call request_text_input. Do NOT say you opened a field or wait for a voice reply. Just call the tool.
+7. Read back a summary (guests, date, environment name, time in AM/PM, notes), ask the guest to confirm
 8. On confirmation → call confirm_reservation (include environmentId), then end_call(reservation_complete)
 
 STYLE:
 - One short sentence per turn, never more
 - Warm and natural, not robotic
+- Always say times in AM/PM format when speaking (e.g. "7:00 PM", never "19:00")
 - If the guest corrects something (e.g. "actually make it 6 people"), re-call check_availability with the updated count
 - If check_availability returns error "past_date", apologise and ask for a future date
 - If an environment has unavailableReason "no_table_large_enough", tell the guest there's no table big enough for their party in that area
@@ -707,7 +708,8 @@ async function startCall () {
   messages.value.push({ role: 'system', content: buildSystemPrompt() })
 
   // Hardcoded greeting for instant start — no extra API call
-  const greeting = `Hi, welcome to ${props.venue?.name ?? 'our venue'}. I'm your AI reservation assistant. How many guests will be joining you?`
+  const guestFirstName = session?.name?.split(' ')[0] || 'there'
+  const greeting = `Hi ${guestFirstName}, welcome to ${props.venue?.name ?? 'our venue'}. I'm your AI reservation assistant. How many guests will be joining you?`
   messages.value.push({ role: 'assistant', content: greeting })
   liveFeed.value.push({ role: 'ai', text: greeting })
   scrollFeed()

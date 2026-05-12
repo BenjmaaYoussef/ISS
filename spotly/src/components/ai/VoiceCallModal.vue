@@ -213,7 +213,7 @@ function buildSystemPrompt () {
   const today     = now.toISOString().split('T')[0]
   const todayLong = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
   const tomorrow  = new Date(now.getTime() + 86_400_000).toISOString().split('T')[0]
-  const guestName = session ? `${session.first_name} ${session.last_name}` : 'the guest'
+  const guestName = session?.name || 'the guest'
 
   const envs = getEnvironmentsByVenue(props.venue?.id)
   const envList = envs.map(e => `  - ${e.name} (id: ${e.id})`).join('\n')

@@ -325,7 +325,6 @@
   import { useSnackbar } from '@/composables/useSnackbar'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { RESERVATION_LIST, updateReservationStatus } from '@/datamodel/Reservation.js'
-  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
   import { getReviewByReservation, REVIEW_LIST } from '@/datamodel/Review.js'
   import { VENUE_LIST } from '@/datamodel/Venue.js'
 
@@ -483,16 +482,6 @@
     if (res) {
       const prev = res.status
       updateReservationStatus(res.id, 'CANCELLED')
-      addReservationLog(
-        new ReservationLog({
-          id: Date.now(),
-          reservationId: res.id,
-          previousStatus: prev,
-          newStatus: 'CANCELLED',
-          timestamp: new Date().toISOString(),
-          actorRole: 'client',
-        }),
-      )
     }
     cancelDialog.value = false
     notify('Reservation cancelled successfully', '#C71585', 'mdi-close-circle')

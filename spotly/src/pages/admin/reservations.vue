@@ -283,7 +283,6 @@
   import { useAuth } from '@/composables/useAuth'
   import { useSnackbar } from '@/composables/useSnackbar'
   import { RESERVATION_LIST, updateReservationStatus } from '@/datamodel/Reservation'
-  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog'
   import { getVenueByAdminEmail } from '@/datamodel/Venue.js'
 
   const router = useRouter()
@@ -321,14 +320,6 @@
     if (!res) return
     const prev = res.status
     updateReservationStatus(res.id, 'REJECTED')
-    addReservationLog(new ReservationLog({
-      id: Date.now(),
-      reservationId: res.id,
-      previousStatus: prev,
-      newStatus: 'REJECTED',
-      timestamp: new Date().toISOString(),
-      actorRole,
-    }))
     notifyError(`Reservation #${res.id} rejected`)
     rejectDialog.value = false
     pendingRejectRes.value = null
@@ -351,14 +342,6 @@
   function approve (res) {
     const prev = res.status
     updateReservationStatus(res.id, 'APPROVED')
-    addReservationLog(new ReservationLog({
-      id: Date.now(),
-      reservationId: res.id,
-      previousStatus: prev,
-      newStatus: 'APPROVED',
-      timestamp: new Date().toISOString(),
-      actorRole,
-    }))
     notifySuccess(`Reservation #${res.id} approved`)
   }
   // ─── Helpers ──────────────────────────────────────────────────────────────────

@@ -94,7 +94,6 @@
   import { useAI } from '@/composables/useAI.js'
   import { getEnvironmentsByVenue } from '@/datamodel/Environment.js'
   import { addReservation, Reservation, RESERVATION_LIST } from '@/datamodel/Reservation.js'
-  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
 
   // ── Props / emits ─────────────────────────────────────────────────────────────
   const props = defineProps({
@@ -555,14 +554,6 @@ STYLE:
         status: 'REQUESTED',
       })
       addReservation(res)
-      addReservationLog(new ReservationLog({
-        id: Date.now(),
-        reservationId: res.id,
-        previousStatus: null,
-        newStatus: 'REQUESTED',
-        timestamp: new Date().toISOString(),
-        actorRole: 'client',
-      }))
       sessionStorage.setItem('spotly_pending_reservation_id', String(res.id))
       completedResId.value = res.id
       return { success: true, reservationId: res.id }

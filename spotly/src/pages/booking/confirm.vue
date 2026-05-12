@@ -287,7 +287,6 @@
   import AppNavbarVenue from '@/components/layout/AppNavbarVenue.vue'
   import BookingStepIndicator from '@/components/ui/BookingStepIndicator.vue'
   import { addReservation, Reservation, RESERVATION_LIST } from '@/datamodel/Reservation.js'
-  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
   import { VENUE_LIST } from '@/datamodel/Venue.js'
 
   const route = useRoute()
@@ -397,16 +396,6 @@
           guests: item.guests,
           notes: form.value.notes || item.notes,
           status: 'REQUESTED',
-        }),
-      )
-      addReservationLog(
-        new ReservationLog({
-          id: Date.now() + idx,
-          reservationId: resId,
-          previousStatus: null,
-          newStatus: 'REQUESTED',
-          timestamp: new Date().toISOString(),
-          actorRole: 'client',
         }),
       )
     }

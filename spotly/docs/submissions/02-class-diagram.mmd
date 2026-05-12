@@ -82,15 +82,6 @@ classDiagram
         +String status
     }
 
-    class ReservationLog {
-        +String id
-        +String reservationId
-        +String previousStatus
-        +String newStatus
-        +String timestamp
-        +String actorRole
-    }
-
     class Review {
         +String id
         +String reservationId
@@ -142,5 +133,4 @@ classDiagram
     Environment "0..*" --> "0..*" MenuItem : environmentIds
 
     %% Reservation associations
-    Reservation "1" --> "0..*" ReservationLog : reservationId
     Reservation "1" --> "0..1" Review : reservationId

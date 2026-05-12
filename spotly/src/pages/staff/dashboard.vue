@@ -254,7 +254,6 @@
   import { useSnackbar } from '@/composables/useSnackbar'
   import { ENVIRONMENT_LIST } from '@/datamodel/Environment.js'
   import { addReservation, getReservationById, Reservation, RESERVATION_LIST, updateReservationStatus } from '@/datamodel/Reservation.js'
-  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
   import { getVenueById } from '@/datamodel/Venue.js'
   import { VENUE_STAFF_LIST } from '@/datamodel/VenueStaff.js'
   import { acknowledgeWaiterCall, getPendingCallsByVenue, WAITER_CALL_LIST } from '@/datamodel/WaiterCall.js'
@@ -446,14 +445,6 @@
       if (res) {
         const prev = res.status
         updateReservationStatus(payload.id, 'CHECKED_IN')
-        addReservationLog(new ReservationLog({
-          id: Date.now(),
-          reservationId: payload.id,
-          previousStatus: prev,
-          newStatus: 'CHECKED_IN',
-          timestamp: new Date().toISOString(),
-          actorRole: 'staff',
-        }))
       }
     }
     checkInDialog.value = false
@@ -466,14 +457,6 @@
       if (res) {
         const prev = res.status
         updateReservationStatus(payload.id, 'NO_SHOW')
-        addReservationLog(new ReservationLog({
-          id: Date.now() + 1,
-          reservationId: payload.id,
-          previousStatus: prev,
-          newStatus: 'NO_SHOW',
-          timestamp: new Date().toISOString(),
-          actorRole: 'staff',
-        }))
       }
     }
     checkInDialog.value = false
@@ -576,14 +559,6 @@
     if (res?.status === 'CHECKED_IN') {
       const prev = res.status
       updateReservationStatus(res.id, 'COMPLETED')
-      addReservationLog(new ReservationLog({
-        id: Date.now(),
-        reservationId: res.id,
-        previousStatus: prev,
-        newStatus: 'COMPLETED',
-        timestamp: new Date().toISOString(),
-        actorRole: 'staff',
-      }))
     }
     detailDialog.value = false
     notify(`${t.id} checked out`, '#2EBB57', 'mdi-logout')

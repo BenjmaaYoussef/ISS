@@ -422,7 +422,6 @@
     RESERVATION_LIST,
     updateReservationStatus,
   } from '@/datamodel/Reservation.js'
-  import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
   import { VENUE_LIST } from '@/datamodel/Venue.js'
 
   const router = useRouter()
@@ -491,16 +490,6 @@
     if (!pendingId.value) return
     const prev = currentReservation.value?.status ?? 'REQUESTED'
     updateReservationStatus(pendingId.value, 'CANCELLED')
-    addReservationLog(
-      new ReservationLog({
-        id: Date.now(),
-        reservationId: pendingId.value,
-        previousStatus: prev,
-        newStatus: 'CANCELLED',
-        timestamp: new Date().toISOString(),
-        actorRole: 'client',
-      }),
-    )
     router.push('/client/dashboard')
   }
 
@@ -510,16 +499,6 @@
     const newStatus = decision === 'approved' ? 'APPROVED' : 'REJECTED'
     const prev = currentReservation.value?.status ?? 'REQUESTED'
     updateReservationStatus(pendingId.value, newStatus)
-    addReservationLog(
-      new ReservationLog({
-        id: Date.now(),
-        reservationId: pendingId.value,
-        previousStatus: prev,
-        newStatus,
-        timestamp: new Date().toISOString(),
-        actorRole: 'admin',
-      }),
-    )
   }
 </script>
 

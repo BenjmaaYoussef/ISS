@@ -94,6 +94,7 @@ import { useRouter } from 'vue-router'
 import { useAI } from '@/composables/useAI.js'
 import { addReservation, Reservation, RESERVATION_LIST } from '@/datamodel/Reservation.js'
 import { addReservationLog, ReservationLog } from '@/datamodel/ReservationLog.js'
+import { getEnvironmentsByVenue } from '@/datamodel/Environment.js'
 
 // ── Props / emits ─────────────────────────────────────────────────────────────
 const props = defineProps({
@@ -145,11 +146,11 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'check_availability',
-      description: 'Check available time slots for this venue on a given date. Call this immediately when the guest provides any date.',
+      description: 'Check available time slots per environment for a given date. Call immediately when the guest mentions any date. Returns each environment with its available slots so you can present options to the guest.',
       parameters: {
         type: 'object',
         properties: {
-          date: { type: 'string', description: 'ISO date YYYY-MM-DD — resolve relative dates like "next Saturday" using today\'s date from the system prompt' },
+          date: { type: 'string', description: 'ISO date YYYY-MM-DD — resolve relative dates using today\'s date from the system prompt' },
         },
         required: ['date'],
       },
@@ -178,13 +179,14 @@ const TOOLS = [
       parameters: {
         type: 'object',
         properties: {
-          date:   { type: 'string', description: 'YYYY-MM-DD' },
-          time:   { type: 'string', description: 'HH:MM 24-hour format' },
-          guests: { type: 'string', description: 'Number of guests, e.g. "4"' },
-          notes:  { type: 'string', description: 'Occasion or special request, empty string if none' },
-          phone:  { type: 'string', description: 'The phone number the guest typed in the text field' },
+          date:          { type: 'string', description: 'YYYY-MM-DD' },
+          time:          { type: 'string', description: 'HH:MM 24-hour format' },
+          guests:        { type: 'string', description: 'Number of guests, e.g. "4"' },
+          notes:         { type: 'string', description: 'Occasion or special request, empty string if none' },
+          phone:         { type: 'string', description: 'The phone number the guest typed in the text field' },
+          environmentId: { type: 'string', description: 'The id of the environment the guest chose, from check_availability results' },
         },
-        required: ['date', 'time', 'guests', 'notes', 'phone'],
+        required: ['date', 'time', 'guests', 'notes', 'phone', 'environmentId'],
       },
     },
   },
@@ -211,31 +213,39 @@ function buildSystemPrompt () {
   const todayLong = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
   const tomorrow  = new Date(now.getTime() + 86_400_000).toISOString().split('T')[0]
   const guestName = session ? `${session.first_name} ${session.last_name}` : 'the guest'
+
+  const envs = getEnvironmentsByVenue(props.venue?.id)
+  const envList = envs.map(e => `  - ${e.name} (id: ${e.id})`).join('\n')
+
   return `You are a warm, professional reservation assistant for ${props.venue?.name ?? 'this venue'}.
 Today is ${todayLong} (${today}). Tomorrow is ${tomorrow}. The guest's name is ${guestName}.
+
+VENUE ENVIRONMENTS (seating areas available at this venue):
+${envList || '  - Main area'}
 
 Collect reservation details through a natural voice conversation.
 
 TOOL RULES — follow these exactly, no exceptions:
-1. check_availability  → call immediately when the guest mentions any date. Resolve relative dates (e.g. "next Saturday", "tomorrow") to YYYY-MM-DD using today: ${today} and tomorrow: ${tomorrow}.
-2. request_text_input  → call ONLY after you have confirmed: guests count, date, time slot, AND occasion/notes. Never before.
-3. confirm_reservation → call ONLY after guest says yes/confirm AND phone number was collected via request_text_input.
+1. check_availability  → call immediately when the guest mentions any date. Resolve relative dates (e.g. "next Saturday", "tomorrow") to YYYY-MM-DD using today: ${today} and tomorrow: ${tomorrow}. It returns each environment with its available time slots.
+2. request_text_input  → call ONLY after you have confirmed: guests count, date, environment, time slot, AND occasion/notes. Never before.
+3. confirm_reservation → call ONLY after guest says yes/confirm AND phone number was collected via request_text_input. Always pass the environmentId from the check_availability result.
 4. end_call            → call with reason "user_cancelled" after saying a brief goodbye when the guest wants to cancel/stop/hang up. Call with reason "reservation_complete" after confirm_reservation succeeds.
 
 COLLECTION ORDER:
 1. Number of guests (voice)
 2. Date (voice) → immediately call check_availability
-3. Time slot from the available list (voice)
-4. Occasion or special notes — optional, accept "no special occasion" (voice)
-5. Phone number → CALL request_text_input immediately. Do NOT say you opened a field — just call the tool. The UI handles it.
-6. Read back a summary of all details, ask the guest to confirm
-7. On confirmation → call confirm_reservation, then end_call(reservation_complete)
+3. Environment — present the environments that have availability and ask for preference. If only one environment has slots, select it automatically without asking. Use the environment id from check_availability results.
+4. Time slot from that environment's available list (voice)
+5. Occasion or special notes — optional, accept "no special occasion" (voice)
+6. Phone number → CALL request_text_input immediately. Do NOT say you opened a field — just call the tool. The UI handles it.
+7. Read back a summary of all details (guests, date, environment name, time, notes), ask the guest to confirm
+8. On confirmation → call confirm_reservation (include environmentId), then end_call(reservation_complete)
 
 STYLE:
 - One short sentence per turn, never more
 - Warm and natural, not robotic
 - If the guest corrects something (e.g. "actually make it 6 people"), acknowledge and update
-- If no time slots are available on the chosen date, apologise and suggest trying another date`
+- If an environment has no available slots on the chosen date, say so and suggest another date or environment`
 }
 
 // ── TTS — ElevenLabs (primary) + browser SpeechSynthesis (fallback) ──────────
@@ -402,15 +412,25 @@ function pushToolActivity (name, args) {
 async function executeTool (name, args) {
   if (name === 'check_availability') {
     const ALL_SLOTS = ['18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00']
-    const taken = RESERVATION_LIST
-      .filter(r =>
-        r.venueId === props.venue?.id &&
-        r.date    === args.date &&
-        ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
+    const venueEnvs = getEnvironmentsByVenue(props.venue?.id)
+
+    const environments = venueEnvs.map(env => {
+      const tables = env.elements.filter(el => el.type?.startsWith('table_'))
+      const availableSlots = ALL_SLOTS.filter(slot =>
+        // slot is available if at least one table in this env is free
+        tables.some(table => !RESERVATION_LIST.some(r =>
+          r.venueId       === props.venue?.id &&
+          r.environmentId === env.id &&
+          r.elementId     === table.id &&
+          r.date          === args.date &&
+          r.time          === slot &&
+          ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
+        )),
       )
-      .map(r => r.time)
-    const available = ALL_SLOTS.filter(s => !taken.includes(s))
-    return { available, busy: taken, date: args.date }
+      return { id: env.id, name: env.name, availableSlots }
+    })
+
+    return { date: args.date, environments }
   }
 
   if (name === 'request_text_input') {
@@ -426,11 +446,30 @@ async function executeTool (name, args) {
   }
 
   if (name === 'confirm_reservation') {
+    // Auto-assign first free table in the chosen environment
+    let elementId = null
+    if (args.environmentId) {
+      const venueEnvs = getEnvironmentsByVenue(props.venue?.id)
+      const env = venueEnvs.find(e => String(e.id) === String(args.environmentId))
+      if (env) {
+        const tables = env.elements.filter(el => el.type?.startsWith('table_'))
+        const freeTable = tables.find(table => !RESERVATION_LIST.some(r =>
+          r.venueId       === props.venue?.id &&
+          r.environmentId === env.id &&
+          r.elementId     === table.id &&
+          r.date          === args.date &&
+          r.time          === args.time &&
+          ['REQUESTED', 'APPROVED', 'CHECKED_IN'].includes(r.status),
+        ))
+        elementId = freeTable?.id ?? null
+      }
+    }
+
     const res = new Reservation({
       id:            Date.now(),
       venueId:       props.venue.id,
-      environmentId: null,
-      elementId:     null,
+      environmentId: args.environmentId ?? null,
+      elementId,
       userId:        session.email,
       name:          `${session.first_name} ${session.last_name}`,
       email:         session.email,

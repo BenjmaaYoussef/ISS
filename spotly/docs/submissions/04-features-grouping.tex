@@ -119,10 +119,9 @@ feature.
 
     F7 &
     Reservation Submission &
-    \textbf{Reservation}, \textbf{ReservationLog} ---
+    \textbf{Reservation} ---
     A new \texttt{Reservation} record is created with status
-    \texttt{REQUESTED}. A corresponding \texttt{ReservationLog} entry
-    is created to record the initial status transition. \\
+    \texttt{REQUESTED}. \\
     \addlinespace
 
     F8 &
@@ -162,10 +161,9 @@ feature.
 
     F12 &
     Admin Dashboard and Overview &
-    \textbf{Venue}, \textbf{Reservation}, \textbf{ReservationLog} ---
+    \textbf{Venue}, \textbf{Reservation} ---
     The admin's \texttt{Venue} record is read for the greeting.
-    \texttt{Reservation} records are aggregated to compute statistics.
-    \texttt{ReservationLog} records are read for trend data. \\
+    \texttt{Reservation} records are aggregated to compute statistics. \\
     \addlinespace
 
     F13 &
@@ -188,12 +186,10 @@ feature.
 
     F15 &
     Reservation Queue Management &
-    \textbf{Reservation}, \textbf{ReservationLog} ---
+    \textbf{Reservation} ---
     All \texttt{Reservation} records for the venue are read and
     filtered. On approval or rejection, the target
-    \texttt{Reservation} status is updated and a new
-    \texttt{ReservationLog} entry is created to record the admin
-    action. \\
+    \texttt{Reservation} status is updated. \\
     \addlinespace
 
     F16 &
@@ -222,13 +218,12 @@ feature.
 
     F19 &
     Staff Operations Dashboard &
-    \textbf{Reservation}, \textbf{ReservationLog},
-    \textbf{VenueStaff}, \textbf{WaiterCall} ---
+    \textbf{Reservation}, \textbf{VenueStaff}, \textbf{WaiterCall} ---
     \texttt{VenueStaff} is read to verify access and determine the
     associated venue. \texttt{Reservation} records are read and
     filtered by date and environment for the floor map. Status
     transitions (check-in, check-out, no-show, walk-in) update the
-    \texttt{Reservation} and create \texttt{ReservationLog} entries.
+    \texttt{Reservation} status directly.
     \texttt{WaiterCall} records are read for live alerts and updated
     on acknowledgement. \\
     \addlinespace
@@ -279,12 +274,11 @@ feature.
 
     F23 &
     AI Reservation Insights &
-    \textbf{Reservation}, \textbf{ReservationLog} ---
+    \textbf{Reservation} ---
     \texttt{Reservation} records for the past 30~days are aggregated
     (totals, status breakdown, day-of-week distribution, hour
-    distribution, average guest count). \texttt{ReservationLog}
-    entries may be consulted for trend context. The aggregated
-    statistics are forwarded to the AI; no records are written. \\
+    distribution, average guest count). The aggregated statistics are
+    forwarded to the AI; no records are written. \\
 
 \end{longtable}
 

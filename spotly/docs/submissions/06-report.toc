@@ -1,0 +1,60 @@
+\contentsline {chapter}{Acknowledgement}{i}{chapter*.1}%
+\contentsline {chapter}{Introduction}{1}{chapter*.2}%
+\contentsline {chapter}{\numberline {1}Analysis and Requirement Specification}{2}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Introduction}{2}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Description of the Project}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objectives}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Target Customers}{3}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Value Proposition}{3}{section.1.5}%
+\contentsline {section}{\numberline {1.6}System Roles}{3}{section.1.6}%
+\contentsline {section}{\numberline {1.7}Features}{4}{section.1.7}%
+\contentsline {subsection}{\numberline {1.7.1}Phase 1 --- Core Features}{4}{subsection.1.7.1}%
+\contentsline {subsection}{\numberline {1.7.2}Phase 2 --- AI-Powered Features}{7}{subsection.1.7.2}%
+\contentsline {section}{\numberline {1.8}Conclusion}{8}{section.1.8}%
+\contentsline {chapter}{\numberline {2}Planning}{9}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Introduction}{9}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Team Members}{9}{section.2.2}%
+\contentsline {section}{\numberline {2.3}List of Tasks}{9}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Task Schedule}{9}{subsection.2.3.1}%
+\contentsline {section}{\numberline {2.4}Conclusion}{13}{section.2.4}%
+\contentsline {chapter}{\numberline {3}Software Design}{14}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Introduction}{14}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Navigation Diagram}{14}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Sketching}{16}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Public Area}{16}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Booking Flow}{18}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Client Area}{19}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Admin Area}{20}{subsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.3.5}Staff Area}{23}{subsection.3.3.5}%
+\contentsline {section}{\numberline {3.4}UI Design System}{24}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Data Model Diagram}{25}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Conclusion}{27}{section.3.6}%
+\contentsline {chapter}{\numberline {4}Project Implementation}{28}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Introduction}{28}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Hardware Environment}{28}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Software Environment}{28}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Technological Choices}{29}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Advanced Technologies}{31}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}AI Semantic Venue Discovery (F22)}{31}{subsection.4.5.1}%
+\contentsline {subsubsection}{Flow}{31}{subsubsection*.22}%
+\contentsline {subsubsection}{Implementation notes}{31}{subsubsection*.23}%
+\contentsline {subsection}{\numberline {4.5.2}AI Reservation Insights (F23)}{31}{subsection.4.5.2}%
+\contentsline {subsubsection}{Payload aggregation}{31}{subsubsection*.24}%
+\contentsline {subsubsection}{7-Day Outlook tab}{32}{subsubsection*.25}%
+\contentsline {subsubsection}{Follow-up Q\&A}{32}{subsubsection*.26}%
+\contentsline {subsubsection}{Persistence}{32}{subsubsection*.27}%
+\contentsline {subsection}{\numberline {4.5.3}AI Voice Reservation Agent (F21)}{32}{subsection.4.5.3}%
+\contentsline {subsubsection}{What makes it an agent}{33}{subsubsection*.28}%
+\contentsline {subsubsection}{The four tools}{33}{subsubsection*.29}%
+\contentsline {subsubsection}{Non-traditional aspects of this tool use}{34}{subsubsection*.30}%
+\contentsline {subsubsection}{Voice I/O}{34}{subsubsection*.31}%
+\contentsline {subsubsection}{Live transcript}{35}{subsubsection*.32}%
+\contentsline {section}{\numberline {4.6}User Interfaces}{35}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Public Area}{36}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Booking Flow}{38}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Client Area}{38}{subsection.4.6.3}%
+\contentsline {subsection}{\numberline {4.6.4}Admin Area}{39}{subsection.4.6.4}%
+\contentsline {subsection}{\numberline {4.6.5}Staff Area}{42}{subsection.4.6.5}%
+\contentsline {section}{\numberline {4.7}Conclusion}{43}{section.4.7}%
+\contentsline {chapter}{General Conclusion}{44}{chapter*.50}%
+\contentsline {chapter}{\numberline {A}Use Case Scenarios}{46}{appendix.A}%

@@ -37,7 +37,7 @@
 % ─── Introduction ────────────────────────────────────────────────────────────
 \section{Overview}
 
-The Spotly data model consists of \textbf{nine entity classes} persisted in
+The Spotly data model consists of \textbf{eight entity classes} persisted in
 the browser's local storage. Each class has a dedicated storage key and
 follows a reactive CRUD pattern. There is no backend: the application is
 entirely frontend-driven and data is shared across browser tabs via the
@@ -62,7 +62,6 @@ child objects have no independent existence outside their parent.
     Environment     & \texttt{spotly\_environments}      & Contains embedded \texttt{FloorElement} array \\
     MenuItem        & \texttt{spotly\_menu\_items}       & Scoped to venue; optionally to specific environments \\
     Reservation     & \texttt{spotly\_reservations}      & \RaggedRight Status: REQUESTED $|$ APPROVED $|$ REJECTED $|$ CANCELLED $|$ CHECKED\_IN $|$ COMPLETED $|$ NO\_SHOW \\
-    ReservationLog  & \texttt{spotly\_reservation\_logs} & Immutable audit trail; \texttt{actorRole}: client $|$ admin $|$ staff \\
     Review          & \texttt{spotly\_reviews}           & Status: VISIBLE $|$ HIDDEN \\
     VenueStaff      & \texttt{spotly\_venue\_staff}      & Junction table linking User to Venue as staff \\
     WaiterCall      & \texttt{spotly\_waiter\_calls}     & Status: pending $|$ acknowledged \\

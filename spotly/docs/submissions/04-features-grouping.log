@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.4.20)  12 MAY 2026 12:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.4.20)  12 MAY 2026 12:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -449,9 +449,11 @@ File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 
 {/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/loc
 al/texlive/2025/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}] [2{/usr/local/texlive
-/2025/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}] [3] [4]
+/2025/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
 
-[5] (./04-features-grouping.aux)
+[3]
+
+[4] (./04-features-grouping.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -460,9 +462,9 @@ Package rerunfilecheck Info: File `04-features-grouping.out' has not changed.
 (rerunfilecheck)             Checksum: 552BA94161284A7B08EE777F7B8814AF;376.
  ) 
 Here is how much of TeX's memory you used:
- 10080 strings out of 473190
- 155554 string characters out of 5715800
- 588894 words of memory out of 5000000
+ 10079 strings out of 473190
+ 155548 string characters out of 5715800
+ 587894 words of memory out of 5000000
  33203 multiletter control sequences out of 15000+600000
  596501 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -473,10 +475,10 @@ cal/texlive/2025/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive
 -dist/fonts/type1/public/lm/lmri12.pfb></usr/local/texlive/2025/texmf-dist/font
 s/type1/public/lm/lmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/pu
 blic/lm/lmtt12.pfb>
-Output written on 04-features-grouping.pdf (5 pages, 141530 bytes).
+Output written on 04-features-grouping.pdf (4 pages, 140284 bytes).
 PDF statistics:
- 74 PDF objects out of 1000 (max. 8388607)
- 54 compressed objects within 1 object stream
- 10 named destinations out of 1000 (max. 500000)
+ 70 PDF objects out of 1000 (max. 8388607)
+ 51 compressed objects within 1 object stream
+ 9 named destinations out of 1000 (max. 500000)
  17 words of extra memory for PDF output out of 10000 (max. 10000000)
 

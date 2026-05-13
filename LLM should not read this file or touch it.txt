@@ -1,0 +1,23 @@
+In page 3, The admin doesn't have a side bar
+# Right after the sketches we created a UI design system so all team members follow it. talk about it
+
+###chapter 2
+# Wireframe sketches are done by all team members
+# Lina: Staff Dashboard, Admin dashboard,Menu Management QR Code generator
+# Rest in Youssef
+
+
+##Task schedule
+#Sketching session => all 
+#Vuetify 3 => all
+#Before starting AI, add a AI brainstorming of ideas for all
+
+
+##chapter 4
+Cyrine: HP, Intel I7, 32GB, Windows 10
+Lina: Lenevo Thinkpad, Intel i7, 8gb ram
+#No Figma design only sketches
+
+#In technological choices, "unplugin-vue-router" and "unplugin-vue-componenets" should word wrap they are entering in next column
+
+#check reserversation function, say it checks between opening hours of the venue

@@ -1,0 +1,24 @@
+The presentation must contain the following slides:
+
+The "welcome" slide (project title, team members, project supervisor, MedTech logo, your App logo if any) [1 slide]
+Overview (Table of content) [1 slide]
+"Chapter 1: Analysis and Requirement Specification" [1 slide containing only the number and title of the chapter]
+The problematic and issue you are willing to solve [1 slide]
+Presenting your solution (not too much details here), its objective, and the target customers [1 slide]
+Present the system roles and related features [1 slide per role]
+"Chapter 2: Planning" [1 slide containing only the number and title of the chapter]
+Planning and task management (simplified; how did what) [1 slide]
+"Chapter 3: Software Design" [1 slide containing only the number and title of the chapter]
+Navigation diagram [1 slide]
+Sketching [max 4 slides]
+Data Model [1 slide]
+"Chapter 4: Project Implementation" [1 slide containing only the number and title of the chapter]
+Hardware Environment [1 slide; very quick]
+Software Environment [1 slide; very quick]
+Technological Choices [1 slide]
+Advanced technologies (if any) [max 2 slides]
+"Demo" [1 slide containing only the number and title of the chapter]
+The demo is a standalone video; not integrated inside the presentation; This is to prevent unpredictable bugs;
+Conclusion [1 slide]
+The "Thank you" slide
+Please note that the slide count is only informative and not restrictive;You can go for more slides if it is all about animation;
